@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta name="robots" content="noindex, nofollow">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Dance &amp; All That Jazz — Shop</title>
@@ -220,9 +219,7 @@ a{color:inherit;text-decoration:none}
           <p style="font-size: 13px; color: #555555; line-height: 1.5; margin: 0;">No account needed. <span style="color: #00ADB5;">*</span> Required</p>
           <div style="font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 700; margin: 22px 0 8px; display: flex; align-items: center; gap: 8px;"><span style="display: inline-flex; width: 20px; height: 20px; border-radius: 50%; background: #111111; color: #FFFFFF; align-items: center; justify-content: center; font-size: 10px; letter-spacing: 0;">1</span>The dancer</div>
           <div class="h-tgrid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0 10px;"><label style="display: block; font-size: 12px; margin-top: 12px;">First name <span style="color: #00ADB5;">*</span><input type="text" autocomplete="off" value="{{tf.first}}" onInput="{{tSet.first}}" style="display: block; width: 100%; box-sizing: border-box; padding: 12px; margin: 5px 0 0; border: 1px solid #CCCCCC; font: inherit; font-size: 14px;"><sc-if value="{{tErr.first}}" hint-placeholder-val="{{ false }}"><span style="display: block; color: #B00020; font-size: 11px; margin-top: 4px;">Add a first name.</span></sc-if></label><label style="display: block; font-size: 12px; margin-top: 12px;">Last name <span style="color: #00ADB5;">*</span><input type="text" autocomplete="off" value="{{tf.last}}" onInput="{{tSet.last}}" style="display: block; width: 100%; box-sizing: border-box; padding: 12px; margin: 5px 0 0; border: 1px solid #CCCCCC; font: inherit; font-size: 14px;"><sc-if value="{{tErr.last}}" hint-placeholder-val="{{ false }}"><span style="display: block; color: #B00020; font-size: 11px; margin-top: 4px;">Add a last name.</span></sc-if></label></div>
-          <div style="display: block; font-size: 12px; margin-top: 12px;">Age <span style="color: #00ADB5;">*</span></div>
-          <div role="group" aria-label="Dancer age" class="h-chips" data-keep-scroll="tAge" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px;"><sc-for list="{{tAgeChips}}" as="x" hint-placeholder-count="6"><button type="button" onClick="{{x.pick}}" aria-pressed="{{x.pressed}}" style="{{x.style}}">{{x.label}}</button></sc-for></div>
-          <sc-if value="{{tErr.age}}" hint-placeholder-val="{{ false }}"><span style="display: block; color: #B00020; font-size: 11px; margin-top: 4px;">Pick an age so we can show the right classes.</span></sc-if>
+          <label style="display: block; font-size: 12px; margin-top: 12px;">Date of birth <span style="color: #00ADB5;">*</span><input type="text" inputmode="numeric" autocomplete="bday" placeholder="MM/DD/YYYY" maxlength="10" value="{{tf.dob}}" onInput="{{tSet.dob}}" style="display: block; width: 100%; max-width: 220px; box-sizing: border-box; padding: 12px; margin: 5px 0 0; border: 1px solid #CCCCCC; font: inherit; font-size: 14px;"><sc-if value="{{tDobHint}}" hint-placeholder-val="{{ false }}"><span style="display: block; color: #555555; font-size: 11px; margin-top: 4px;">{{tDobHint}}</span></sc-if><sc-if value="{{tErr.age}}" hint-placeholder-val="{{ false }}"><span style="display: block; color: #B00020; font-size: 11px; margin-top: 4px;">Add a date of birth, like 03/14/2018.</span></sc-if></label>
           <sc-if value="{{tHasAge}}" hint-placeholder-val="{{ false }}">
             <div style="font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 700; margin: 22px 0 8px; display: flex; align-items: center; gap: 8px;"><span style="display: inline-flex; width: 20px; height: 20px; border-radius: 50%; background: #111111; color: #FFFFFF; align-items: center; justify-content: center; font-size: 10px; letter-spacing: 0;">2</span>Pick a class</div>
             <div role="group" aria-label="Style" class="h-chips" data-keep-scroll="tSty" style="display: flex; flex-wrap: wrap; gap: 6px;"><sc-for list="{{tStyleChips}}" as="x" hint-placeholder-count="5"><button type="button" onClick="{{x.pick}}" aria-pressed="{{x.pressed}}" style="{{x.style}}">{{x.label}}</button></sc-for></div>
@@ -230,7 +227,7 @@ a{color:inherit;text-decoration:none}
               <sc-for list="{{tClasses}}" as="c" hint-placeholder-count="4"><button type="button" onClick="{{c.pick}}" aria-pressed="{{c.pressed}}" style="{{c.style}}"><span style="font-weight: 700; min-width: 74px;">{{c.day}} {{c.time}}</span><span style="flex: 1;">{{c.name}}<span style="display: block; font-size: 11px; opacity: 0.75; margin-top: 2px;">Ages {{c.ages}} · {{c.teacher}} · {{c.studio}}</span></span><span aria-hidden="true">{{c.mark}}</span></button></sc-for>
               <button type="button" onClick="{{tNotSure}}" aria-pressed="{{tNotSurePressed}}" style="{{tNotSureStyle}}"><span style="flex: 1;">Not sure yet — help me pick</span><span aria-hidden="true">{{tNotSureMark}}</span></button>
             </div>
-            <sc-if value="{{tErr.cls}}" hint-placeholder-val="{{ false }}"><span style="display: block; color: #B00020; font-size: 11px; margin-top: 4px;">Pick a class, or choose “help me pick.”</span></sc-if>
+            <sc-if value="{{tErr.cls}}" hint-placeholder-val="{{ false }}"><span style="display: block; color: #B00020; font-size: 11px; margin-top: 4px;">{{tClsMsg}}</span></sc-if>
           </sc-if>
           <div style="font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 700; margin: 22px 0 8px; display: flex; align-items: center; gap: 8px;"><span style="display: inline-flex; width: 20px; height: 20px; border-radius: 50%; background: #111111; color: #FFFFFF; align-items: center; justify-content: center; font-size: 10px; letter-spacing: 0;">3</span>How we reach you</div>
           <label style="display: block; font-size: 12px; margin-top: 12px;">Parent / guardian name <span style="color: #00ADB5;">*</span><input type="text" autocomplete="name" value="{{tf.parent}}" onInput="{{tSet.parent}}" style="display: block; width: 100%; box-sizing: border-box; padding: 12px; margin: 5px 0 0; border: 1px solid #CCCCCC; font: inherit; font-size: 14px;"><sc-if value="{{tErr.parent}}" hint-placeholder-val="{{ false }}"><span style="display: block; color: #B00020; font-size: 11px; margin-top: 4px;">Add your name.</span></sc-if></label>
@@ -328,8 +325,17 @@ a{color:inherit;text-decoration:none}
     const tOK = (c) => !selT.length || selT.includes(c.teacher);
     const toggle = (arr, v) => arr.includes(v) ? arr.filter(x => x !== v) : arr.concat([v]);
     const CHIP = (on) => 'min-height: 40px; padding: 0 14px; border: 1px solid ' + (on ? '#111111' : '#CCCCCC') + '; background: ' + (on ? '#111111' : '#FFFFFF') + '; color: ' + (on ? '#FFFFFF' : '#111111') + '; font-family: inherit; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700; cursor: pointer;';
-    const tf = this.state.tf || {}, tAge = this.state.tAge || '', tStyle = this.state.tStyle || '', tCls = this.state.tCls ?? -2, tTried = this.state.tTried;
+    const tf = this.state.tf || {};
+    const parseDob = (v) => { v = (v || '').trim(); const m = v.match(/^(\d{1,2})\D+(\d{1,2})\D+(\d{4})$/) || v.replace(/\D/g, '').match(/^(\d{2})(\d{2})(\d{4})$/); if (!m) return null;
+      const mo = +m[1], d = +m[2], y = +m[3], dt = new Date(y, mo - 1, d), now = new Date();
+      if (dt.getFullYear() !== y || dt.getMonth() !== mo - 1 || dt.getDate() !== d || dt > now) return null;
+      const yrs = (now - dt) / (365.25 * 864e5); return yrs >= 1 && yrs < 100 ? { yrs: yrs, date: mo + '/' + d + '/' + y } : null; };
+    const dob = parseDob(tf.dob);
+    const dobBand = dob ? (AGEB.find(b => dob.yrs >= b[2] && dob.yrs < b[3] + 1) || null) : null;
+    const ageTxt = dob ? (dob.yrs < 3 ? Math.floor(dob.yrs * 12) + ' months' : Math.floor(dob.yrs)) : '';
+    const tAge = dobBand ? dobBand[0] : (this.state.tAge || ''), tStyle = this.state.tStyle || '', tCls = this.state.tCls ?? -2, tTried = this.state.tTried;
     const fits = (c, k) => { const b = AGEB.find(x => x[0] === k); return !!b && c.lo <= b[3] && c.hi >= b[2]; };
+    const tFits = (c) => dob ? (dob.yrs >= c.lo && dob.yrs < c.hi + 1) : fits(c, tAge);
     const cur = C.find(c => c.id === tCls);
     const tErrs = {};
     if (!(tf.first || '').trim()) tErrs.first = true;
@@ -337,8 +343,8 @@ a{color:inherit;text-decoration:none}
     if (!(tf.parent || '').trim()) tErrs.parent = true;
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((tf.email || '').trim())) tErrs.email = true;
     if ((tf.phone || '').replace(/\D/g, '').length < 10) tErrs.phone = true;
-    if (!tAge) tErrs.age = true;
-    else if (tCls === -2 || (cur && !fits(cur, tAge))) tErrs.cls = true;
+    if (!dob) tErrs.age = true;
+    if (tAge && (tCls === -2 || (cur && !tFits(cur)))) tErrs.cls = true;
     // Free trial booking: Studio Pro Lead Center landing page. Leave '' to use the site's own trial form instead.
     const TRIAL_URL = 'https://app.gostudiopro.com/landing.php?id=2c2617f3-f992-4269-8188-d9e5b405d489';
     // Website sign-ups go to the studio's Google Sheet (Apps Script web app). Paste the web app URL here.
@@ -372,12 +378,13 @@ a{color:inherit;text-decoration:none}
       trial: this.state.trial && (!TRIAL_URL || !!this.state.ownForm), spOpen: !!this.state.trial && !!TRIAL_URL && !this.state.ownForm, trialUrl: TRIAL_URL, sent: this.state.sent, notSent: !this.state.sent, name: this.state.name || 'friend',
       openTrial: () => this.setState({ trial: true, ownForm: false, sent: false, tTried: false }),
       tryClass: C.reduce((o, c) => { o[c.id] = () => this.setState({ trial: true, ownForm: true, sent: false, tTried: false, tCls: c.id, tStyle: '', tAge: (AGEB.find(b => c.lo <= b[3] && c.hi >= b[2]) || AGEB[0])[0] }); return o; }, {}),
-      tf: tf, tSet: ['first','last','parent','email','phone'].reduce((o, k) => { o[k] = (e) => this.setState({ tf: Object.assign({}, this.state.tf, { [k]: e.target.value }) }); return o; }, {}),
+      tf: tf, tSet: ['first','last','dob','parent','email','phone'].reduce((o, k) => { o[k] = (e) => this.setState({ tf: Object.assign({}, this.state.tf, { [k]: e.target.value }) }); return o; }, {}),
       tErr: tTried ? tErrs : {},
-      tAgeChips: AGEB.map(b => ({ label: b[1], on: tAge === b[0], pick: () => this.setState({ tAge: b[0], tStyle: '', tCls: (cur && fits(cur, b[0])) ? tCls : -2 }) })).map(x => Object.assign(x, { style: CHIP(x.on), pressed: x.on ? 'true' : 'false' })),
+      tDobHint: dob ? 'Age ' + ageTxt + ' — showing classes that fit.' : '',
+      tClsMsg: cur && dob && !tFits(cur) ? 'That class is for ages ' + cur.ages + '. Pick one that fits below.' : 'Pick a class, or choose “help me pick.”',
       tHasAge: !!tAge,
-      tStyleChips: tAge ? [{ label: 'Any style', on: !tStyle, pick: () => this.setState({ tStyle: '' }) }].concat(STYLES.filter(st => st !== 'Company' && C.some(c => fits(c, tAge) && !/company/i.test(c.name) && styleOf(c.name).includes(st))).map(st => ({ label: st, on: tStyle === st, pick: () => this.setState({ tStyle: st }) }))).map(x => Object.assign(x, { style: CHIP(x.on), pressed: x.on ? 'true' : 'false' })) : [],
-      tClasses: tAge ? C.filter(c => fits(c, tAge) && (!tStyle || styleOf(c.name).includes(tStyle)) && !/company/i.test(c.name)).map(c => Object.assign({}, c, { pick: () => this.setState({ tCls: c.id }), pressed: tCls === c.id ? 'true' : 'false', mark: tCls === c.id ? '✓' : '', style: TROW(tCls === c.id) })) : [],
+      tStyleChips: tAge ? [{ label: 'Any style', on: !tStyle, pick: () => this.setState({ tStyle: '' }) }].concat(STYLES.filter(st => st !== 'Company' && C.some(c => tFits(c) && !/company/i.test(c.name) && styleOf(c.name).includes(st))).map(st => ({ label: st, on: tStyle === st, pick: () => this.setState({ tStyle: st }) }))).map(x => Object.assign(x, { style: CHIP(x.on), pressed: x.on ? 'true' : 'false' })) : [],
+      tClasses: tAge ? C.filter(c => tFits(c) && (!tStyle || styleOf(c.name).includes(tStyle)) && !/company/i.test(c.name)).map(c => Object.assign({}, c, { pick: () => this.setState({ tCls: c.id }), pressed: tCls === c.id ? 'true' : 'false', mark: tCls === c.id ? '✓' : '', style: TROW(tCls === c.id) })) : [],
       tNotSure: () => this.setState({ tCls: -1 }), tNotSurePressed: tCls === -1 ? 'true' : 'false', tNotSureMark: tCls === -1 ? '✓' : '', tNotSureStyle: TROW(tCls === -1),
       tSummary: tCls >= 0 && cur ? 'Trial request: ' + cur.name.replace(/\u200B/g, '') + ', ' + cur.day + ' ' + cur.time + ' with ' + cur.teacher + '.' : 'We’ll help you pick the right class.',
       isMenu: this.state.menu, menuOpen: this.state.menu ? 'true' : 'false',
@@ -385,7 +392,7 @@ a{color:inherit;text-decoration:none}
       menuTrial: () => this.setState({ menu: false, trial: true, ownForm: false, sent: false }),
       closeTrial: () => this.setState({ trial: false, ownForm: false }),
       setName: (e) => this.setState({ name: e.target.value }),
-      send: () => { if (Object.keys(tErrs).length) { this.setState({ tTried: true }); return; } const ab = AGEB.find(b => b[0] === tAge); postSignup({ type: 'trial', website: tf.website || '', first: tf.first, last: tf.last, age: ab ? ab[1] : '', className: cur ? cur.name.replace(/\u200B/g, '') : 'Help me pick', dayTime: cur ? cur.day + ' ' + cur.time : '', teacher: cur ? cur.teacher : '', studio: cur ? cur.studio : '', parent: tf.parent, email: tf.email, phone: tf.phone });
+      send: () => { if (Object.keys(tErrs).length) { this.setState({ tTried: true }); return; } postSignup({ type: 'trial', website: tf.website || '', first: tf.first, last: tf.last, age: ageTxt + ' (born ' + dob.date + ')', dob: dob.date, className: cur ? cur.name.replace(/\u200B/g, '') : 'Help me pick', dayTime: cur ? cur.day + ' ' + cur.time : '', teacher: cur ? cur.teacher : '', studio: cur ? cur.studio : '', parent: tf.parent, email: tf.email, phone: tf.phone });
         this.setState({ sent: true, name: tf.first.trim(), tTried: false }); },
       msgSent: this.state.msg, msgNotSent: !this.state.msg, sendMsg: () => this.setState({ msg: true }),
       ageChips: [{ label: 'All ages', on: !selAges.length, pick: () => this.setState({ ages: [] }) }].concat(AGEB.map(b => ({ label: b[1], on: selAges.includes(b[0]), pick: () => this.setState({ ages: toggle(selAges, b[0]) }) }))).map(x => Object.assign(x, { style: CHIP(x.on), pressed: x.on ? 'true' : 'false' })),
