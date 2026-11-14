@@ -230,7 +230,7 @@ a{color:inherit;text-decoration:none}
             <div style="font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 700; margin: 22px 0 8px; display: flex; align-items: center; gap: 8px;"><span style="display: inline-flex; width: 20px; height: 20px; border-radius: 50%; background: #111111; color: #FFFFFF; align-items: center; justify-content: center; font-size: 10px; letter-spacing: 0;">2</span>Pick a class</div>
             <div role="group" aria-label="Style" class="h-chips" data-keep-scroll="tSty" style="display: flex; flex-wrap: wrap; gap: 6px;"><sc-for list="{{tStyleChips}}" as="x" hint-placeholder-count="5"><button type="button" onClick="{{x.pick}}" aria-pressed="{{x.pressed}}" style="{{x.style}}">{{x.label}}</button></sc-for></div>
             <div data-keep-scroll="tlist" style="margin-top: 10px; max-height: 210px; overflow-y: auto; border: 1px solid #DDDDDD;">
-              <sc-for list="{{tClasses}}" as="c" hint-placeholder-count="4"><button type="button" onClick="{{c.pick}}" aria-pressed="{{c.pressed}}" style="{{c.style}}"><span style="font-weight: 700; min-width: 74px;">{{c.day}} {{c.time}}</span><span style="flex: 1;">{{c.name}}<span style="display: block; font-size: 11px; opacity: 0.75; margin-top: 2px;">Ages {{c.ages}} · {{c.teacher}} · {{c.studio}}</span></span><span aria-hidden="true">{{c.mark}}</span></button></sc-for>
+              <sc-for list="{{tClasses}}" as="c" hint-placeholder-count="4"><button type="button" onClick="{{c.pick}}" aria-pressed="{{c.pressed}}" style="{{c.style}}"><span style="font-weight: 700; min-width: 74px;">{{c.day}} {{c.time}}</span><span style="flex: 1;">{{c.name}}<span style="display: block; font-size: 11px; opacity: 0.75; margin-top: 2px;">Ages {{c.ages}}{{c.teacherDot}} · {{c.studio}}</span></span><span aria-hidden="true">{{c.mark}}</span></button></sc-for>
               <button type="button" onClick="{{tNotSure}}" aria-pressed="{{tNotSurePressed}}" style="{{tNotSureStyle}}"><span style="flex: 1;">Not sure yet — help me pick</span><span aria-hidden="true">{{tNotSureMark}}</span></button>
             </div>
             <sc-if value="{{tErr.cls}}" hint-placeholder-val="{{ false }}"><span style="display: block; color: #B00020; font-size: 11px; margin-top: 4px;">{{tClsMsg}}</span></sc-if>
@@ -335,7 +335,7 @@ a{color:inherit;text-decoration:none}
     const C = RAW.slice().sort((x, y) => DAYS.indexOf(x.day) - DAYS.indexOf(y.day) || (x.start || 0) - (y.start || 0)).map(c => {
       const lo = c.lo == null ? 0 : c.lo, hi = c.hi == null ? 99 : c.hi;
       return { id: idOf(c.key), key: c.key, day: c.day, time: c.time, name: c.name.replace(/\//g, '/\u200B'), lo: lo, hi: hi,
-        teacher: c.teacher || TEACHER_BY_CLASS[c.name] || '', studio: c.studio, price: priceOf(c.mins), note: (c.note || '').split('\n')[0].slice(0, 70),
+        teacher: c.teacher || TEACHER_BY_CLASS[c.name] || '', teacherDot: (c.teacher || TEACHER_BY_CLASS[c.name]) ? ' · ' + (c.teacher || TEACHER_BY_CLASS[c.name]) : '', studio: c.studio, price: priceOf(c.mins), note: (c.note || '').split('\n')[0].slice(0, 70),
         ages: c.lo == null ? 'All ages' : hi >= 99 ? lo + '+' : lo + '–' + hi };
     });
 
