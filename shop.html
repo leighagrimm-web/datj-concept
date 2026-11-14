@@ -334,7 +334,7 @@ a{color:inherit;text-decoration:none}
     const tOf = (c) => c.teacher || TEACHER_BY_CLASS[c.key] || '';
     const idOf = (k) => { let h = 7; for (let i = 0; i < k.length; i++) h = (h * 31 + k.charCodeAt(i)) % 2147483647; return h; };
     const priceOf = (m) => m == null ? 152 : m <= 45 ? 133 : m <= 60 ? 152 : m <= 75 ? 188 : 228;
-    const C = RAW.filter(c => !c.season || /session/i.test(c.season)).sort((x, y) => DAYS.indexOf(x.day) - DAYS.indexOf(y.day) || (x.start || 0) - (y.start || 0)).map(c => {
+    const C = RAW.filter(c => !c.season || /session|summer|intensive/i.test(c.season)).sort((x, y) => DAYS.indexOf(x.day) - DAYS.indexOf(y.day) || (x.start || 0) - (y.start || 0)).map(c => {
       const lo = c.lo == null ? 0 : c.lo, hi = c.hi == null ? 99 : c.hi;
       return { id: idOf(c.key), key: c.key, day: c.day, time: c.time, name: c.name.replace(/\//g, '/\u200B'), lo: lo, hi: hi,
         teacher: tOf(c), teacherDot: tOf(c) ? ' · ' + tOf(c) : '', studio: c.studio, price: /intro to break/i.test(c.name) ? 167 : /^breaking i/i.test(c.name) ? 335 : priceOf(c.mins), note: (c.note || '').split('\n')[0].slice(0, 70),
