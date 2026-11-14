@@ -382,6 +382,17 @@ a{color:inherit;text-decoration:none}
       <sc-if value="{{dpCur.hasLink}}" hint-placeholder-val="{{ false }}"><a href="{{dpCur.url}}" target="{{dpCur.target}}" rel="noopener" style="display: inline-block; margin-top: 24px; padding: 14px 18px; background: #111111; color: #FFFFFF; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 700;">{{dpCur.label}} {{dpCur.arrow}}</a></sc-if>
     </div>
   </sc-if>
+  <sc-if value="{{spOpen}}" hint-placeholder-val="{{ false }}">
+    <button type="button" class="h-menu-scrim" tabindex="-1" aria-label="Close" onClick="{{closeTrial}}"></button>
+    <div role="dialog" aria-modal="true" aria-label="Book a free trial" class="h-team-panel" style="position: fixed; z-index: 20; top: 0; right: 0; bottom: 0; width: 100%; max-width: 520px; background: #FFFFFF; color: #111111; box-sizing: border-box; display: flex; flex-direction: column; border-left: 6px solid #00ADB5;">
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 20px; border-bottom: 1px solid #E5E5E5;">
+        <div><div style="font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #007A80; font-weight: 700;">Your first class is free</div><div style="font-size: 22px; font-weight: 800; letter-spacing: -0.03em;">Book a free trial</div></div>
+        <button type="button" onClick="{{closeTrial}}" aria-label="Close" style="width: 44px; height: 44px; border: 1px solid #111111; background: transparent; color: #111111; cursor: pointer; font-size: 22px; flex: none;">×</button>
+      </div>
+      <iframe src="{{trialUrl}}" title="Free trial booking form" style="flex: 1; width: 100%; border: 0; background: #FFFFFF;"></iframe>
+      <div style="padding: 10px 20px 14px; font-size: 11px; color: #555555; border-top: 1px solid #E5E5E5;">Form not loading? <a href="{{trialUrl}}" target="_blank" rel="noopener" style="color: #111111; font-weight: 700; text-decoration: underline;">Open it in a new tab ↗︎</a></div>
+    </div>
+  </sc-if>
   <!-- trial modal -->
   <sc-if value="{{trial}}" hint-placeholder-val="{{ false }}">
     <div style="position: fixed; inset: 0; z-index: 10; display: flex; align-items: center; justify-content: center; padding: 20px;">
@@ -512,6 +523,8 @@ a{color:inherit;text-decoration:none}
     if ((tf.phone || '').replace(/\D/g, '').length < 10) tErrs.phone = true;
     if (!tAge) tErrs.age = true;
     else if (tCls === -2 || (cur && !fits(cur, tAge))) tErrs.cls = true;
+    // Free trial booking: Studio Pro Lead Center landing page. Leave '' to use the site's own trial form instead.
+    const TRIAL_URL = 'https://app.gostudiopro.com/landing.php?id=2c2617f3-f992-4269-8188-d9e5b405d489';
     // Website sign-ups go to the studio's Google Sheet (Apps Script web app). Paste the web app URL here.
     const SIGNUP_URL = '';
     const postSignup = (payload) => { if (!SIGNUP_URL) return; try { fetch(SIGNUP_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) }).catch(() => {}); } catch (e) {} };
@@ -540,7 +553,7 @@ a{color:inherit;text-decoration:none}
       ageBtns: [['tots','18 mo–3'],['pre','3–5'],['kids','6–8'],['tween','9–12'],['teen','Teen'],['adult','Adult']].map(x => ({ label: x[1], on: x[0] === a ? 'true' : 'false', pick: () => this.setState({ age: x[0] }),
         style: 'min-height: 48px; border: 1px solid ' + (x[0] === a ? '#111111' : '#CCCCCC') + '; background: ' + (x[0] === a ? '#111111' : '#FFFFFF') + '; color: ' + (x[0] === a ? '#FFFFFF' : '#111111') + '; font-family: inherit; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 700; cursor: pointer;' })),
       fit: byAge[a].map(c => ({ name: c[0], price: c[1] })),
-      trial: this.state.trial, sent: this.state.sent, notSent: !this.state.sent, name: this.state.name || 'friend',
+      trial: this.state.trial && !TRIAL_URL, spOpen: !!this.state.trial && !!TRIAL_URL, trialUrl: TRIAL_URL, sent: this.state.sent, notSent: !this.state.sent, name: this.state.name || 'friend',
       openTrial: () => this.setState({ trial: true, sent: false, tTried: false }),
       tryClass: C.reduce((o, c) => { o[c.id] = () => this.setState({ trial: true, sent: false, tTried: false, tCls: c.id, tStyle: '', tAge: (AGEB.find(b => c.lo <= b[3] && c.hi >= b[2]) || AGEB[0])[0] }); return o; }, {}),
       tf: tf, tSet: ['first','last','parent','email','phone'].reduce((o, k) => { o[k] = (e) => this.setState({ tf: Object.assign({}, this.state.tf, { [k]: e.target.value }) }); return o; }, {}),
