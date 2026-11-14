@@ -368,7 +368,7 @@ a{color:inherit;text-decoration:none}
     const C = RAW.slice().sort((x, y) => DAYS.indexOf(x.day) - DAYS.indexOf(y.day) || (x.start || 0) - (y.start || 0)).map(c => {
       const lo = c.lo == null ? 0 : c.lo, hi = c.hi == null ? 99 : c.hi;
       return { id: idOf(c.key), key: c.key, day: c.day, time: c.time, name: c.name.replace(/\//g, '/\u200B'), lo: lo, hi: hi,
-        teacher: c.teacher || TEACHER_BY_CLASS[c.name] || '', teacherDot: (c.teacher || TEACHER_BY_CLASS[c.name]) ? ' · ' + (c.teacher || TEACHER_BY_CLASS[c.name]) : '', studio: c.studio, price: priceOf(c.mins), note: (c.note || '').split('\n')[0].slice(0, 70),
+        teacher: c.teacher || TEACHER_BY_CLASS[c.name] || '', teacherDot: (c.teacher || TEACHER_BY_CLASS[c.name]) ? ' · ' + (c.teacher || TEACHER_BY_CLASS[c.name]) : '', studio: c.studio, price: /intro to break/i.test(c.name) ? 167 : /^breaking i/i.test(c.name) ? 335 : priceOf(c.mins), note: (c.note || '').split('\n')[0].slice(0, 70),
         ages: c.lo == null ? 'All ages' : hi >= 99 ? lo + '+' : lo + '–' + hi };
     });
 
