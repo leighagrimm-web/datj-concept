@@ -190,7 +190,7 @@ a{color:inherit;text-decoration:none}
       <p style="font-size: 16px; line-height: 1.6; margin: 0 0 22px; color: #333333;">{{dpCur.d}}</p>
       <sc-for list="{{dpCur.paras}}" as="pp" hint-placeholder-count="1"><p style="font-size: 15px; line-height: 1.7; margin: 0 0 12px; color: #333333;">{{pp.x}}</p></sc-for>
       <ul style="list-style: none; margin: 6px 0 0; padding: 0;"><sc-for list="{{dpCur.bullets}}" as="bb" hint-placeholder-count="3"><li style="padding: 13px 0 13px 22px; border-bottom: 1px solid #DDDDDD; font-size: 15px; line-height: 1.5; position: relative;"><span aria-hidden="true" style="position: absolute; left: 0; top: 20px; width: 8px; height: 8px; background: #00ADB5;"></span>{{bb.x}}</li></sc-for></ul>
-      <sc-if value="{{dpEmbedTrial}}" hint-placeholder-val="{{ false }}"><div class="h-dpembed" style="margin: 26px -32px 0; border-top: 1px solid #E5E5E5;"><iframe src="{{trialUrl}}" title="Free trial booking form" style="display: block; width: 100%; height: 1150px; border: 0; background: #FFFFFF;"></iframe><div style="padding: 10px 32px 0; font-size: 11px; color: #555555;">Form not loading? <a href="{{trialUrl}}" target="_blank" rel="noopener" style="color: #111111; font-weight: 700; text-decoration: underline;">Open it in a new tab →︎</a></div></div></sc-if>
+      <sc-if value="{{dpEmbedTrial}}" hint-placeholder-val="{{ false }}"><div class="h-dpembed" style="margin: 26px -32px 0; border-top: 1px solid #E5E5E5;"><iframe data-keep-node="trialembed" src="{{trialUrl}}" title="Free trial booking form" style="display: block; width: 100%; height: 1150px; border: 0; background: #FFFFFF;"></iframe><div style="padding: 10px 32px 0; font-size: 11px; color: #555555;">Form not loading? <a href="{{trialUrl}}" target="_blank" rel="noopener" style="color: #111111; font-weight: 700; text-decoration: underline;">Open it in a new tab →︎</a></div></div></sc-if>
       <sc-if value="{{dpHasForm}}" hint-placeholder-val="{{ false }}"><div style="margin-top: 28px; padding: 22px; background: #F2F2F2;">
         <h3 style="font-size: 24px; letter-spacing: -0.035em; margin: 0 0 6px;">{{dpForm.title}}</h3>
         <sc-if value="{{dpNotSent}}" hint-placeholder-val="{{ true }}"><p style="font-size: 13px; color: #555555; margin: 0 0 6px; line-height: 1.5;">{{dpForm.intro}}</p>
@@ -209,7 +209,7 @@ a{color:inherit;text-decoration:none}
     <button type="button" class="h-menu-scrim" tabindex="-1" aria-label="Close" onClick="{{closeTrial}}"></button>
     <div role="dialog" aria-modal="true" aria-label="Book a free trial" class="h-sp-panel" style="position: fixed; z-index: 20; top: 0; right: 0; bottom: 0; width: 100%; max-width: 520px; background: #FFFFFF; color: #111111; box-sizing: border-box; display: flex; flex-direction: column; border-left: 6px solid #00ADB5;">
       <button type="button" onClick="{{closeTrial}}" aria-label="Close" style="position: absolute; z-index: 2; top: 12px; right: 14px; width: 44px; height: 44px; border: 1px solid #111111; background: #FFFFFF; color: #111111; cursor: pointer; font-size: 22px;">×</button>
-      <iframe src="{{trialUrl}}" title="Free trial booking form" style="flex: 1; width: 100%; border: 0; background: #FFFFFF;"></iframe>
+      <iframe data-keep-node="trialpanel" src="{{trialUrl}}" title="Free trial booking form" style="flex: 1; width: 100%; border: 0; background: #FFFFFF;"></iframe>
       <div class="h-sp-foot" style="padding: 10px 20px 14px; font-size: 11px; color: #555555; border-top: 1px solid #E5E5E5;">Form not loading? <a href="{{trialUrl}}" target="_blank" rel="noopener" style="color: #111111; font-weight: 700; text-decoration: underline;">Open it in a new tab →︎</a></div>
     </div>
   </sc-if>
@@ -306,7 +306,7 @@ a{color:inherit;text-decoration:none}
     };
     const a = this.state.age;
 
-    if (!this._timer && typeof setInterval !== 'undefined') { this._timer = setInterval(() => this.setState({ team: ((this.state.team || 0) + 1) % 6 }), 10000); }
+    if (!this._timer && typeof setInterval !== 'undefined' && typeof document !== 'undefined' && document.getElementById('teams')) { this._timer = setInterval(() => this.setState({ team: ((this.state.team || 0) + 1) % 6 }), 10000); }
 
     // ---- class schedule (SAMPLE data; real classes sync from Studio Pro) ----
     const AGEB = [['tots','18 mo–3',1.5,3],['pre','3–5',3,5],['kids','6–8',6,8],['tween','9–12',9,12],['teen','Teen',13,17],['adult','Adult',18,99]];
