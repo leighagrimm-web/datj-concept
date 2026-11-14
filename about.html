@@ -32,7 +32,7 @@ a{color:inherit;text-decoration:none}
 .p-showM{display:none}
 .p-wtrack,.p-whint{display:none}
 .p-wtrack{height:4px;background:#E5E5E5;margin-top:8px;border-radius:2px;overflow:hidden}.p-wthumb{height:100%;width:43%;background:#00ADB5;border-radius:2px;transition:margin-left .1s linear}
-.p-whint{font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:#555555;margin-top:18px;text-align:right}.p-wnav{display:none;justify-content:flex-end;align-items:center;gap:6px;margin-top:18px}.p-wnav span{font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:#555555;margin-right:6px}.p-wnav button{width:40px;height:40px;border:1px solid #111111;background:#FFFFFF;color:#111111;font-size:16px;cursor:pointer;font-family:inherit}.p-wnav button:hover{background:#00ADB5;border-color:#00ADB5}.p-week{scroll-behavior:smooth}
+.p-whint{font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:#555555;margin-top:18px;text-align:right}.p-wnav{display:none;justify-content:flex-end;align-items:center;gap:6px;margin-top:18px}.p-wnav span{font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:#555555;margin-right:6px}.p-wnav button{width:40px;height:40px;border:1px solid #111111;background:#FFFFFF;color:#111111;font-size:16px;cursor:pointer;font-family:inherit}.p-wnav button:hover{background:#00ADB5;border-color:#00ADB5}
 .p-ctile{transition:background .15s}.p-ctile:hover{background:#00ADB5 !important}.p-ctile:hover p{color:#111111 !important}
 .p-rcmore:hover{color:#00ADB5 !important;border-color:#00ADB5 !important}.p-rcbtn:hover{background:#00ADB5 !important;color:#000000 !important}.p-try:hover{background:#00ADB5 !important;border-color:#00ADB5 !important}.p-chip:hover{border-color:#00ADB5 !important;color:#00ADB5 !important}
 .p-ph{border:1px dashed #9A9A9A;padding:20px;font-size:12px;line-height:1.6;color:#555555}
@@ -330,9 +330,9 @@ a{color:inherit;text-decoration:none}
       return r; };
     const selAges = this.state.ages || [], selT = this.state.teachers || [], plan = this.state.plan || [], selDay = this.state.day || 'all';
     const ageOK = (c) => !selAges.length || AGEB.some(b => selAges.includes(b[0]) && c.lo <= b[3] && c.hi >= b[2]);
-    const wAges = this.state.wages || [];
+    const wAges = this.state.ages || [];
     const wAgeOK = (c) => !wAges.length || AGEB.some(b => wAges.includes(b[0]) && c.lo <= b[3] && c.hi >= b[2]);
-    const sSty = this.state.sstyles || [], wSty = this.state.wstyles || [];
+    const sSty = this.state.sstyles || [], wSty = sSty;
     const sOK = (c) => !sSty.length || styleOf(c.name).some(x => sSty.includes(x));
     const wsOK = (c) => !wSty.length || styleOf(c.name).some(x => wSty.includes(x));
     const tOK = (c) => !selT.length || selT.includes(c.teacher);
@@ -393,21 +393,21 @@ a{color:inherit;text-decoration:none}
       send: () => { if (Object.keys(tErrs).length) { this.setState({ tTried: true }); return; } this.setState({ sent: true, name: tf.first.trim(), tTried: false }); },
       msgSent: this.state.msg, msgNotSent: !this.state.msg, sendMsg: () => this.setState({ msg: true }),
       ageChips: [{ label: 'All ages', on: !selAges.length, pick: () => this.setState({ ages: [] }) }].concat(AGEB.map(b => ({ label: b[1], on: selAges.includes(b[0]), pick: () => this.setState({ ages: toggle(selAges, b[0]) }) }))).map(x => Object.assign(x, { style: CHIP(x.on), pressed: x.on ? 'true' : 'false' })),
-      weekAgeChips: [{ label: 'All ages', on: !wAges.length, pick: () => this.setState({ wages: [] }) }].concat(AGEB.map(b => ({ label: b[1], on: wAges.includes(b[0]), pick: () => this.setState({ wages: toggle(wAges, b[0]) }) }))).map(x => Object.assign(x, { style: CHIP(x.on), pressed: x.on ? 'true' : 'false' })),
+      weekAgeChips: [{ label: 'All ages', on: !wAges.length, pick: () => this.setState({ ages: [] }) }].concat(AGEB.map(b => ({ label: b[1], on: wAges.includes(b[0]), pick: () => this.setState({ ages: toggle(wAges, b[0]) }) }))).map(x => Object.assign(x, { style: CHIP(x.on), pressed: x.on ? 'true' : 'false' })),
       dayChips: [['all','Any day']].concat(DAYS.map(d => [d, d])).map(d => ({ label: d[1], on: selDay === d[0], pressed: selDay === d[0] ? 'true' : 'false', style: CHIP(selDay === d[0]), pick: () => this.setState({ day: d[0] }) })),
       teacherChips: [{ label: 'All teachers', on: !selT.length, pick: () => this.setState({ teachers: [] }) }].concat(TEACH.map(t => ({ label: t, on: selT.includes(t), pick: () => this.setState({ teachers: toggle(selT, t) }) }))).map(x => Object.assign(x, { style: CHIP(x.on), pressed: x.on ? 'true' : 'false' })),
       schedRows: C.filter(c => ageOK(c) && sOK(c) && (selDay === 'all' || c.day === selDay)).map(c => Object.assign({}, c, { tryIt: () => this.setState({ trial: true, sent: false, tTried: false, tCls: /company/i.test(c.name) ? -1 : c.id, tStyle: '', tAge: (AGEB.find(b => c.lo <= b[3] && c.hi >= b[2]) || AGEB[0])[0] }), isCo: /company/i.test(c.name), notCo: !/company/i.test(c.name) })),
       schedEmpty: !C.some(c => ageOK(c) && sOK(c) && (selDay === 'all' || c.day === selDay)),
       styleChips: [{ label: 'All styles', on: !sSty.length, pick: () => this.setState({ sstyles: [] }) }].concat(STYLES.map(x => ({ label: x, on: sSty.includes(x), pick: () => this.setState({ sstyles: toggle(sSty, x) }) }))).map(x => Object.assign(x, { style: CHIP(x.on), pressed: x.on ? 'true' : 'false' })),
-      weekStyleChips: [{ label: 'All styles', on: !wSty.length, pick: () => this.setState({ wstyles: [] }) }].concat(STYLES.map(x => ({ label: x, on: wSty.includes(x), pick: () => this.setState({ wstyles: toggle(wSty, x) }) }))).map(x => Object.assign(x, { style: CHIP(x.on), pressed: x.on ? 'true' : 'false' })),
+      weekStyleChips: [{ label: 'All styles', on: !wSty.length, pick: () => this.setState({ sstyles: [] }) }].concat(STYLES.map(x => ({ label: x, on: wSty.includes(x), pick: () => this.setState({ sstyles: toggle(wSty, x) }) }))).map(x => Object.assign(x, { style: CHIP(x.on), pressed: x.on ? 'true' : 'false' })),
       weekDays: DAYS.map(d => ({ name: d, items: C.filter(c => c.day === d && wAgeOK(c) && tOK(c) && wsOK(c)).map(c => Object.assign({}, c, { on: plan.includes(c.id), pick: pick(c), pressed: plan.includes(c.id) ? 'true' : 'false',
         style: 'display: block; width: 100%; text-align: left; padding: 12px; margin-bottom: 8px; cursor: pointer; font-family: inherit; border: 1px solid ' + (plan.includes(c.id) ? '#00ADB5' : '#DDDDDD') + '; background: ' + (plan.includes(c.id) ? '#00ADB5' : '#FFFFFF') + '; color: #111111;',
         mark: plan.includes(c.id) ? '✓︎ In my week' : '+ Add' })) })).map(d => Object.assign(d, { none: !d.items.length })),
       planCount: planned.length, hasPlan: planned.length > 0, noPlan: planned.length === 0,
       planTotal: '$' + Math.round(total), planList: planned.map(c => c.day + ' ' + c.time + ' ' + c.name).join('  ·  '),
       clearPlan: () => this.setState({ plan: [] }),
-      weekLeft: (e) => { const w = e.currentTarget.closest('section').querySelector('.p-week'); if (w) w.scrollBy({ left: -w.clientWidth * 0.75 }); },
-      weekRight: (e) => { const w = e.currentTarget.closest('section').querySelector('.p-week'); if (w) w.scrollBy({ left: w.clientWidth * 0.75 }); },
+      weekLeft: (e) => { const w = e.currentTarget.closest('section').querySelector('.p-week'); if (w) w.scrollBy({ left: -w.clientWidth * 0.75, behavior: 'smooth' }); },
+      weekRight: (e) => { const w = e.currentTarget.closest('section').querySelector('.p-week'); if (w) w.scrollBy({ left: w.clientWidth * 0.75, behavior: 'smooth' }); },
       weekScroll: (e) => { const el = e.currentTarget || e.target; const t = el && el.parentNode && el.parentNode.querySelector('.p-wthumb'); if (t && el.scrollWidth) { t.style.width = (el.clientWidth / el.scrollWidth * 100) + '%'; t.style.marginLeft = (el.scrollLeft / el.scrollWidth * 100) + '%'; } },
       teams: TEAMS.map((n, i) => ({ name: n, num: String(i + 1).padStart(2, '0') + ' / 06 · Company', bg: i % 2 ? '#161616' : '#1C1C1C' })),
       carTrack: 'display: flex; height: 100%; transition: transform .6s ease; transform: translateX(-' + (ti * 100) + '%);',
@@ -513,7 +513,9 @@ a{color:inherit;text-decoration:none}
     const wy = window.scrollY, wx = window.scrollX;
     const sideScroll = Array.from(root.querySelectorAll('.p-week')).map(e => e.scrollLeft);
     const keep = {}; root.querySelectorAll('[data-keep-scroll]').forEach(e => { keep[e.getAttribute('data-keep-scroll')] = [e.scrollTop, e.scrollLeft]; });
-    const anchorEl = document.activeElement && root.contains(document.activeElement) ? document.activeElement.closest('section[id]') : null;
+    const fromFocus = document.activeElement && document.activeElement !== document.body && root.contains(document.activeElement) ? document.activeElement : null;
+    const tapped = window.__lastTap && root.contains(window.__lastTap) && (Date.now() - (window.__lastTapAt || 0) < 1500) ? window.__lastTap : null;
+    const anchorEl = (tapped || fromFocus) ? (tapped || fromFocus).closest('section[id]') : null;
     const anchorId = anchorEl ? anchorEl.id : null, anchorTop = anchorEl ? anchorEl.getBoundingClientRect().top : 0;
     const vals = comp.renderVals();
     const frag = document.createDocumentFragment();
@@ -532,13 +534,14 @@ a{color:inherit;text-decoration:none}
     const now = Array.from(root.querySelectorAll('input, select, textarea'));
     if (now.length === saved.length) now.forEach((i, k) => { if (saved[k]) i.value = saved[k]; });
     // keep the page where it was: hold the section being used still on screen
-    Array.from(root.querySelectorAll('.p-week')).forEach((e, i) => { if (sideScroll[i]) e.scrollLeft = sideScroll[i]; });
+    Array.from(root.querySelectorAll('.p-week')).forEach((e, i) => { if (sideScroll[i]) { e.style.scrollBehavior = 'auto'; e.scrollLeft = sideScroll[i]; e.style.scrollBehavior = ''; } });
     root.querySelectorAll('[data-keep-scroll]').forEach(e => { const v = keep[e.getAttribute('data-keep-scroll')]; if (v) { e.scrollTop = v[0]; e.scrollLeft = v[1]; } });
     const again = anchorId && document.getElementById(anchorId);
     if (again) window.scrollTo(wx, window.scrollY + again.getBoundingClientRect().top - anchorTop);
     else window.scrollTo(wx, wy);
     if (active >= 0 && now[active]) { now[active].focus({ preventScroll: true }); try { const l = now[active].value.length; now[active].setSelectionRange(l, l); } catch (e) {} }
   }
+  ['pointerdown', 'click', 'touchstart'].forEach(ev => document.addEventListener(ev, (e) => { window.__lastTap = e.target; window.__lastTapAt = Date.now(); }, { capture: true, passive: true }));
   render();
   document.addEventListener('click', (e) => { const b = e.target.closest && (e.target.closest('.h-tapplay') || e.target.closest('.needs-tap')); if (!b) return; const w = b.closest('.h-vwrap'); const v = w && w.querySelector('video'); if (v) { v.muted = true; try { v.load(); } catch (x) {} v.play().catch(() => {}); } });
   let vt0 = Date.now();
