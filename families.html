@@ -375,7 +375,10 @@ a{color:inherit;text-decoration:none}
     const RATES = Object.assign({ 40: 16.63, 55: 19, 70: 23.5, 85: 28.5 }, PR.rates || {});
     const SPECIAL = PR.specials || [{ label: 'Intro to Breaking', match: '^intro to break', rate: 20.88 }, { label: 'Breaking I or II (2 classes a week)', match: '^breaking i+$', rate: 41.88 }, { label: 'Breaking I & II combined class', match: 'combined', rate: 0 }];
     const SESS = (PR.sessions && PR.sessions.length ? PR.sessions : [{ name: 'Session 1', dates: '', weeks: 8 }, { name: 'Session 2', dates: 'Oct 14 – Jan 5', weeks: 9 }, { name: 'Session 3', dates: 'Jan 6 – Mar 9', weeks: 9 }, { name: 'Session 4', dates: 'Mar 9 – May 18 · no classes Mar 21–28', weeks: 9 }]);
-    const curI = PR.current != null && SESS[PR.current] ? PR.current : Math.min(1, SESS.length - 1), curS = SESS[curI];
+    // The session families see switches on its own on its "show from" date (latest one that has passed); otherwise the manual choice
+    const TODAY_ = (() => { const t = new Date(); return t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0'); })();
+    const autoI = SESS.reduce((best, x, i) => (x.liveFrom && x.liveFrom <= TODAY_ && (best < 0 || x.liveFrom >= SESS[best].liveFrom)) ? i : best, -1);
+    const curI = autoI >= 0 ? autoI : PR.current != null && SESS[PR.current] ? PR.current : Math.min(1, SESS.length - 1), curS = SESS[curI];
     const rateOfLen = (m) => { const ks = Object.keys(RATES).map(Number).sort((a, b) => a - b); if (m == null) m = 55; let best = ks[0]; ks.forEach(k => { if (Math.abs(k - m) < Math.abs(best - m)) best = k; }); return +RATES[best]; };
     const weeklyOf = (c) => { const o = (PR.byKey || {})[c.key]; if (o != null && o !== '') return +o; const sp = SPECIAL.find(x => { try { return new RegExp(x.match, 'i').test(c.name); } catch (e) { return false; } }); return sp ? +sp.rate : rateOfLen(c.mins); };
     const forWeeks = (rate, wk) => Math.round(rate * (+wk || 0));
@@ -564,11 +567,11 @@ a{color:inherit;text-decoration:none}
       calEmpty: CAL.length === 0,
       sessName: curS.name, sessNote: curS.name + (curS.dates ? ' · ' + curS.dates : '') + (curS.weeks ? ' · ' + curS.weeks + ' weeks' : '') + '. Tuition is priced by the week, so it changes a little when a session has more or fewer weeks.',
       sessCols: SESS.filter(x => +x.weeks).map(x => ({ name: x.name + ' · ' + x.weeks + ' wks', cls: x === curS ? '' : 'p-hideM' })),
-      tuitionCols: 'grid-template-columns: 1.3fr 1.2fr 100px' + ' 120px'.repeat(SESS.filter(x => +x.weeks).length) + ';',
+      tuitionCols: 'grid-template-columns: 1.3fr 1.2fr' + ' 120px'.repeat(SESS.filter(x => +x.weeks).length) + ';',
       tuitionRows: [[40, '40 minutes', 'Tiny Tots, preschool, Basics, Tap'], [55, '55 minutes', 'Most kids, tween & adult classes'], [70, '70 minutes', 'Ballet IV & V, Pointe'], [85, '85 minutes', 'Company & technique']]
         .map(r => ({ label: r[1], ex: r[2], rate: +RATES[r[0]] }))
         .concat(SPECIAL.filter(x => +x.rate > 0).map(x => ({ label: x.label, ex: 'Special price', rate: +x.rate })))
-        .map(r => ({ label: r.label, ex: r.ex, perWeek: money(r.rate) + ' / wk', cells: SESS.filter(x => +x.weeks).map(x => ({ v: '$' + forWeeks(r.rate, x.weeks), cls: x === curS ? '' : 'p-hideM' })) })),
+        .map(r => ({ label: r.label, ex: r.ex, cells: SESS.filter(x => +x.weeks).map(x => ({ v: '$' + forWeeks(r.rate, x.weeks), cls: x === curS ? '' : 'p-hideM' })) })),
       sessTimeline: SESS.map((x, i) => ({ num: '0' + (i + 1), name: x.name, dates: x.dates || 'Dates TBD', weeks: +x.weeks ? x.weeks + ' weeks of classes' : '', now: x === curS })),
       headerLinks: navList.filter(n => n.header).slice(0, 5).map((n, i) => ({ label: NAMES[n.id], href: PAGEF[n.id], cls: i >= 3 ? 'h-navlink h-hide-md' : 'h-navlink' })),
       menuLinks: navList.map(n => ({ label: NAMES[n.id], href: PAGEF[n.id] })),

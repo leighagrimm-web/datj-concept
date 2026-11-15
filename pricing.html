@@ -93,9 +93,9 @@ a{color:inherit;text-decoration:none}
         <div style="font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase; margin-bottom: 22px; color: #00ADB5;">Tuition</div>
         <h2 style="font-size: 72px; letter-spacing: -0.065em; line-height: 0.94; margin: 0; font-weight: 700;">Per class,<br>per <em style="font-family: Georgia, serif; font-weight: 400; color: #00ADB5;">session.</em></h2>
       </div>
-      <p style="max-width: 360px; color: #AEB8B3; font-size: 14px; line-height: 1.7; margin: 0;">Priced by the week. Prices also show on every class in the schedule.</p>
+      <p style="max-width: 360px; color: #AEB8B3; font-size: 14px; line-height: 1.7; margin: 0;">Prices also show on every class in the schedule.</p>
     </div>
-    <div class="p-row" style="display: grid; {{tuitionCols}} gap: 20px; padding: 0 0 12px; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: #AEB8B3; border-bottom: 1px solid #F7F7F3;"><span>Class</span><span class="p-hideM">Examples</span><span>Per week</span><sc-for list="{{sessCols}}" as="sc" hint-placeholder-count="2"><span class="{{sc.cls}}">{{sc.name}}</span></sc-for></div><sc-for list="{{tuitionRows}}" as="tr" hint-placeholder-count="6"><div class="p-row" style="display: grid; {{tuitionCols}} gap: 20px; align-items: center; padding: 18px 0; border-bottom: 1px solid rgba(255,255,255,0.14); font-size: 15px;"><span style="font-weight: 700;">{{tr.label}}</span><span class="p-hideM" style="color: #AEB8B3;">{{tr.ex}}</span><span style="color: #AEB8B3;">{{tr.perWeek}}</span><sc-for list="{{tr.cells}}" as="x" hint-placeholder-count="2"><span class="{{x.cls}}" style="font-weight: 700;">{{x.v}}</span></sc-for></div></sc-for><p style="margin: 18px 0 0; font-size: 13px; color: #AEB8B3; line-height: 1.6;">Tuition is a weekly rate times the number of class weeks in the session, so a 9-week session costs a little more than an 8-week one. The Breaking I &amp; II combined class is included with Breaking I or II.</p>
+    <div class="p-row" style="display: grid; {{tuitionCols}} gap: 20px; padding: 0 0 12px; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: #AEB8B3; border-bottom: 1px solid #F7F7F3;"><span>Class</span><span class="p-hideM">Examples</span><sc-for list="{{sessCols}}" as="sc" hint-placeholder-count="2"><span class="{{sc.cls}}">{{sc.name}}</span></sc-for></div><sc-for list="{{tuitionRows}}" as="tr" hint-placeholder-count="6"><div class="p-row" style="display: grid; {{tuitionCols}} gap: 20px; align-items: center; padding: 18px 0; border-bottom: 1px solid rgba(255,255,255,0.14); font-size: 15px;"><span style="font-weight: 700;">{{tr.label}}</span><span class="p-hideM" style="color: #AEB8B3;">{{tr.ex}}</span><sc-for list="{{tr.cells}}" as="x" hint-placeholder-count="2"><span class="{{x.cls}}" style="font-weight: 700;">{{x.v}}</span></sc-for></div></sc-for><p style="margin: 18px 0 0; font-size: 13px; color: #AEB8B3; line-height: 1.6;">Tuition is a weekly rate times the number of class weeks in the session, so a 9-week session costs a little more than an 8-week one. The Breaking I &amp; II combined class is included with Breaking I or II.</p>
   </section>
   <section id="fees" class="h-sec" style="padding: 100px 8vw; background: #FFFFFF; color: #111111;">
     <div class="h-head" style="display: flex; justify-content: space-between; align-items: flex-end; gap: 30px; margin-bottom: 40px;">
@@ -372,7 +372,10 @@ a{color:inherit;text-decoration:none}
     const RATES = Object.assign({ 40: 16.63, 55: 19, 70: 23.5, 85: 28.5 }, PR.rates || {});
     const SPECIAL = PR.specials || [{ label: 'Intro to Breaking', match: '^intro to break', rate: 20.88 }, { label: 'Breaking I or II (2 classes a week)', match: '^breaking i+$', rate: 41.88 }, { label: 'Breaking I & II combined class', match: 'combined', rate: 0 }];
     const SESS = (PR.sessions && PR.sessions.length ? PR.sessions : [{ name: 'Session 1', dates: '', weeks: 8 }, { name: 'Session 2', dates: 'Oct 14 – Jan 5', weeks: 9 }, { name: 'Session 3', dates: 'Jan 6 – Mar 9', weeks: 9 }, { name: 'Session 4', dates: 'Mar 9 – May 18 · no classes Mar 21–28', weeks: 9 }]);
-    const curI = PR.current != null && SESS[PR.current] ? PR.current : Math.min(1, SESS.length - 1), curS = SESS[curI];
+    // The session families see switches on its own on its "show from" date (latest one that has passed); otherwise the manual choice
+    const TODAY_ = (() => { const t = new Date(); return t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0'); })();
+    const autoI = SESS.reduce((best, x, i) => (x.liveFrom && x.liveFrom <= TODAY_ && (best < 0 || x.liveFrom >= SESS[best].liveFrom)) ? i : best, -1);
+    const curI = autoI >= 0 ? autoI : PR.current != null && SESS[PR.current] ? PR.current : Math.min(1, SESS.length - 1), curS = SESS[curI];
     const rateOfLen = (m) => { const ks = Object.keys(RATES).map(Number).sort((a, b) => a - b); if (m == null) m = 55; let best = ks[0]; ks.forEach(k => { if (Math.abs(k - m) < Math.abs(best - m)) best = k; }); return +RATES[best]; };
     const weeklyOf = (c) => { const o = (PR.byKey || {})[c.key]; if (o != null && o !== '') return +o; const sp = SPECIAL.find(x => { try { return new RegExp(x.match, 'i').test(c.name); } catch (e) { return false; } }); return sp ? +sp.rate : rateOfLen(c.mins); };
     const forWeeks = (rate, wk) => Math.round(rate * (+wk || 0));
@@ -561,11 +564,11 @@ a{color:inherit;text-decoration:none}
       calEmpty: CAL.length === 0,
       sessName: curS.name, sessNote: curS.name + (curS.dates ? ' · ' + curS.dates : '') + (curS.weeks ? ' · ' + curS.weeks + ' weeks' : '') + '. Tuition is priced by the week, so it changes a little when a session has more or fewer weeks.',
       sessCols: SESS.filter(x => +x.weeks).map(x => ({ name: x.name + ' · ' + x.weeks + ' wks', cls: x === curS ? '' : 'p-hideM' })),
-      tuitionCols: 'grid-template-columns: 1.3fr 1.2fr 100px' + ' 120px'.repeat(SESS.filter(x => +x.weeks).length) + ';',
+      tuitionCols: 'grid-template-columns: 1.3fr 1.2fr' + ' 120px'.repeat(SESS.filter(x => +x.weeks).length) + ';',
       tuitionRows: [[40, '40 minutes', 'Tiny Tots, preschool, Basics, Tap'], [55, '55 minutes', 'Most kids, tween & adult classes'], [70, '70 minutes', 'Ballet IV & V, Pointe'], [85, '85 minutes', 'Company & technique']]
         .map(r => ({ label: r[1], ex: r[2], rate: +RATES[r[0]] }))
         .concat(SPECIAL.filter(x => +x.rate > 0).map(x => ({ label: x.label, ex: 'Special price', rate: +x.rate })))
-        .map(r => ({ label: r.label, ex: r.ex, perWeek: money(r.rate) + ' / wk', cells: SESS.filter(x => +x.weeks).map(x => ({ v: '$' + forWeeks(r.rate, x.weeks), cls: x === curS ? '' : 'p-hideM' })) })),
+        .map(r => ({ label: r.label, ex: r.ex, cells: SESS.filter(x => +x.weeks).map(x => ({ v: '$' + forWeeks(r.rate, x.weeks), cls: x === curS ? '' : 'p-hideM' })) })),
       sessTimeline: SESS.map((x, i) => ({ num: '0' + (i + 1), name: x.name, dates: x.dates || 'Dates TBD', weeks: +x.weeks ? x.weeks + ' weeks of classes' : '', now: x === curS })),
       headerLinks: navList.filter(n => n.header).slice(0, 5).map((n, i) => ({ label: NAMES[n.id], href: PAGEF[n.id], cls: i >= 3 ? 'h-navlink h-hide-md' : 'h-navlink' })),
       menuLinks: navList.map(n => ({ label: NAMES[n.id], href: PAGEF[n.id] })),
