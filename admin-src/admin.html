@@ -304,11 +304,11 @@
   const pick = (o) => ({ recital: !!o.recital, banner: (() => { const b = Object.assign({}, DEFAULTS.banner, o.banner || {}); b.href = normLink(b.href); return b; })(),
     home: mergeHome(o.home), nav: (o.nav && o.nav.length ? o.nav : NAV0).filter(n => NAMES[n.id]).map(n => ({ id: n.id, header: !!n.header })),
     prices: (() => { const q = o.prices || {}; const ss = (q.sessions && q.sessions.length ? q.sessions : SESS0).map(x => Object.assign({ name: '', dates: '', weeks: '', liveFrom: '' }, x));
-      return { rates: Object.assign({}, RATES0, q.rates || {}), specials: (q.specials || SPECIAL0).map(x => Object.assign({}, x)), sessions: ss, current: q.current != null && ss[q.current] ? q.current : Math.min(1, ss.length - 1), byKey: q.tiers ? {} : Object.assign({}, q.byKey || {}) }; })(), photos: Object.assign({}, o.photos || {}), featured: (o.featured || FEAT0).map(f => Object.assign({ title: '', emoji: '', pill: '', when: '', desc: '', photo: '', btn: '', link: '', showFrom: '', hideAfter: '', showPill: true, showStrip: true, signup: false, portal: true, signupUrl: '', payUrl: '', price: '' }, f)), calendar: (o.calendar || CAL0).map(e => Object.assign({ title: '', start: '', end: '', where: '', type: 'Event' }, e)), policies: (o.policies || POL0).map(x => Object.assign({ t: '', d: '', more: '', label: '', url: '' }, x)), rc: (o.rc && o.rc.length ? o.rc : RC0).map(r => Object.assign({ t: '', d: '', label: '', url: '', more: '' }, r)).map(r => { const n = RC0.find(x => x.t === r.t); return n && /^Placeholder: (date, time and venue address|date and what to bring)\./.test(r.d) ? Object.assign({}, n) : r; }), lists: (() => { const L = o.lists || {}, out = {}; Object.keys(C0.lists).forEach(k => { out[k] = (L[k] || C0.lists[k]).map(x => Object.assign({}, CARDF, x)); }); return out; })(), texts: Object.assign({}, C0.texts, o.texts || {}), staffV: 2, staff: (o.staff && o.staff.length ? (o.staffV === 2 ? o.staff : mergeStaff(o.staff)) : STAFF0).map(s => Object.assign({ name: '', role: '', tag: '', bio: '', photo: '' }, s)) });
+      return { rates: Object.assign({}, RATES0, q.rates || {}), specials: (q.specials || SPECIAL0).map(x => Object.assign({}, x)), sessions: ss, current: q.current != null && ss[q.current] ? q.current : Math.min(1, ss.length - 1), byKey: q.tiers ? {} : Object.assign({}, q.byKey || {}) }; })(), photos: Object.assign({}, o.photos || {}), featured: (o.featured || FEAT0).map(f => Object.assign({ title: '', emoji: '', pill: '', when: '', desc: '', photo: '', btn: '', link: '', showFrom: '', hideAfter: '', showPill: true, showStrip: true, signup: false, portal: true, signupUrl: '', payUrl: '', price: '' }, f)), calendar: (o.calendar || CAL0).map(e => Object.assign({ title: '', start: '', end: '', where: '', type: 'Event' }, e)), policies: (o.policies || POL0).map(x => Object.assign({ t: '', d: '', more: '', label: '', url: '' }, x)), rc: (o.rc && o.rc.length ? o.rc : RC0).map(r => Object.assign({ t: '', d: '', label: '', url: '', more: '' }, r)).map(r => { const n = RC0.find(x => x.t === r.t); return n && /^Placeholder: (date, time and venue address|date and what to bring)\./.test(r.d) ? Object.assign({}, n) : r; }), lists: (() => { const L = o.lists || {}, out = {}; Object.keys(C0.lists).forEach(k => { out[k] = JSON.parse(JSON.stringify(L[k] || C0.lists[k])).map(x => Object.assign({}, CARDF, x)); }); return out; })(), texts: Object.assign({}, C0.texts, o.texts || {}), staffV: 2, staff: (o.staff && o.staff.length ? (o.staffV === 2 ? o.staff : mergeStaff(o.staff)) : STAFF0).map(s => Object.assign({ name: '', role: '', tag: '', bio: '', photo: '' }, s)) });
   const clone = (x) => JSON.parse(JSON.stringify(x));
 
-  let live = pick(Object.assign({}, DEFAULTS, read(LIVE) || {}));
-  let draft = pick(read(DRAFT) || live);
+  let live = pick(JSON.parse(JSON.stringify(Object.assign({}, DEFAULTS, read(LIVE) || {}))));
+  let draft = pick(JSON.parse(JSON.stringify(read(DRAFT) || live)));
   const dirty = () => JSON.stringify(draft) !== JSON.stringify(live);
   const saveDraft = () => { write(DRAFT, draft); status(); };
 
@@ -538,7 +538,7 @@
       if (f.type === 'link') bindPicker(id, v => { it[f.k] = v; it.tbc = false; }, up);
       else if (f.type === 'date') { const el = $(id); if (el) el.addEventListener('change', () => { it[f.k] = el.value; it.tbc = false; if (cfg.sort) { cfg.sort(); openCard = key + ':' + cfg.get().indexOf(it); } saveDraft(); render(); }); }
       else if (f.type === 'check') { const el = $(id); if (el) el.addEventListener('change', () => { it[f.k] = el.checked; saveDraft(); up(); }); }
-      else if (f.type === 'photo') { const el = $(id); if (el) el.addEventListener('change', () => { const file = el.files && el.files[0]; if (file) shrink(file, (u) => { it[f.k] = u; saveDraft(); render(); }, 900, 600); }); }
+      else if (f.type === 'photo') { const el = $(id); if (el) el.addEventListener('change', () => { const file = el.files && el.files[0]; if (file) shrink(file, (u) => { it[f.k] = u; saveDraft(); render(); }, (cfg.photoSize || [900, 600])[0], (cfg.photoSize || [900, 600])[1]); }); }
       else if (f.type !== 'select') bind(id, f.max, v => { it[f.k] = v; it.tbc = false; }, () => { up(); const row = document.querySelector('.item.open .main'); if (row) { row.querySelector('b').textContent = cfg.title(it, i); row.querySelector('span').textContent = cfg.sub(it, i); } }); });
   }
   function listClick(d) {
@@ -630,12 +630,13 @@
   const LISTCFG = {
     styles: { noun: 'a style', fields: [F.photo, F.t, F.d, F.more], theme: 'dark', newItem: { t: '', d: '' } },
     summer: { noun: 'a summer card', fields: CARD, theme: 'teal', newItem: { label: 'Register', url: PORTAL } },
-    teams: { noun: 'a team', fields: [{ k: 't', label: 'Team name', max: 24 }, { k: 'd', label: 'Details', max: 200, area: true, hint: 'Shown when families open the team. e.g. Director, ages, rehearsal day and time.' }], prev: x => '<b>' + esc(x.t || 'Team') + ' team</b><br><span style="color: var(--mut);">' + esc(x.d) + '</span>' },
+    teams: { noun: 'a team', fields: [{ k: 'photo', label: 'Team photo', type: 'photo' }, { k: 't', label: 'Team name', max: 24 }, { k: 'd', label: 'Details', max: 200, area: true, hint: 'Shown when families open the team. e.g. Director, ages, rehearsal day and time.' }], newItem: { dancers: [] }, sub: x => (x.dancers || []).length + ' dancers' + (x.d ? ' · ' + x.d : ''), prev: x => (isPicV(x.photo) ? '<img src="' + esc(x.photo) + '" alt="" style="width: 100%; aspect-ratio: 3 / 2; object-fit: cover; display: block; margin-bottom: 10px;">' : '') + '<b>' + esc(x.t || 'Team') + ' Company</b><br><span style="color: var(--mut);">' + esc(x.d) + '</span>' },
     comps: { noun: 'a competition', noMoveSort: true, fields: [{ k: 't', label: 'When', max: 24, ph: 'e.g. Feb 13–15, 2027' }, { k: 'd', label: 'Competition', max: 60 }, { k: 'tag', label: 'Where', max: 50 }], prev: x => '<b>' + esc(x.t) + '</b> · ' + esc(x.d) + ' · <span style="color: var(--mut);">' + esc(x.tag) + '</span>', sub: x => x.d + (x.tag ? ' · ' + x.tag : '') },
     mission: { noun: 'a word', fields: [{ k: 't', label: 'Word', max: 14 }, { k: 'd', label: 'What it means', max: 160, area: true }], prev: x => '<div style="font-size: 40px; font-weight: 800; letter-spacing: -0.05em;">' + esc(x.t) + '.</div><p>' + esc(x.d) + '</p>' },
     dress: { noun: 'a dress code card', fields: [F.tag, F.t, F.d, F.more], theme: 'dark', newItem: { tag: 'Dress code' } },
     compfam: { noun: 'a card', fields: CARD.concat([{ k: 'gform', label: 'Google Form link', max: 300, opt: true, ph: 'https://docs.google.com/forms/…', hint: 'Adds a form button inside More details.' }, { k: 'gformLabel', label: 'Form button text', max: 30, opt: true }]), theme: 'white' },
     merch: { noun: 'an item', fields: [F.photo, F.t, { k: 'd', label: 'Price & sizes', max: 100, area: true }, F.label, F.url], theme: 'dark', newItem: { label: 'Buy' } },
+    fees: { noun: 'a line', fields: [{ k: 't', label: 'Line', max: 80 }], prev: x => '✦ ' + esc(x.t), sub: () => '' },
     tuitionBullets: { noun: 'a bullet', fields: [{ k: 't', label: 'Bullet', max: 70 }], prev: x => '✦ ' + esc(x.t), sub: () => '' },
     familyLinks: { noun: 'a link', fields: [{ k: 't', label: 'Label', max: 28 }, { k: 'url', label: 'Goes to', type: 'link' }], prev: x => '<b style="text-transform: uppercase; letter-spacing: 0.06em;">' + esc(x.t) + ' →</b>', sub: x => destName(x.url) }
   };
@@ -647,6 +648,8 @@
     introBody: ['Homepage intro (under “Make room for possibility”)', 400, true], story: ['The studio story', 900, true],
     companyIntro: ['What Company is', 600, true], auditions: ['Auditions, short version', 200, true], auditionsMore: ['Auditions, more details', 1200, true, 'Opens from the More details button. Start a line with “- ” for a bullet.'],
     address: ['Address', 80], phone: ['Phone', 20], email: ['Email', 60], hours: ['Front desk hours', 200, true],
+    perfNote: ['Annual Performance line on the Pricing page', 240, true], schedulePdf: ['Printable schedule (PDF link)', 400, false, 'The “Download the schedule” button on the Classes page. Paste the link to the PDF.'],
+    facebook: ['Facebook link', 200], instagram: ['Instagram link', 200], giftAmounts: ['Gift card amounts', 60, false, 'Separate with commas, e.g. $25, $50, $100. “Custom” is added after them.'],
     giftNote: ['Gift card line', 120, true], giftUrl: ['Where “Buy a gift card” goes', 300, false, 'Paste the Square gift card link. Leave empty to hide the button.'], merchNote: ['Merch line', 120, true]
   };
   const tfield = (k) => { const c = TXT[k]; return field('tx-' + k, c[0], draft.texts[k], c[1], { area: c[2], hint: c[3] }); };
@@ -659,7 +662,8 @@
         + sec('Summer cards', '', cList('summer')); },
     company: () => '<h1>Company</h1><p class="lede">The Company page: what it is, the teams, auditions and the competition schedule.</p>'
       + '<div class="panel">' + tfield('companyIntro') + '</div>'
-      + sec('Teams', 'Rosters stay private. Families only see the team name and details.', cList('teams'))
+      + sec('Teams', 'Tap a team to change its name, details or team photo.', cList('teams'))
+      + sec('Rosters', 'Pick a team, then add its dancers. Families see them when they open the team.', rosterEditor())
       + sec('Auditions', '', '<div class="panel">' + tfield('auditions') + tfield('auditionsMore') + '</div>')
       + sec('Competition schedule', 'Shown in the order listed here.', cList('comps')),
     families: () => '<h1>Current Families</h1><p class="lede">Dress code and the Company parent cards on the Current Families page. The homepage quick links are on the Homepage screen.</p>'
@@ -667,9 +671,20 @@
     about: () => '<h1>About &amp; mission</h1><p class="lede">The story and the three words on the About page. Instructors have their own screen.</p>'
       + '<div class="panel">' + tfield('story') + '</div>' + sec('Mission words', '', cList('mission')),
     shop: () => '<h1>Gift cards &amp; shop</h1><p class="lede">The Gift Cards &amp; Shop page.</p>'
-      + '<div class="panel">' + tfield('giftNote') + tfield('giftUrl') + tfield('merchNote') + '</div>' + sec('Merch', '', cList('merch')),
+      + '<div class="panel">' + tfield('giftNote') + tfield('giftUrl') + tfield('giftAmounts') + tfield('merchNote') + '</div>' + sec('Merch', '', cList('merch')),
     contact: () => '<h1>Contact info &amp; hours</h1><p class="lede">Used in the Visit section on the About page and Need help on Current Families.</p>'
-      + '<div class="panel">' + tfield('address') + tfield('phone') + tfield('email') + tfield('hours') + '</div>'
+      + '<div class="panel">' + tfield('address') + tfield('phone') + tfield('email') + tfield('hours') + '</div>' + sec('Social links', 'The icons in the footer.', '<div class="panel">' + tfield('facebook') + tfield('instagram') + '</div>')
+  };
+  let rosterTeam = 0;
+  const rosterEditor = () => { const T = draft.lists.teams; if (!T.length) return '<p class="lede">Add a team first.</p>'; if (rosterTeam >= T.length) rosterTeam = 0; const tm = T[rosterTeam]; tm.dancers = tm.dancers || [];
+    return '<div class="chips" role="group" aria-label="Team" style="margin-bottom: 14px;">' + T.map((x, i) => '<button type="button" class="chip" data-rteam="' + i + '" aria-pressed="' + (i === rosterTeam) + '">' + esc(x.t || 'Team') + ' (' + (x.dancers || []).length + ')</button>').join('') + '</div>'
+      + listEditor({ key: 'roster', noun: 'a dancer', photoSize: [320, 400], get: () => draft.lists.teams[rosterTeam].dancers, thumb: x => isPicV(x.photo) ? x.photo : '', title: x => x.t || 'New dancer', sub: x => x.cap ? 'Captain' : '', flag: x => isPicV(x.photo) ? '' : 'No photo',
+        preview: x => '<div class="lbl">How it looks</div><div style="background: #0A0A0A; padding: 16px; width: 170px;"><div style="aspect-ratio: 4 / 5; background: #1C1C1C; overflow: hidden; color: #777777; font-size: 9px; display: flex; align-items: center; justify-content: center;">' + (isPicV(x.photo) ? '<img src="' + esc(x.photo) + '" alt="" style="width: 100%; height: 100%; object-fit: cover; object-position: center 22%;">' : 'PHOTO') + '</div><div style="color: #FFFFFF; font-weight: 700; font-size: 13px; margin-top: 6px;">' + esc(x.t || 'First name') + '</div>' + (x.cap ? '<span style="display: inline-block; margin-top: 4px; background: #00ADB5; color: #000000; font-size: 9px; font-weight: 700; padding: 2px 6px;">CAPTAIN</span>' : '') + '</div>',
+        newItem: () => ({ t: '', photo: '', cap: false }),
+        fields: [{ k: 'photo', label: 'Photo', type: 'photo' }, { k: 't', label: 'Name', max: 30, hint: 'First name only is fine.' }, { k: 'cap', label: 'Team captain', type: 'check' }] }); };
+  const EXTRA = {
+    prices: () => sec('Discounts & fees list', 'The list on the Pricing page.', cList('fees')) + sec('Printable schedule', '', '<div class="panel">' + tfield('schedulePdf') + '</div>'),
+    recital: () => sec('Pricing page line', 'The short Annual Performance note on the Pricing page.', '<div class="panel">' + tfield('perfNote') + '</div>')
   };
   const bindTexts = () => Object.keys(TXT).forEach(k => bind('tx-' + k, TXT[k][1], v => draft.texts[k] = v));
 
@@ -785,6 +800,7 @@
     if (page === 'homepage') { const h = draft.home, uh = () => $('pvHero').innerHTML = heroPreview();
       bind('hTag', 80, v => h.tagline = v, uh); h.facts.forEach((f, i) => { bind('fL' + i, 14, v => f.label = v, uh); bind('fT' + i, 40, v => f.text = v, uh); });
     }
+    if (EXTRA[page]) $('main').insertAdjacentHTML('beforeend', EXTRA[page]());
     bindList(); bindTexts();
     if (page === 'prices') { const P = draft.prices;
       const on = (sel, fn) => document.querySelectorAll(sel).forEach(el => el.addEventListener('change', () => { fn(el); saveDraft(); render(); }));
@@ -819,6 +835,7 @@
     if (d.menu) { menuOpen = !menuOpen; navs(); return; }
     if (d.menux) { menuOpen = false; navs(); return; }
     if (d.go) return go(d.go);
+    if (d.rteam !== undefined) { rosterTeam = +d.rteam; openCard = ''; delCard = ''; render(); return; }
     if (t.id === 'sumSw') { draft.texts.summerShow = draft.texts.summerShow === 'off' ? 'on' : 'off'; saveDraft(); render(); return; }
     if (listClick(d)) return;
     if (t.id === 'publishTop' || t.id === 'publishBar') return publish();
