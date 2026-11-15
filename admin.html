@@ -253,11 +253,11 @@
   const STEPS0 = [
     { num: '01', title: 'Find the right class', sub: 'Tap your dancer’s age to see classes, times and tuition.', btn: 'Find a class', link: 'classes#schedule', embed: false, more: '- Filter by age, style and day\n- Plan a full week for siblings\n- Download the printable schedule' },
     { num: '02', title: 'Try it free, no account', sub: 'Tell us a little about your dancer. No portal login or setup.', btn: '', link: '', embed: true, more: '- Add your dancer, then pick a class and date\n- The front desk confirms by email or text within a day\n- Wear comfy clothes, bring water, arrive 10 minutes early' },
-    { num: '03', title: 'Enroll when you’re ready', sub: 'Loved it? We’ll send a link to register in the Parent Portal.', btn: 'Parent Portal', link: 'https://dancestudio-pro.com/online/index.php?account_id=20951', embed: false, more: '- $30 registration per family, per year\n- Tuition is per class, priced by the week\n- 10% off each class from the 3rd\n- Sessions 3 & 4: up to 3 absences per class in total, and no make-ups in Session 4 while classes rehearse for the recital\n- No refunds once enrolled' }];
+    { num: '03', title: 'Enroll when you’re ready', sub: 'Loved it? We’ll send a link to register in the Parent Portal.', btn: 'Parent Portal', link: 'https://dancestudio-pro.com/online/index.php?account_id=20951', embed: false, more: '- $30 registration per family, per year\n- Tuition is per class, priced by the week\n- 10% off each class from the 3rd\n- Sessions 3 & 4: up to 3 absences per class in total, and no make-ups in Session 4 while classes rehearse for the Annual Performance\n- No refunds once enrolled' }];
   const POL0 = [
     { t: 'Payments', d: 'Placeholder: auto-pay through the Parent Portal, due dates.', more: 'Placeholder: the full policy, a few short lines.', label: '', url: '' },
     { t: 'Make-ups', d: 'Make up a missed class within the same session. No make-ups in Session 4.', more: 'Placeholder: how to schedule a make-up.', label: '', url: '' },
-    { t: 'Missed classes', d: 'Sessions 3 and 4: up to 3 absences per class in total.', more: 'In Sessions 3 and 4 every class is learning and rehearsing its recital dance, so each missed class is missed practice for the whole group.\n- Up to 3 absences per class, total, across Sessions 3 and 4\n- No make-ups in Session 4: classes spend most of their time on recital dances', label: '', url: '' },
+    { t: 'Missed classes', d: 'Sessions 3 and 4: up to 3 absences per class in total.', more: 'In Sessions 3 and 4 every class is learning and rehearsing its performance dance, so each missed class is missed practice for the whole group.\n- Up to 3 absences per class, total, across Sessions 3 and 4\n- No make-ups in Session 4: classes spend most of their time on performance dances', label: '', url: '' },
     { t: 'Refunds', d: 'No refunds once you’re enrolled.', more: '', label: '', url: '' },
     { t: 'Class changes', d: 'Classes may be cancelled if enrollment is low. Instructors place dancers by level; age is a guideline.', more: '', label: '', url: '' }];
   const CAL0 = [
@@ -268,7 +268,7 @@
     { title: 'Session 3 begins', start: '2027-01-06', end: '', where: 'All classes', type: 'Session' },
     { title: 'Session 4 begins', start: '2027-03-09', end: '', where: 'All classes', type: 'Session' },
     { title: 'Spring break, no classes', start: '2027-03-21', end: '2027-03-28', where: 'Studio closed', type: 'Closure' },
-    { title: 'Recital dress rehearsals', start: '2027-05-19', end: '2027-05-21', where: 'Times by class coming soon', type: 'Recital' },
+    { title: 'Dress rehearsals', start: '2027-05-19', end: '2027-05-21', where: 'Times by class coming soon', type: 'Recital' },
     { title: '14th Annual Performance', start: '2027-05-22', end: '2027-05-23', where: 'Venue coming soon', type: 'Recital' }];
   const FACTS0 = [['Ages', '18 months to adult'], ['Styles', 'Ballet, jazz, tap, hip hop & more'], ['Where', 'Prospect Heights, IL'], ['Try it', 'Your first class is free']];
   const HOME0 = { tagline: 'Technique, artistry and confidence for every dancer.', facts: FACTS0.map(f => ({ label: f[0], text: f[1] })), programs: P0, steps: STEPS0 };
@@ -279,7 +279,7 @@
   const SPECIAL0 = [{ label: 'Intro to Breaking', match: '^intro to break', rate: 20.88 }, { label: 'Breaking I or II (2 classes a week)', match: '^breaking i+$', rate: 41.88 }, { label: 'Breaking I & II combined class', match: 'combined', rate: 0 }];
   const SESS0 = [{ name: 'Session 1', dates: '', weeks: 8 }, { name: 'Session 2', dates: 'Oct 14 – Jan 5', weeks: 9 }, { name: 'Session 3', dates: 'Jan 6 – Mar 9', weeks: 9 }, { name: 'Session 4', dates: 'Mar 9 – May 18 · no classes Mar 21–28', weeks: 9 }];
   const FEAT0 = [
-    { title: '14th Annual Performance', emoji: '✨', pill: '14th Annual Performance · May 22–23', when: 'May 22–23 · Dress rehearsals May 19–21', desc: 'Every dancer takes the stage. Tickets, costumes, picture day and the show-day checklist, all in one place.', photo: 'hero_poster.jpg', btn: 'Recital info', link: 'families#recital', showFrom: '2026-11-14', hideAfter: '2027-05-23', showPill: true, showStrip: true },
+    { title: '14th Annual Performance', emoji: '✨', pill: '14th Annual Performance · May 22–23', when: 'May 22–23 · Dress rehearsals May 19–21', desc: 'Every dancer takes the stage. Tickets, costumes, picture day and the show-day checklist, all in one place.', photo: 'hero_poster.jpg', btn: 'Performance info', link: 'families#recital', showFrom: '2026-11-14', hideAfter: '2027-05-23', showPill: true, showStrip: true },
     { title: 'Halloween Party', emoji: '🎃', pill: 'Halloween Party · Sign up', when: 'Late October · details coming soon', desc: 'Costumes, dancing and treats. Students can bring a friend. Families sign up in the Parent Portal; friends can sign up and pay without an account.', photo: '', btn: 'Sign up', link: '', showFrom: '2027-10-01', hideAfter: '2027-10-31', showPill: true, showStrip: true, signup: true, portal: true, signupUrl: '', payUrl: '', price: 'Price coming soon' }];
   const DEFAULTS = { recital: false, banner: { text: 'Holiday gift cards & merch are here', href: 'shop' }, rc: RC0, staff: STAFF0, home: HOME0, nav: NAV0, prices: { rates: RATES0, specials: SPECIAL0, sessions: SESS0, current: 1, byKey: {} }, photos: {}, calendar: CAL0, policies: POL0 };
   // Saved links are page ids like "families#recital"; older saves used file names
@@ -308,9 +308,9 @@
   const DESTS = [
     ['Classes', [['classes', 'Classes page'], ['classes#schedule', 'Class schedule'], ['classes#week', 'Plan your week'], ['classes#styles', 'Dance styles'], ['classes#summer', 'Summer Session']]],
     ['Free trial', [['trial', 'Book a free trial (opens the form)']]],
-    ['Pricing', [['pricing', 'Pricing page'], ['pricing#tuition', 'Tuition'], ['pricing#fees', 'Discounts & fees'], ['pricing#recital', 'Recital fees'], ['pricing#policies', 'Policies']]],
+    ['Pricing', [['pricing', 'Pricing page'], ['pricing#tuition', 'Tuition'], ['pricing#fees', 'Discounts & fees'], ['pricing#recital', 'Annual Performance (fees)'], ['pricing#policies', 'Policies']]],
     ['Company', [['company', 'Company info'], ['company#teams', 'Company teams'], ['company#auditions', 'Auditions'], ['company#competitions', 'Competition schedule']]],
-    ['Current Families', [['families', 'Current Families page'], ['families#recital', 'Recital info'], ['families#calendar', 'Studio calendar'], ['families#dress', 'Dress code'], ['families#company', 'Company parent info']]],
+    ['Current Families', [['families', 'Current Families page'], ['families#recital', 'Performance info'], ['families#calendar', 'Studio calendar'], ['families#dress', 'Dress code'], ['families#company', 'Company parent info']]],
     ['About', [['about', 'About the studio'], ['about#instructors', 'Instructors'], ['about#visit', 'Visit & address']]],
     ['Shop', [['shop', 'Gift Cards & Shop'], ['shop#gift', 'Gift cards'], ['shop#merch', 'Holiday merch']]],
     ['Other', [['home', 'Homepage'], [PORTAL, 'Parent Portal (Studio Pro)'], ['custom', 'Another website…']]]
@@ -354,7 +354,7 @@
     { id: 'home', label: 'Home', short: 'Home' },
     { id: 'banner', label: 'Top banner', short: 'Banner' },
     { id: 'featured', label: 'Featured events', short: 'Featured' },
-    { id: 'recital', label: 'Recital season', short: 'Recital' },
+    { id: 'recital', label: 'Annual Performance', short: 'Performance' },
     { id: 'staff', label: 'Instructors', short: 'Instructors' },
     { id: 'homepage', label: 'Homepage', short: 'Homepage' },
     { id: 'prices', label: 'Sessions & prices', short: 'Prices' },
@@ -394,13 +394,13 @@
     return '<h1>Hi Brittany.</h1><p class="lede">What would you like to update? Changes stay private until you press <b>Publish</b>.</p>'
       + '<div class="tiles">'
       + '<button class="tile" type="button" data-go="banner"><b>Post an announcement</b><span>The teal line across the top of every page.</span><span class="now">Now: “' + esc(draft.banner.text) + '” → ' + esc(bannerTo) + '</span></button>'
-      + '<button class="tile" type="button" data-go="featured"><b>Featured events</b><span>Halloween party, recital, camps. A corner pill and a homepage strip that turn on and off by date.</span><span class="now">' + (draft.featured.filter(featLive).map(f => f.title).join(', ') || 'Nothing showing') + '</span></button>'
-      + '<button class="tile" type="button" data-go="recital"><b>Recital season</b><span>Turn on recital info for families, and edit the recital cards.</span><span class="now">Now: ' + (draft.recital ? 'On' : 'Off') + '</span></button>'
+      + '<button class="tile" type="button" data-go="featured"><b>Featured events</b><span>Halloween party, Annual Performance, camps. A corner pill and a homepage strip that turn on and off by date.</span><span class="now">' + (draft.featured.filter(featLive).map(f => f.title).join(', ') || 'Nothing showing') + '</span></button>'
+      + '<button class="tile" type="button" data-go="recital"><b>Annual Performance</b><span>Turn on performance info for families, and edit the performance cards.</span><span class="now">Now: ' + (draft.recital ? 'On' : 'Off') + '</span></button>'
       + '<button class="tile" type="button" data-go="staff"><b>Instructors</b><span>Photos and bios on the About page.</span><span class="now">' + draft.staff.length + ' people · ' + (missing ? missing + ' need a bio' : 'all bios done') + (noPhoto ? ' · ' + noPhoto + ' need a photo' : '') + '</span></button>'
       + '<button class="tile" type="button" data-go="homepage"><b>Homepage</b><span>The line under “Move with purpose,” the quick facts, program cards and getting-started steps.</span><span class="now">' + draft.home.programs.length + ' cards · ' + draft.home.steps.length + ' steps · 4 facts</span></button>'
       + '<button class="tile" type="button" data-go="prices"><b>Sessions &amp; prices</b><span>Set up the season’s sessions and weekly rates. Every class price is worked out for you.</span><span class="now">Showing ' + esc(curSess().name) + (curSess().weeks ? ' · ' + curSess().weeks + ' weeks' : '') + ' · 55 min $' + forWeeks(draft.prices.rates[55], curSess().weeks) + '</span></button>'
       + '<button class="tile" type="button" data-go="nav"><b>Menu &amp; header</b><span>Which pages show across the top, and their order.</span><span class="now">' + hdr + ' in the header · ' + draft.nav.length + ' in the menu</span></button>'
-      + '<button class="tile" type="button" data-go="calendar"><b>Studio calendar</b><span>Breaks, session dates, recital and events. The next three show on the homepage.</span><span class="now">' + upcoming().length + ' coming up' + (draft.calendar.some(e => e.tbc) ? ' · ' + draft.calendar.filter(e => e.tbc).length + ' to confirm' : '') + '</span></button>'
+      + '<button class="tile" type="button" data-go="calendar"><b>Studio calendar</b><span>Breaks, session dates, the Annual Performance and events. The next three show on the homepage.</span><span class="now">' + upcoming().length + ' coming up' + (draft.calendar.some(e => e.tbc) ? ' · ' + draft.calendar.filter(e => e.tbc).length + ' to confirm' : '') + '</span></button>'
       + '<button class="tile" type="button" data-go="policies"><b>Policies</b><span>Payments, make-ups, missed classes, refunds. Shown on the Pricing page.</span><span class="now">' + draft.policies.length + ' policies</span></button>'
       + '<button class="tile" type="button" data-go="photos"><b>Photos &amp; videos</b><span>Swap the placeholder photos around the site.</span><span class="now">' + (Object.values(draft.photos).filter(Boolean).length + draft.home.programs.filter(p => p.photo).length) + ' photos added</span></button>'
       + '</div>'
@@ -409,9 +409,9 @@
 
   function bannerPreview() {
     return '<div class="lbl">How it looks</div>'
-      + '<div class="pv-banner"><span>Prospect Heights, Illinois</span><b>' + (draft.recital ? 'Recital season · tickets, costumes &amp; schedule →' : esc(draft.banner.text || 'Your message') + ' →') + '</b></div>'
+      + '<div class="pv-banner"><span>Prospect Heights, Illinois</span><b>' + (draft.recital ? '14th Annual Performance · tickets, costumes &amp; schedule →' : esc(draft.banner.text || 'Your message') + ' →') + '</b></div>'
       + '<div class="pv-head"><span class="logo"></span>Dance &amp; All That Jazz</div>'
-      + '<p class="pv-note">Tapping it opens: <b>' + esc(destName(draft.banner.href)) + '</b></p><p class="pv-note">' + (draft.recital ? '<b>Recital season is on</b>, so the banner shows the recital link. Your message comes back when you turn it off.' : 'On phones the banner shows “Parent Portal” instead, so keep anything urgent on the homepage too.') + '</p>';
+      + '<p class="pv-note">Tapping it opens: <b>' + esc(destName(draft.banner.href)) + '</b></p><p class="pv-note">' + (draft.recital ? '<b>Performance season is on</b>, so the banner shows the performance link. Your message comes back when you turn it off.' : 'On phones the banner shows “Parent Portal” instead, so keep anything urgent on the homepage too.') + '</p>';
   }
   function vBanner() {
     return '<h1>Top banner</h1><p class="lede">A short line across the top of every page. Good for a sale, a closure or a deadline.</p>'
@@ -424,12 +424,12 @@
   function rcPreview(r) {
     return '<div class="lbl">How the card looks</div><div class="pv-card"><div class="bd"><h3>' + esc(r.t || 'Card title') + '</h3><p>' + esc(r.d || 'Short details') + '</p><div class="acts">'
       + (r.label && r.url ? '<span class="lnk">' + esc(r.label) + ' ' + (/^https?:/.test(r.url) ? '↗' : '→') + '</span>' : '') + (r.more.trim() ? '<span class="more">More details →</span>' : '') + '</div></div></div>'
-      + (r.more.trim() ? '<div class="pv-slide"><div class="tg">Recital</div><h3>' + esc(r.t) + '</h3><p>' + esc(r.d) + '</p>' + moreHtml(r.more) + '</div><p class="pv-note">This opens when parents tap “More details.”</p>' : '<p class="pv-note">Add “More details” to give this card a slide-out panel.</p>');
+      + (r.more.trim() ? '<div class="pv-slide"><div class="tg">Annual Performance</div><h3>' + esc(r.t) + '</h3><p>' + esc(r.d) + '</p>' + moreHtml(r.more) + '</div><p class="pv-note">This opens when parents tap “More details.”</p>' : '<p class="pv-note">Add “More details” to give this card a slide-out panel.</p>');
   }
   function vRecital() {
-    const sw = '<button type="button" class="switch" role="switch" id="recSw" aria-checked="' + draft.recital + '"><span class="knob"></span><span><b>Recital season is ' + (draft.recital ? 'on' : 'off') + '</b><span>' + (draft.recital ? 'Families see a recital link in the top banner and the menu.' : 'Turn on when you’re ready to share recital tickets, costumes and schedule.') + '</span></span></button>';
-    return '<h1>Recital season</h1><p class="lede">One switch for the season, plus the recital cards on the Current Families page.</p>'
-      + sw + '<h2 style="margin-top: 30px;">Recital cards</h2><p class="lede" style="margin-bottom: 14px;">Tap a card to edit it.</p>'
+    const sw = '<button type="button" class="switch" role="switch" id="recSw" aria-checked="' + draft.recital + '"><span class="knob"></span><span><b>Performance season is ' + (draft.recital ? 'on' : 'off') + '</b><span>' + (draft.recital ? 'Families see a performance link in the top banner and a Recital link in the menu.' : 'Turn on when you’re ready to share performance tickets, costumes and schedule.') + '</span></span></button>';
+    return '<h1>Annual Performance</h1><p class="lede">One switch for performance season, plus the performance cards on the Current Families page.</p>'
+      + sw + '<h2 style="margin-top: 30px;">Performance cards</h2><p class="lede" style="margin-bottom: 14px;">Tap a card to edit it.</p>'
       + listEditor({ key: 'rc', noun: 'a card', get: () => draft.rc, title: r => r.t || 'New card', sub: r => r.d, flag: r => /placeholder/i.test(r.d + r.more) ? 'Placeholder' : '', preview: rcPreview,
           newItem: () => ({ t: '', d: '', label: '', url: '', more: '' }),
           fields: [{ k: 't', label: 'Title', max: 28 }, { k: 'd', label: 'Short details', max: 140, area: true, hint: 'One or two sentences on the card itself.' }, { k: 'more', label: 'More details', max: 600, area: true, opt: true, ph: 'Extra info for the slide-out panel', hint: 'Start a line with “- ” to make a bullet. Leave empty for no panel.' }, { k: 'label', label: 'Button text', max: 20, opt: true, ph: 'e.g. Buy tickets' }, { k: 'url', label: 'Button goes to', type: 'link', hint: 'Both button text and a destination are needed for a button to show.' }] });
@@ -534,7 +534,7 @@
       + '<div class="lbl" style="margin-top: 16px;">In the full calendar</div><div style="background: #FFFFFF; border: 1px solid var(--line); padding: 14px 18px; display: flex; gap: 14px; flex-wrap: wrap; align-items: center; font-size: 14px;"><b>' + esc(fmtRange(e.start, e.end)) + '</b><span>' + esc(e.title) + '</span><span class="tag" style="background: ' + (e.type === 'Closure' ? '#111111; color: #FFFFFF' : e.type === 'Session' ? '#E5E5E5; color: #000000' : e.type === 'Company' ? '#B8E8EA; color: #000000' : '#00ADB5; color: #000000') + ';">' + esc(TYPE_LABEL[e.type] || e.type) + '</span></div>'
       + '<p class="pv-note">' + (isPast(e) ? 'This date has passed, so it’s hidden on the site.' : 'The homepage shows the next three coming up.') + '</p>'; }
   function vCalendar() { sortCal();
-    return '<h1>Studio calendar</h1><p class="lede">Breaks, session dates, the recital and events. Past dates hide themselves, and the next three show on the homepage under “Mark your calendar.”</p>'
+    return '<h1>Studio calendar</h1><p class="lede">Breaks, session dates, the Annual Performance and events. Past dates hide themselves, and the next three show on the homepage under “Mark your calendar.”</p>'
       + (draft.calendar.some(e => e.tbc) ? '<div class="note">Dates marked <b>To confirm</b> came from the old sample calendar. Check them, then edit or remove them.</div>' : '')
       + listEditor({ key: 'cal', noun: 'a date', noMove: true, sort: sortCal, get: () => draft.calendar, title: e => e.title || 'New date', sub: e => fmtRange(e.start, e.end) + (e.where ? ' · ' + e.where : ''),
         flag: e => e.tbc ? 'To confirm' : isPast(e) ? 'Past' : '', preview: calPreview, newItem: () => ({ title: '', start: todayISO, end: '', where: '', type: 'Event' }),
@@ -551,7 +551,7 @@
       + '<p class="pv-note">' + esc(featState(f) || '') + (f.signup ? ' · Button opens the sign-up panel' : f.link ? ' · Button opens: ' + esc(destName(f.link)) : ' · Add where the button goes, or it won’t show a button.') + '</p>';
   }
   function vFeatured() {
-    return '<h1>Featured events</h1><p class="lede">For the things you want everyone to notice: the Halloween party, recital, a camp. Each one shows as a small pill in the corner of every page and a bright strip on the homepage, between its dates. Visitors can close the pill.</p>'
+    return '<h1>Featured events</h1><p class="lede">For the things you want everyone to notice: the Halloween party, the Annual Performance, a camp. Each one shows as a small pill in the corner of every page and a bright strip on the homepage, between its dates. Visitors can close the pill.</p>'
       + '<div class="note"><b>Sign-up + pay without an account</b> (like the Halloween party): turn on the sign-up panel, then paste a Studio Pro Lead Center landing page for the guest form and a Square payment link. Current families are pointed to the Parent Portal.</div>'
       + listEditor({ key: 'feat', noun: 'a featured event', get: () => draft.featured, thumb: f => f.photo, title: f => (f.emoji ? f.emoji + ' ' : '') + (f.title || 'New featured event'), sub: f => (f.showFrom ? fmtRange(f.showFrom, f.hideAfter) : 'No dates yet') + (f.when ? ' · ' + f.when : ''),
         flag: featState, preview: featPreview, newItem: () => ({ title: '', emoji: '', pill: '', when: '', desc: '', photo: '', btn: 'Learn more', link: '', showFrom: todayISO, hideAfter: '', showPill: true, showStrip: true }),
@@ -665,7 +665,7 @@
   function vPhotos() {
     const P = draft.photos, hp = draft.home.programs;
     return '<h1>Photos &amp; videos</h1><p class="lede">Every photo spot on the site, in one place. Photos are resized for you.</p>'
-      + '<h2>Videos</h2><div class="note"><b>Homepage video:</b> your recital montage is playing now. Videos are too big for this preview admin, so send a new one to Leigha for now. In the finished admin you’ll upload it here.</div>'
+      + '<h2>Videos</h2><div class="note"><b>Homepage video:</b> your performance montage is playing now. Videos are too big for this preview admin, so send a new one to Leigha for now. In the finished admin you’ll upload it here.</div>'
       + '<div class="slot"><span class="thumb"><img src="hero_poster.jpg" alt=""></span><div class="info"><b>Homepage video</b><span>Loops at the top of the homepage, sound off.</span></div><button type="button" class="btn" disabled>Upload video</button></div>'
       + '<h2 style="margin-top: 26px;">Photos</h2><div class="list">'
       + slot('studio', 'The studio', 'About page · next to the studio story', P.studio)
