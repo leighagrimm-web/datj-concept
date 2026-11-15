@@ -225,10 +225,10 @@
   const write = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { toast('Couldn’t save — the photo may be too big.'); return false; } };
 
   const RC0 = [
-    ['Date & venue', 'Placeholder: date, time and venue address.', '', '', 'Placeholder: venue name and address\n- Doors open: time\n- Show starts: time\n- Parking: where to park and drop off'],
+    ['Date & venue', 'May 22–23. Venue and show times coming soon.', '', '', 'The annual recital is May 22–23.\n- Venue: placeholder\n- Doors open: time\n- Show starts: time\n- Parking: where to park and drop off'],
     ['Tickets', 'Placeholder: on-sale date and price.', 'Buy tickets', 'https://example.com/tickets', ''],
     ['Costumes', 'Placeholder: fee, sizing and pickup.', '', '', 'Placeholder: costume fee and when it is due\n- Sizing night: date\n- Pickup: date and place\n- Label every piece with your dancer’s name'],
-    ['Dress rehearsal', 'Placeholder: date and what to bring.', '', '', 'Placeholder: rehearsal date and location\n- Arrival times by class\n- Bring: costumes, shoes, tights, hair supplies\n- Parents: where to wait'],
+    ['Dress rehearsal', 'May 19–21. Times by class coming soon.', '', '', 'Dress rehearsals are May 19–21.\n- Location: placeholder\n- Arrival times by class\n- Bring: costumes, shoes, tights, hair supplies\n- Parents: where to wait'],
     ['Picture day', 'Placeholder: date and schedule.', '', '', 'Placeholder: picture day date\n- Photo times by class\n- Come in full costume, hair and makeup done\n- How to order prints'],
     ['Show-day checklist', 'Placeholder: hair, makeup, arrival time.', '', '', '- Hair: style for each class\n- Makeup: what to wear\n- Arrival and drop-off time\n- Snacks, water, a cover-up over costumes']
   ].map(r => ({ t: r[0], d: r[1], label: r[2], url: r[3], more: r[4] }));
@@ -248,27 +248,47 @@
     { title: 'Little Movers', sub: 'Ages 18 months – 5 · rhythm, coordination & joy', cta: 'See classes', link: 'classes#schedule', photo: '', more: 'Placeholder: what little ones do in class\n- Tiny Tots: 18 months – 3, with a grown-up nearby\n- Preschool combos: ages 3–5\n- 40-minute classes, first one free' },
     { title: 'Dance Styles', sub: 'Ballet, jazz, tap, hip hop, breaking, acro & more', cta: 'See styles', link: 'classes#styles', photo: '', more: 'Placeholder: how levels work\n- Ballet, jazz, tap, hip hop, breaking, acro, contemporary, musical theater\n- Levels I–III by age and experience\n- Ages 6 through adult' },
     { title: 'Company', sub: 'Six competitive teams for dancers ready to go further', cta: 'Meet the teams', link: 'company', photo: '', more: 'Placeholder: what Company involves\n- Six teams by age and level\n- Auditions: when they happen\n- Competitions and conventions each season' }];
-  const PNUM = ['01 / Foundations', '02 / Technique', '03 / Compete'];
+  ['01 / Foundations', '02 / Technique', '03 / Compete'].forEach((n, i) => P0[i].num = n);
+  const STEPS0 = [
+    { num: '01', title: 'Find the right class', sub: 'Tap your dancer’s age to see classes, times and tuition.', btn: 'Find a class', link: 'classes#schedule', embed: false, more: '- Filter by age, style and day\n- Plan a full week for siblings\n- Download the printable schedule' },
+    { num: '02', title: 'Try it free, no account', sub: 'Tell us a little about your dancer. No portal login or setup.', btn: '', link: '', embed: true, more: '- Add your dancer, then pick a class and date\n- The front desk confirms by email or text within a day\n- Wear comfy clothes, bring water, arrive 10 minutes early' },
+    { num: '03', title: 'Enroll when you’re ready', sub: 'Loved it? We’ll send a link to register in the Parent Portal.', btn: 'Parent Portal', link: 'https://dancestudio-pro.com/online/index.php?account_id=20951', embed: false, more: '- $30 registration per family, per year\n- Tuition is per class, priced by the week\n- 10% off each class from the 3rd\n- Sessions 3 & 4: up to 3 absences per class in total, and no make-ups in Session 4 while classes rehearse for the recital\n- No refunds once enrolled' }];
+  const POL0 = [
+    { t: 'Payments', d: 'Placeholder: auto-pay through the Parent Portal, due dates.', more: 'Placeholder: the full policy, a few short lines.', label: '', url: '' },
+    { t: 'Make-ups', d: 'Make up a missed class within the same session. No make-ups in Session 4.', more: 'Placeholder: how to schedule a make-up.', label: '', url: '' },
+    { t: 'Missed classes', d: 'Sessions 3 and 4: up to 3 absences per class in total.', more: 'In Sessions 3 and 4 every class is learning and rehearsing its recital dance, so each missed class is missed practice for the whole group.\n- Up to 3 absences per class, total, across Sessions 3 and 4\n- No make-ups in Session 4: classes spend most of their time on recital dances', label: '', url: '' },
+    { t: 'Refunds', d: 'No refunds once you’re enrolled.', more: '', label: '', url: '' },
+    { t: 'Class changes', d: 'Classes may be cancelled if enrollment is low. Instructors place dancers by level; age is a guideline.', more: '', label: '', url: '' }];
+  const CAL0 = [
+    { title: 'Windy City Bulls Performance', start: '2026-11-14', end: '', where: 'NOW Arena', type: 'Event' },
+    { title: 'Observation Week', start: '2026-11-15', end: '2026-11-21', where: 'At the studio', type: 'Event', tbc: true },
+    { title: 'Thanksgiving break, no classes', start: '2026-11-24', end: '2026-11-29', where: 'Studio closed', type: 'Closure', tbc: true },
+    { title: 'Winter break, no classes', start: '2026-12-21', end: '2027-01-03', where: 'Studio closed', type: 'Closure', tbc: true },
+    { title: 'Session 3 begins', start: '2027-01-06', end: '', where: 'All classes', type: 'Session' },
+    { title: 'Session 4 begins', start: '2027-03-09', end: '', where: 'All classes', type: 'Session' },
+    { title: 'Spring break, no classes', start: '2027-03-21', end: '2027-03-28', where: 'Studio closed', type: 'Closure' },
+    { title: 'Recital dress rehearsals', start: '2027-05-19', end: '2027-05-21', where: 'Times by class coming soon', type: 'Recital' },
+    { title: 'Annual recital', start: '2027-05-22', end: '2027-05-23', where: 'Venue coming soon', type: 'Recital' }];
   const FACTS0 = [['Ages', '18 months to adult'], ['Styles', 'Ballet, jazz, tap, hip hop & more'], ['Where', 'Prospect Heights, IL'], ['Try it', 'Your first class is free']];
-  const HOME0 = { tagline: 'Technique, artistry and confidence for every dancer.', facts: FACTS0.map(f => ({ label: f[0], text: f[1] })), programs: P0 };
+  const HOME0 = { tagline: 'Technique, artistry and confidence for every dancer.', facts: FACTS0.map(f => ({ label: f[0], text: f[1] })), programs: P0, steps: STEPS0 };
   const NAMES = { classes: 'Classes', pricing: 'Pricing', company: 'Company', about: 'About', families: 'Current Families', shop: 'Gift Cards & Shop' };
   const NAV0 = [['classes', 1], ['pricing', 1], ['company', 1], ['about', 1], ['families', 1], ['shop', 0]].map(x => ({ id: x[0], header: !!x[1] }));
   // Tuition = weekly rate x class weeks in the session (rates from Studio Pro, Session 2 fees)
   const RATES0 = { 40: 16.63, 55: 19, 70: 23.5, 85: 28.5 };
   const SPECIAL0 = [{ label: 'Intro to Breaking', match: '^intro to break', rate: 20.88 }, { label: 'Breaking I or II (2 classes a week)', match: '^breaking i+$', rate: 41.88 }, { label: 'Breaking I & II combined class', match: 'combined', rate: 0 }];
   const SESS0 = [{ name: 'Session 1', dates: '', weeks: 8 }, { name: 'Session 2', dates: 'Oct 14 – Jan 5', weeks: 9 }, { name: 'Session 3', dates: 'Jan 6 – Mar 9', weeks: 9 }, { name: 'Session 4', dates: 'Mar 9 – May 18 · no classes Mar 21–28', weeks: 9 }];
-  const DEFAULTS = { recital: false, banner: { text: 'Holiday gift cards & merch are here', href: 'shop' }, rc: RC0, staff: STAFF0, home: HOME0, nav: NAV0, prices: { rates: RATES0, specials: SPECIAL0, sessions: SESS0, current: 1, byKey: {} }, photos: {} };
+  const DEFAULTS = { recital: false, banner: { text: 'Holiday gift cards & merch are here', href: 'shop' }, rc: RC0, staff: STAFF0, home: HOME0, nav: NAV0, prices: { rates: RATES0, specials: SPECIAL0, sessions: SESS0, current: 1, byKey: {} }, photos: {}, calendar: CAL0, policies: POL0 };
   // Saved links are page ids like "families#recital"; older saves used file names
   const normLink = (h) => { h = String(h || '').trim(); const old = /^(?:H-(\w+)\.dc|HomeH\.dc|(\w+))\.html(#[\w-]+)?$/.exec(h); if (old) return (old[1] ? old[1].toLowerCase() : !old[2] || old[2] === 'index' ? 'home' : old[2]) + (old[3] || ''); return h; };
   const mergeStaff = (saved) => { const D = STAFF0, first = (n) => String(n || '').split(' ')[0].toLowerCase(), used = new Set();
     const out = D.map(d => { const i = saved.findIndex((x, k) => !used.has(k) && first(x.name) === first(d.name)); if (i < 0) return Object.assign({}, d); used.add(i); const x = saved[i];
       return { name: x.name && x.name.length > d.name.length ? x.name : d.name, role: x.role && x.role !== 'Name & role' ? x.role : d.role, tag: x.tag || d.tag, bio: x.bio || d.bio, photo: x.photo || d.photo }; });
     return out.concat(saved.filter((x, k) => !used.has(k))); };
-  const mergeHome = (h) => { h = h || {}; return { tagline: h.tagline || HOME0.tagline, facts: FACTS0.map((f, i) => Object.assign({ label: f[0], text: f[1] }, ((h.facts || [])[i]) || {})), programs: P0.map((p, i) => Object.assign({}, p, ((h.programs || [])[i]) || {})) }; };
+  const mergeHome = (h) => { h = h || {}; return { tagline: h.tagline || HOME0.tagline, facts: FACTS0.map((f, i) => Object.assign({ label: f[0], text: f[1] }, ((h.facts || [])[i]) || {})), programs: (h.programs && h.programs.length ? h.programs : P0).map((p, i) => Object.assign({ num: '', title: '', sub: '', cta: '', link: '', photo: '', more: '' }, P0[i] || {}, p)), steps: (h.steps && h.steps.length ? h.steps : STEPS0).map(x => Object.assign({ num: '', title: '', sub: '', btn: '', link: '', embed: false, more: '' }, x)) }; };
   const pick = (o) => ({ recital: !!o.recital, banner: (() => { const b = Object.assign({}, DEFAULTS.banner, o.banner || {}); b.href = normLink(b.href); return b; })(),
     home: mergeHome(o.home), nav: (o.nav && o.nav.length ? o.nav : NAV0).filter(n => NAMES[n.id]).map(n => ({ id: n.id, header: !!n.header })),
     prices: (() => { const q = o.prices || {}; const ss = (q.sessions && q.sessions.length ? q.sessions : SESS0).map(x => Object.assign({ name: '', dates: '', weeks: '' }, x));
-      return { rates: Object.assign({}, RATES0, q.rates || {}), specials: (q.specials || SPECIAL0).map(x => Object.assign({}, x)), sessions: ss, current: q.current != null && ss[q.current] ? q.current : Math.min(1, ss.length - 1), byKey: q.tiers ? {} : Object.assign({}, q.byKey || {}) }; })(), photos: Object.assign({}, o.photos || {}), rc: (o.rc && o.rc.length ? o.rc : RC0).map(r => Object.assign({ t: '', d: '', label: '', url: '', more: '' }, r)), staffV: 2, staff: (o.staff && o.staff.length ? (o.staffV === 2 ? o.staff : mergeStaff(o.staff)) : STAFF0).map(s => Object.assign({ name: '', role: '', tag: '', bio: '', photo: '' }, s)) });
+      return { rates: Object.assign({}, RATES0, q.rates || {}), specials: (q.specials || SPECIAL0).map(x => Object.assign({}, x)), sessions: ss, current: q.current != null && ss[q.current] ? q.current : Math.min(1, ss.length - 1), byKey: q.tiers ? {} : Object.assign({}, q.byKey || {}) }; })(), photos: Object.assign({}, o.photos || {}), calendar: (o.calendar || CAL0).map(e => Object.assign({ title: '', start: '', end: '', where: '', type: 'Event' }, e)), policies: (o.policies || POL0).map(x => Object.assign({ t: '', d: '', more: '', label: '', url: '' }, x)), rc: (o.rc && o.rc.length ? o.rc : RC0).map(r => Object.assign({ t: '', d: '', label: '', url: '', more: '' }, r)).map(r => { const n = RC0.find(x => x.t === r.t); return n && /^Placeholder: (date, time and venue address|date and what to bring)\./.test(r.d) ? Object.assign({}, n) : r; }), staffV: 2, staff: (o.staff && o.staff.length ? (o.staffV === 2 ? o.staff : mergeStaff(o.staff)) : STAFF0).map(s => Object.assign({ name: '', role: '', tag: '', bio: '', photo: '' }, s)) });
   const clone = (x) => JSON.parse(JSON.stringify(x));
 
   let live = pick(Object.assign({}, DEFAULTS, read(LIVE) || {}));
@@ -334,12 +354,14 @@
     { id: 'homepage', label: 'Homepage', short: 'Homepage' },
     { id: 'prices', label: 'Sessions & prices', short: 'Prices' },
     { id: 'nav', label: 'Menu & header', short: 'Menu' },
+    { id: 'calendar', label: 'Studio calendar', short: 'Calendar' },
+    { id: 'policies', label: 'Policies', short: 'Policies' },
     { id: 'photos', label: 'Photos & videos', short: 'Photos' }
   ];
   const SOON = [];
   let page = (location.hash || '#home').slice(1); if (!PAGES.some(p => p.id === page)) page = 'home';
   let openItem = -1, confirmDel = -1;
-  const go = (p) => { page = p; openItem = -1; confirmDel = -1; history.replaceState(null, '', '#' + p); render(); window.scrollTo(0, 0); };
+  const go = (p) => { page = p; openItem = -1; confirmDel = -1; openCard = ''; delCard = ''; history.replaceState(null, '', '#' + p); render(); window.scrollTo(0, 0); };
 
   function navs() {
     $('side').innerHTML = '<div class="grp">Your site</div>' + PAGES.map(p => '<button type="button" data-go="' + p.id + '"' + (p.id === page ? ' aria-current="page"' : '') + '>' + esc(p.label) + '</button>').join('')
@@ -369,9 +391,11 @@
       + '<button class="tile" type="button" data-go="banner"><b>Post an announcement</b><span>The teal line across the top of every page.</span><span class="now">Now: “' + esc(draft.banner.text) + '” → ' + esc(bannerTo) + '</span></button>'
       + '<button class="tile" type="button" data-go="recital"><b>Recital season</b><span>Turn on recital info for families, and edit the recital cards.</span><span class="now">Now: ' + (draft.recital ? 'On' : 'Off') + '</span></button>'
       + '<button class="tile" type="button" data-go="staff"><b>Instructors</b><span>Photos and bios on the About page.</span><span class="now">' + draft.staff.length + ' people · ' + (missing ? missing + ' need a bio' : 'all bios done') + (noPhoto ? ' · ' + noPhoto + ' need a photo' : '') + '</span></button>'
-      + '<button class="tile" type="button" data-go="homepage"><b>Homepage</b><span>The line under “Move with purpose,” the four quick facts, and the three program cards.</span><span class="now">3 cards · 4 facts</span></button>'
+      + '<button class="tile" type="button" data-go="homepage"><b>Homepage</b><span>The line under “Move with purpose,” the quick facts, program cards and getting-started steps.</span><span class="now">' + draft.home.programs.length + ' cards · ' + draft.home.steps.length + ' steps · 4 facts</span></button>'
       + '<button class="tile" type="button" data-go="prices"><b>Sessions &amp; prices</b><span>Set up the season’s sessions and weekly rates. Every class price is worked out for you.</span><span class="now">Showing ' + esc(curSess().name) + (curSess().weeks ? ' · ' + curSess().weeks + ' weeks' : '') + ' · 55 min $' + forWeeks(draft.prices.rates[55], curSess().weeks) + '</span></button>'
       + '<button class="tile" type="button" data-go="nav"><b>Menu &amp; header</b><span>Which pages show across the top, and their order.</span><span class="now">' + hdr + ' in the header · ' + draft.nav.length + ' in the menu</span></button>'
+      + '<button class="tile" type="button" data-go="calendar"><b>Studio calendar</b><span>Breaks, session dates, recital and events. The next three show on the homepage.</span><span class="now">' + upcoming().length + ' coming up' + (draft.calendar.some(e => e.tbc) ? ' · ' + draft.calendar.filter(e => e.tbc).length + ' to confirm' : '') + '</span></button>'
+      + '<button class="tile" type="button" data-go="policies"><b>Policies</b><span>Payments, make-ups, missed classes, refunds. Shown on the Pricing page.</span><span class="now">' + draft.policies.length + ' policies</span></button>'
       + '<button class="tile" type="button" data-go="photos"><b>Photos &amp; videos</b><span>Swap the placeholder photos around the site.</span><span class="now">' + (Object.values(draft.photos).filter(Boolean).length + draft.home.programs.filter(p => p.photo).length) + ' photos added</span></button>'
       + '</div>'
       + '<div class="auto"><div><b>You don’t need to update these here</b><ul><li>Classes, days, times and ages: change them in Studio Pro and the website updates by itself.</li><li>Free trial sign-ups: they go straight into Studio Pro.</li></ul></div></div>';
@@ -398,20 +422,11 @@
   }
   function vRecital() {
     const sw = '<button type="button" class="switch" role="switch" id="recSw" aria-checked="' + draft.recital + '"><span class="knob"></span><span><b>Recital season is ' + (draft.recital ? 'on' : 'off') + '</b><span>' + (draft.recital ? 'Families see a recital link in the top banner and the menu.' : 'Turn on when you’re ready to share recital tickets, costumes and schedule.') + '</span></span></button>';
-    const list = draft.rc.map((r, i) => {
-      const row = '<div class="item' + (openItem === i ? ' open' : '') + '"><button type="button" class="main" data-open="' + i + '" aria-expanded="' + (openItem === i) + '"><b>' + esc(r.t || 'Untitled card') + '</b><span>' + esc(r.d) + '</span></button>'
-        + (/placeholder/i.test(r.d + r.more) ? '<span class="tag">Placeholder</span>' : '') + '<button type="button" class="mini" data-open="' + i + '" aria-label="Edit ' + esc(r.t) + '">✎</button></div>';
-      if (openItem !== i) return row;
-      return row + '<div class="editor"><div class="two"><div>'
-        + field('rT', 'Title', r.t, 28) + field('rD', 'Short details', r.d, 140, { area: true, hint: 'One or two sentences on the card itself.' })
-        + field('rM', 'More details', r.more, 600, { area: true, optional: true, ph: 'Extra info for the slide-out panel', hint: 'Start a line with “- ” to make a bullet. Leave empty for no panel.' })
-        + field('rL', 'Button text', r.label, 20, { optional: true, ph: 'e.g. Buy tickets' })
-        + field('rU', 'Button link', r.url, 300, { optional: true, type: 'url', ph: 'https://…', hint: 'Both button text and link are needed for a button to show.' })
-        + '<button type="button" class="btn dark" data-close="1">Done</button>'
-        + '</div><div class="previewbox" id="pv">' + rcPreview(r) + '</div></div></div>';
-    }).join('');
-    return '<h1>Recital season</h1><p class="lede">One switch for the season, plus the six recital cards on the Current Families page.</p>'
-      + sw + '<h2 style="margin-top: 30px;">Recital cards</h2><p class="lede" style="margin-bottom: 14px;">Tap a card to edit it.</p><div class="list">' + list + '</div>';
+    return '<h1>Recital season</h1><p class="lede">One switch for the season, plus the recital cards on the Current Families page.</p>'
+      + sw + '<h2 style="margin-top: 30px;">Recital cards</h2><p class="lede" style="margin-bottom: 14px;">Tap a card to edit it.</p>'
+      + listEditor({ key: 'rc', noun: 'a card', get: () => draft.rc, title: r => r.t || 'New card', sub: r => r.d, flag: r => /placeholder/i.test(r.d + r.more) ? 'Placeholder' : '', preview: rcPreview,
+          newItem: () => ({ t: '', d: '', label: '', url: '', more: '' }),
+          fields: [{ k: 't', label: 'Title', max: 28 }, { k: 'd', label: 'Short details', max: 140, area: true, hint: 'One or two sentences on the card itself.' }, { k: 'more', label: 'More details', max: 600, area: true, opt: true, ph: 'Extra info for the slide-out panel', hint: 'Start a line with “- ” to make a bullet. Leave empty for no panel.' }, { k: 'label', label: 'Button text', max: 20, opt: true, ph: 'e.g. Buy tickets' }, { k: 'url', label: 'Button goes to', type: 'link', hint: 'Both button text and a destination are needed for a button to show.' }] });
   }
 
   function staffPreview(s) {
@@ -446,28 +461,103 @@
       + '<div class="list">' + list + '</div><button type="button" class="btn" id="sAdd" style="margin-top: 14px;">+ Add a person</button>';
   }
 
+  // ---------- card lists: every list can add, remove and reorder ----------
+  let openCard = '', delCard = '';
+  const LISTS = {};
+  const TYPES = ['Event', 'Closure', 'Session', 'Recital'];
+  function fieldFor(f, it) { const id = 'lf-' + f.k;
+    if (f.type === 'link') return linkPicker(id, f.label, it[f.k], f.hint);
+    if (f.type === 'date') return '<label class="field" for="' + id + '"><span class="row"><span>' + esc(f.label) + (f.opt ? ' <span class="count">(optional)</span>' : '') + '</span></span><input type="date" id="' + id + '" value="' + esc(it[f.k]) + '" style="display: block; width: 100%; max-width: 240px; padding: 11px; border: 1px solid #C9CDCB; font-size: 15px; background: #FFFFFF;">' + (f.hint ? '<div class="hint">' + f.hint + '</div>' : '') + '</label>';
+    if (f.type === 'select') return '<div class="field"><div class="row"><span>' + esc(f.label) + '</span></div><div class="chips" role="group">' + f.opts.map(o => '<button type="button" class="chip" data-lsel="' + f.k + ':' + o + '" aria-pressed="' + (it[f.k] === o) + '">' + esc(o) + '</button>').join('') + '</div></div>';
+    if (f.type === 'check') return '<div class="field"><label class="check"><input type="checkbox" id="' + id + '"' + (it[f.k] ? ' checked' : '') + '> ' + esc(f.label) + '</label>' + (f.hint ? '<div class="hint">' + f.hint + '</div>' : '') + '</div>';
+    if (f.type === 'photo') return '<div class="field"><div class="row"><span>' + esc(f.label) + '</span></div><div style="display: flex; gap: 10px; flex-wrap: wrap;"><label class="btn" for="' + id + '">' + (it[f.k] ? 'Change photo' : 'Add photo') + '</label><input type="file" id="' + id + '" accept="image/*" class="sr">' + (it[f.k] ? '<button type="button" class="btn ghost" data-lphotox="' + f.k + '">Remove</button>' : '') + '</div></div>';
+    return field(id, f.label, it[f.k], f.max, { area: f.area, optional: f.opt, hint: f.hint, ph: f.ph }); }
+  function listEditor(cfg) {
+    LISTS[cfg.key] = cfg; const items = cfg.get();
+    return '<div class="list">' + items.map((it, i) => { const id = cfg.key + ':' + i, open = openCard === id;
+      const row = '<div class="item' + (open ? ' open' : '') + '">' + (cfg.thumb ? '<span class="thumb">' + (cfg.thumb(it) ? '<img src="' + esc(cfg.thumb(it)) + '" alt="">' : 'Photo') + '</span>' : '')
+        + '<button type="button" class="main" data-lopen="' + id + '" aria-expanded="' + open + '"><b>' + esc(cfg.title(it, i)) + '</b><span>' + esc(cfg.sub(it, i)) + '</span></button>'
+        + (cfg.flag && cfg.flag(it) ? '<span class="tag">' + esc(cfg.flag(it)) + '</span>' : '')
+        + (cfg.noMove ? '' : '<button type="button" class="mini" data-lmove="' + id + ':-1"' + (i === 0 ? ' disabled' : '') + ' aria-label="Move up">↑</button><button type="button" class="mini" data-lmove="' + id + ':1"' + (i === items.length - 1 ? ' disabled' : '') + ' aria-label="Move down">↓</button>') + '</div>';
+      if (!open) return row;
+      return row + '<div class="editor"><div class="two"><div>' + cfg.fields.map(f => fieldFor(f, it)).join('')
+        + '<div style="display: flex; gap: 10px; flex-wrap: wrap;"><button type="button" class="btn dark" data-lclose="1">Done</button>' + (items.length > (cfg.min || 0) ? '<button type="button" class="btn ghost" data-ldel="' + id + '">Remove</button>' : '') + '</div>'
+        + (delCard === id ? '<div class="confirm" role="alert"><span>Remove “' + esc(cfg.title(it, i)) + '”?</span><button type="button" class="btn dark" data-ldelyes="' + id + '">Remove</button><button type="button" class="btn ghost" data-ldelno="1">Keep</button></div>' : '')
+        + '</div><div class="previewbox" id="pv-' + cfg.key + '">' + cfg.preview(it, i) + '</div></div></div>';
+    }).join('') + '</div><button type="button" class="btn" data-ladd="' + cfg.key + '" style="margin-top: 12px;">+ Add ' + esc(cfg.noun) + '</button>';
+  }
+  function bindList() {
+    if (!openCard) return; const [key, si] = openCard.split(':'), cfg = LISTS[key]; if (!cfg) return; const i = +si, it = cfg.get()[i]; if (!it) return;
+    const up = () => { const el = $('pv-' + key); if (el) el.innerHTML = cfg.preview(it, i); };
+    cfg.fields.forEach(f => { const id = 'lf-' + f.k;
+      if (f.type === 'link') bindPicker(id, v => { it[f.k] = v; it.tbc = false; }, up);
+      else if (f.type === 'date') { const el = $(id); if (el) el.addEventListener('change', () => { it[f.k] = el.value; it.tbc = false; if (cfg.sort) { cfg.sort(); openCard = key + ':' + cfg.get().indexOf(it); } saveDraft(); render(); }); }
+      else if (f.type === 'check') { const el = $(id); if (el) el.addEventListener('change', () => { it[f.k] = el.checked; saveDraft(); up(); }); }
+      else if (f.type === 'photo') { const el = $(id); if (el) el.addEventListener('change', () => { const file = el.files && el.files[0]; if (file) shrink(file, (u) => { it[f.k] = u; saveDraft(); render(); }, 900, 600); }); }
+      else if (f.type !== 'select') bind(id, f.max, v => { it[f.k] = v; it.tbc = false; }, () => { up(); const row = document.querySelector('.item.open .main'); if (row) { row.querySelector('b').textContent = cfg.title(it, i); row.querySelector('span').textContent = cfg.sub(it, i); } }); });
+  }
+  function listClick(d) {
+    const pt = (v) => { const a = v.split(':'); return { cfg: LISTS[a[0]], key: a[0], i: +a[1], dir: +a[2] }; };
+    if (d.lopen) { openCard = openCard === d.lopen ? '' : d.lopen; delCard = ''; render(); return true; }
+    if (d.lclose) { openCard = ''; delCard = ''; render(); return true; }
+    if (d.lmove) { const q = pt(d.lmove), a = q.cfg.get(), j = q.i + q.dir; if (j < 0 || j >= a.length) return true; [a[q.i], a[j]] = [a[j], a[q.i]]; if (openCard === q.key + ':' + q.i) openCard = q.key + ':' + j; saveDraft(); render(); return true; }
+    if (d.ldel) { delCard = d.ldel; render(); return true; }
+    if (d.ldelno) { delCard = ''; render(); return true; }
+    if (d.ldelyes) { const q = pt(d.ldelyes), nm = q.cfg.title(q.cfg.get()[q.i], q.i); q.cfg.get().splice(q.i, 1); openCard = ''; delCard = ''; saveDraft(); render(); toast('“' + nm + '” removed. Press Publish to update the site.'); return true; }
+    if (d.ladd) { const cfg = LISTS[d.ladd], a = cfg.get(), it = cfg.newItem(a.length); a.push(it); if (cfg.sort) cfg.sort(); openCard = d.ladd + ':' + a.indexOf(it); saveDraft(); render(); const first = document.querySelector('.editor input[type=text], .editor textarea'); if (first) first.focus(); return true; }
+    if (d.lsel) { const [k, v] = d.lsel.split(':'), [key, si] = openCard.split(':'), it = LISTS[key].get()[+si]; it[k] = v; it.tbc = false; saveDraft(); render(); return true; }
+    if (d.lphotox) { const [key, si] = openCard.split(':'); LISTS[key].get()[+si][d.lphotox] = ''; saveDraft(); render(); return true; }
+    return false;
+  }
+
+  // Calendar
+  const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const dOf = (x) => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(x || ''); return m ? { y: +m[1], m: +m[2] - 1, d: +m[3] } : null; };
+  const fmtRange = (a, b) => { const A = dOf(a), B = dOf(b); if (!A) return 'No date yet'; const s1 = MON[A.m] + ' ' + A.d; if (!B || b === a) return s1; return s1 + ' – ' + (B.m === A.m && B.y === A.y ? B.d : MON[B.m] + ' ' + B.d); };
+  const todayISO = (() => { const t = new Date(); return t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0'); })();
+  const isPast = (e) => !!e.start && (e.end || e.start) < todayISO;
+  const upcoming = () => draft.calendar.filter(e => dOf(e.start) && !isPast(e));
+  const sortCal = () => draft.calendar.sort((x, y) => (x.start || '9') < (y.start || '9') ? -1 : (x.start || '9') > (y.start || '9') ? 1 : 0);
+  function calPreview(e) { const A = dOf(e.start);
+    return '<div class="lbl">On the homepage</div><div style="background: #FFFFFF; border: 1px solid var(--line); padding: 18px; display: flex; gap: 16px; align-items: center;"><div style="text-align: center; min-width: 54px;"><div style="font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--teal-dark); font-weight: 700;">' + (A ? MON[A.m] : '—') + '</div><div style="font-size: 32px; font-weight: 800; letter-spacing: -0.05em;">' + (A ? A.d : '') + '</div></div><div><b style="font-size: 17px;">' + esc(e.title || 'Event name') + '</b><div style="color: var(--mut); font-size: 13px;">' + esc(e.where) + '</div></div></div>'
+      + '<div class="lbl" style="margin-top: 16px;">In the full calendar</div><div style="background: #FFFFFF; border: 1px solid var(--line); padding: 14px 18px; display: flex; gap: 14px; flex-wrap: wrap; align-items: center; font-size: 14px;"><b>' + esc(fmtRange(e.start, e.end)) + '</b><span>' + esc(e.title) + '</span><span class="tag" style="background: ' + (e.type === 'Closure' ? '#111111; color: #FFFFFF' : e.type === 'Session' ? '#E5E5E5; color: #000000' : '#00ADB5; color: #000000') + ';">' + esc(e.type) + '</span></div>'
+      + '<p class="pv-note">' + (isPast(e) ? 'This date has passed, so it’s hidden on the site.' : 'The homepage shows the next three coming up.') + '</p>'; }
+  function vCalendar() { sortCal();
+    return '<h1>Studio calendar</h1><p class="lede">Breaks, session dates, the recital and events. Past dates hide themselves, and the next three show on the homepage under “Mark your calendar.”</p>'
+      + (draft.calendar.some(e => e.tbc) ? '<div class="note">Dates marked <b>To confirm</b> came from the old sample calendar. Check them, then edit or remove them.</div>' : '')
+      + listEditor({ key: 'cal', noun: 'a date', noMove: true, sort: sortCal, get: () => draft.calendar, title: e => e.title || 'New date', sub: e => fmtRange(e.start, e.end) + (e.where ? ' · ' + e.where : ''),
+        flag: e => e.tbc ? 'To confirm' : isPast(e) ? 'Past' : '', preview: calPreview, newItem: () => ({ title: '', start: todayISO, end: '', where: '', type: 'Event' }),
+        fields: [{ k: 'title', label: 'What', max: 40 }, { k: 'start', label: 'Date (or first day)', type: 'date' }, { k: 'end', label: 'Last day', type: 'date', opt: true, hint: 'Only for things that last more than a day, like a break.' }, { k: 'where', label: 'Where or note', max: 30, opt: true, ph: 'e.g. Studio closed' }, { k: 'type', label: 'Type', type: 'select', opts: TYPES }] }); }
+
+  // Policies
+  function polPreview(x) { return '<div class="lbl">On the Pricing page</div><div class="pv-card" style="background: #FFFFFF; border: 1px solid var(--line);"><div class="bd"><h3>' + esc(x.t || 'Policy') + '</h3><p>' + esc(x.d) + '</p><div class="acts">' + (x.label && x.url ? '<span class="lnk">' + esc(x.label) + ' →</span>' : '') + (x.more.trim() ? '<span class="more">More details →</span>' : '') + '</div></div></div>' + (x.more.trim() ? '<div class="pv-slide"><div class="tg">Policy</div><h3>' + esc(x.t) + '</h3><p>' + esc(x.d) + '</p>' + moreHtml(x.more) + '</div>' : ''); }
+  function vPolicies() {
+    return '<h1>Policies</h1><p class="lede">The policy cards on the Pricing page. Keep the card short; put the full wording in More details.</p>'
+      + listEditor({ key: 'pol', noun: 'a policy', get: () => draft.policies, title: x => x.t || 'New policy', sub: x => x.d, flag: x => /placeholder/i.test(x.d + x.more) ? 'Placeholder' : '', preview: polPreview,
+        newItem: () => ({ t: '', d: '', more: '', label: '', url: '' }),
+        fields: [{ k: 't', label: 'Title', max: 28 }, { k: 'd', label: 'Short version', max: 140, area: true }, { k: 'more', label: 'More details', max: 1200, area: true, opt: true, hint: 'Opens in a slide-out panel. Start a line with “- ” for a bullet.' }, { k: 'label', label: 'Button text', max: 20, opt: true, ph: 'e.g. Full policy' }, { k: 'url', label: 'Button goes to', type: 'link' }] }); }
+
   // Homepage
+  function stepPreview(x) { return '<div class="lbl">How the step looks</div><div class="pv-card" style="background: #FFFFFF; border: 1px solid var(--line);"><div class="bd"><div style="font-family: Georgia, serif; font-style: italic; font-size: 40px;">' + esc(x.num) + '</div><h3>' + esc(x.title || 'Step') + '</h3><p>' + esc(x.sub) + '</p><div class="acts">' + (x.btn && x.link ? '<span class="lnk">' + esc(x.btn) + ' →</span>' : '') + '<span class="more">More details →</span></div></div></div>'
+    + '<div class="pv-slide"><div class="tg">Step ' + esc(x.num) + '</div><h3>' + esc(x.title) + '</h3><p>' + esc(x.sub) + '</p>' + moreHtml(x.more) + (x.embed ? '<p style="color: var(--teal-dark); font-weight: 700; margin-top: 10px;">+ Free trial form</p>' : '') + '</div>'; }
   function progPreview(p, i) {
     const img = p.photo ? '<img src="' + esc(p.photo) + '" alt="">' : 'Photo';
-    return '<div class="lbl">How the card looks</div><div class="pv-card" style="background: #161616; color: #FFFFFF;"><div class="ph">' + img + '</div><div class="bd"><div style="font-size: 10px; letter-spacing: 0.18em; color: #00ADB5; margin-bottom: 8px;">' + esc(PNUM[i]) + '</div><h3>' + esc(p.title || 'Title') + '</h3><p style="color: #AEB8B3;">' + esc(p.sub) + '</p><div class="acts"><span class="lnk" style="background: #00ADB5; color: #000000;">' + esc(p.cta || 'Button') + ' →</span>' + (p.more.trim() ? '<span class="more" style="border-color: #FFFFFF;">More details →</span>' : '') + '</div></div></div>'
+    return '<div class="lbl">How the card looks</div><div class="pv-card" style="background: #161616; color: #FFFFFF;"><div class="ph">' + img + '</div><div class="bd"><div style="font-size: 10px; letter-spacing: 0.18em; color: #00ADB5; margin-bottom: 8px;">' + esc(p.num) + '</div><h3>' + esc(p.title || 'Title') + '</h3><p style="color: #AEB8B3;">' + esc(p.sub) + '</p><div class="acts"><span class="lnk" style="background: #00ADB5; color: #000000;">' + esc(p.cta || 'Button') + ' →</span>' + (p.more.trim() ? '<span class="more" style="border-color: #FFFFFF;">More details →</span>' : '') + '</div></div></div>'
       + '<p class="pv-note">The button opens: <b>' + esc(destName(p.link)) + '</b></p>';
   }
   function vHomepage() {
     const h = draft.home;
     const facts = h.facts.map((f, i) => '<div class="grid2">' + field('fL' + i, 'Fact ' + (i + 1) + ' label', f.label, 14) + field('fT' + i, 'Fact ' + (i + 1), f.text, 40) + '</div>').join('');
-    const list = h.programs.map((p, i) => {
-      const row = '<div class="item' + (openItem === i ? ' open' : '') + '"><span class="thumb">' + (p.photo ? '<img src="' + esc(p.photo) + '" alt="">' : 'Photo') + '</span><button type="button" class="main" data-open="' + i + '" aria-expanded="' + (openItem === i) + '"><b>' + esc(PNUM[i]) + ' · ' + esc(p.title) + '</b><span>' + esc(p.sub) + '</span></button>' + (/placeholder/i.test(p.more) ? '<span class="tag">Placeholder</span>' : '') + '</div>';
-      if (openItem !== i) return row;
-      return row + '<div class="editor"><div class="two"><div>'
-        + '<div class="field"><div class="row"><span>Photo</span></div><div style="display: flex; gap: 10px; flex-wrap: wrap;"><label class="btn" for="pPhoto">' + (p.photo ? 'Change photo' : 'Add photo') + '</label><input type="file" id="pPhoto" accept="image/*" class="sr">' + (p.photo ? '<button type="button" class="btn ghost" id="pPhotoX">Remove</button>' : '') + '</div></div>'
-        + field('pT', 'Title', p.title, 24) + field('pS', 'Short line', p.sub, 70, { hint: 'Shown under the title on the card.' })
-        + field('pC', 'Button text', p.cta, 20) + linkPicker('pL', 'The button goes to', p.link)
-        + field('pM', 'More details', p.more, 600, { area: true, optional: true, hint: 'Opens in a slide-out panel. Start a line with “- ” for a bullet.' })
-        + '<button type="button" class="btn dark" data-close="1">Done</button></div><div class="previewbox" id="pv">' + progPreview(p, i) + '</div></div></div>';
-    }).join('');
     return '<h1>Homepage</h1><p class="lede">The words under the big “Move with purpose” headline, the quick facts, and the three program cards.</p>'
       + '<div class="two"><div class="panel">' + field('hTag', 'Line under the headline', h.tagline, 80) + facts + '</div><div class="previewbox"><div class="lbl">How it looks</div><div id="pvHero" style="background: #000000; color: #FFFFFF; padding: 22px;">' + heroPreview() + '</div></div></div>'
-      + '<h2 style="margin-top: 30px;">Program cards</h2><p class="lede" style="margin-bottom: 14px;">Tap a card to edit it. The numbers (01, 02, 03) stay as they are.</p><div class="list">' + list + '</div>';
+      + '<h2 style="margin-top: 30px;">Program cards</h2><p class="lede" style="margin-bottom: 14px;">Tap a card to edit it.</p>'
+      + listEditor({ key: 'prog', noun: 'a card', get: () => h.programs, thumb: p => p.photo, title: p => p.title || 'New card', sub: p => p.sub, flag: p => /placeholder/i.test(p.more) ? 'Placeholder' : '', preview: progPreview,
+          newItem: (n) => ({ num: String(n + 1).padStart(2, '0') + ' / ', title: '', sub: '', cta: 'Learn more', link: 'classes', photo: '', more: '' }),
+          fields: [{ k: 'photo', label: 'Photo', type: 'photo' }, { k: 'num', label: 'Small label', max: 24, hint: 'e.g. 01 / Foundations' }, { k: 'title', label: 'Title', max: 24 }, { k: 'sub', label: 'Short line', max: 70 }, { k: 'cta', label: 'Button text', max: 20 }, { k: 'link', label: 'The button goes to', type: 'link' }, { k: 'more', label: 'More details', max: 600, area: true, opt: true, hint: 'Opens in a slide-out panel. Start a line with “- ” for a bullet.' }] })
+      + '<h2 style="margin-top: 30px;">Getting started steps</h2><p class="lede" style="margin-bottom: 14px;">The “Getting started is easy” steps for new families.</p>'
+      + listEditor({ key: 'steps', noun: 'a step', get: () => h.steps, title: x => (x.num ? x.num + ' · ' : '') + (x.title || 'New step'), sub: x => x.sub, preview: stepPreview,
+          newItem: (n) => ({ num: String(n + 1).padStart(2, '0'), title: '', sub: '', btn: '', link: '', embed: false, more: '' }),
+          fields: [{ k: 'num', label: 'Number', max: 4 }, { k: 'title', label: 'Title', max: 30 }, { k: 'sub', label: 'Short line', max: 90, area: true }, { k: 'btn', label: 'Button text', max: 20, opt: true }, { k: 'link', label: 'The button goes to', type: 'link' }, { k: 'more', label: 'More details', max: 800, area: true, hint: 'Start a line with “- ” for a bullet.' }, { k: 'embed', label: 'Show the free trial form under the details', type: 'check' }] });
   }
   function heroPreview() { const h = draft.home;
     return '<div style="font-size: 34px; font-weight: 800; letter-spacing: -0.05em; line-height: 0.95;">Move<br>with <span class="serif" style="color: #00ADB5;">purpose.</span></div><p style="color: #E2E7E4; font-size: 14px; margin: 12px 0 16px;">' + esc(h.tagline) + '</p>'
@@ -543,14 +633,13 @@
   // ---------- render + events ----------
   function render() {
     navs(); status();
-    $('main').innerHTML = page === 'banner' ? vBanner() : page === 'recital' ? vRecital() : page === 'staff' ? vStaff() : page === 'homepage' ? vHomepage() : page === 'prices' ? vPrices() : page === 'nav' ? vNav() : page === 'photos' ? vPhotos() : vHome();
+    $('main').innerHTML = page === 'banner' ? vBanner() : page === 'recital' ? vRecital() : page === 'staff' ? vStaff() : page === 'homepage' ? vHomepage() : page === 'prices' ? vPrices() : page === 'nav' ? vNav() : page === 'photos' ? vPhotos() : page === 'calendar' ? vCalendar() : page === 'policies' ? vPolicies() : vHome();
     const pv = () => $('pv');
     if (page === 'banner') { bind('bText', 60, v => draft.banner.text = v, () => pv().innerHTML = bannerPreview()); bindPicker('bLink', v => draft.banner.href = v, () => pv().innerHTML = bannerPreview()); }
     if (page === 'homepage') { const h = draft.home, uh = () => $('pvHero').innerHTML = heroPreview();
       bind('hTag', 80, v => h.tagline = v, uh); h.facts.forEach((f, i) => { bind('fL' + i, 14, v => f.label = v, uh); bind('fT' + i, 40, v => f.text = v, uh); });
-      if (openItem >= 0) { const p = h.programs[openItem], i = openItem, up = () => pv().innerHTML = progPreview(p, i);
-        bind('pT', 24, v => p.title = v, up); bind('pS', 70, v => p.sub = v, up); bind('pC', 20, v => p.cta = v, up); bind('pM', 600, v => p.more = v, up); bindPicker('pL', v => p.link = v, up);
-        const f = $('pPhoto'); if (f) f.addEventListener('change', () => { const file = f.files && f.files[0]; if (file) shrink(file, (u) => { p.photo = u; saveDraft(); render(); }, 900, 600); }); } }
+    }
+    bindList();
     if (page === 'prices') { const P = draft.prices;
       const on = (sel, fn) => document.querySelectorAll(sel).forEach(el => el.addEventListener('change', () => { fn(el); saveDraft(); render(); }));
       on('[data-cur]', el => P.current = +el.dataset.cur);
@@ -565,8 +654,6 @@
     if (page === 'nav') document.querySelectorAll('[data-hdr]').forEach(el => el.addEventListener('change', () => { draft.nav[+el.dataset.hdr].header = el.checked; saveDraft(); render(); }));
     if (page === 'photos') document.querySelectorAll('[data-slot]').forEach(el => el.addEventListener('change', () => { const file = el.files && el.files[0]; if (!file) return; const k = el.dataset.slot;
       shrink(file, (u) => { if (/^prog/.test(k)) draft.home.programs[+k.slice(4)].photo = u; else draft.photos[k] = u; saveDraft(); render(); }, 1200, 900); }));
-    if (page === 'recital' && openItem >= 0) { const r = draft.rc[openItem]; const up = () => pv().innerHTML = rcPreview(r);
-      bind('rT', 28, v => r.t = v, up); bind('rD', 140, v => r.d = v, up); bind('rM', 600, v => r.more = v, up); bind('rL', 20, v => r.label = v, up); bind('rU', 300, v => r.url = v.trim(), up); }
     if (page === 'staff' && openItem >= 0) { const s = draft.staff[openItem]; const up = () => pv().innerHTML = staffPreview(s);
       bind('sN', 30, v => s.name = v, up); bind('sT', 20, v => s.tag = v, up); bind('sR', 40, v => s.role = v, up); bind('sB', 2000, v => s.bio = v, () => { up(); const tg = document.querySelector('.item.open .tag'); if (tg) tg.style.display = s.bio.trim() ? 'none' : ''; });
       const f = $('sPhoto'); if (f) f.addEventListener('change', () => { const file = f.files && f.files[0]; if (!file) return; shrink(file, (url) => { s.photo = url; saveDraft(); render(); }); }); }
@@ -584,6 +671,7 @@
     const t = e.target.closest('button, [data-go]'); if (!t) return;
     const d = t.dataset;
     if (d.go) return go(d.go);
+    if (listClick(d)) return;
     if (t.id === 'publishTop' || t.id === 'publishBar') return publish();
     if (t.id === 'discardTop' || t.id === 'discardBar') return discard();
     if (d.nup !== undefined || d.ndown !== undefined) { const i = +(d.nup !== undefined ? d.nup : d.ndown), j = d.nup !== undefined ? i - 1 : i + 1; const a = draft.nav; [a[i], a[j]] = [a[j], a[i]]; saveDraft(); render(); return; }

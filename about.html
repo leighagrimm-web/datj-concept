@@ -280,15 +280,15 @@ a{color:inherit;text-decoration:none}
   class Component extends DCLogic {
   constructor(p) { super(p); let sv = {}; try { sv = JSON.parse(window.localStorage.getItem('datj-admin') || '{}') || {}; } catch (e) {}
     const RC = [
-      ['Date & venue', 'Placeholder: date, time and venue address.', '', '', 'Placeholder: venue name and address\n- Doors open: time\n- Show starts: time\n- Parking: where to park and drop off'],
+      ['Date & venue', 'May 22–23. Venue and show times coming soon.', '', '', 'The annual recital is May 22–23.\n- Venue: placeholder\n- Doors open: time\n- Show starts: time\n- Parking: where to park and drop off'],
       ['Tickets', 'Placeholder: on-sale date and price.', 'Buy tickets', 'https://example.com/tickets', ''],
       ['Costumes', 'Placeholder: fee, sizing and pickup.', '', '', 'Placeholder: costume fee and when it is due\n- Sizing night: date\n- Pickup: date and place\n- Label every piece with your dancer’s name'],
-      ['Dress rehearsal', 'Placeholder: date and what to bring.', '', '', 'Placeholder: rehearsal date and location\n- Arrival times by class\n- Bring: costumes, shoes, tights, hair supplies\n- Parents: where to wait'],
+      ['Dress rehearsal', 'May 19–21. Times by class coming soon.', '', '', 'Dress rehearsals are May 19–21.\n- Location: placeholder\n- Arrival times by class\n- Bring: costumes, shoes, tights, hair supplies\n- Parents: where to wait'],
       ['Picture day', 'Placeholder: date and schedule.', '', '', 'Placeholder: picture day date\n- Photo times by class\n- Come in full costume, hair and makeup done\n- How to order prints'],
       ['Show-day checklist', 'Placeholder: hair, makeup, arrival time.', '', '', '- Hair: style for each class\n- Makeup: what to wear\n- Arrival and drop-off time\n- Snacks, water, a cover-up over costumes']
     ].map(r => ({ t: r[0], d: r[1], label: r[2], url: r[3], more: r[4] }));
     this.RC = RC;
-    this.state = { sound: false, admin: false, rcEdit: false, rcOpen: -1, dp: null, dpf: {}, dpfTried: false, dpfSent: false, recital: !!sv.recital, ownTrial: !!sv.ownTrial, staff: sv.staff || null, staffV: sv.staffV || 0, nav: sv.nav || null, prices: sv.prices || null, home: sv.home || null, photos: sv.photos || null, banner: sv.banner || { text: 'Holiday gift cards & merch are here', href: 'shop.html' }, rc: (sv.rc || RC).map((r, i) => Object.assign({ more: '' }, RC[i] ? { more: RC[i].more } : {}, r)), trial: false, sent: false, name: '', tf: {}, tAge: '', tStyle: '', tCls: -2, tTried: false, age: 'tots', menu: false, msg: false, summer: true, team: 0, ages: [], wages: [], sstyles: [], wstyles: [], panel: -1, day: 'all', teachers: [], plan: [] }; }
+    this.state = { sound: false, admin: false, rcEdit: false, rcOpen: -1, dp: null, dpf: {}, dpfTried: false, dpfSent: false, recital: !!sv.recital, ownTrial: !!sv.ownTrial, staff: sv.staff || null, staffV: sv.staffV || 0, nav: sv.nav || null, prices: sv.prices || null, home: sv.home || null, photos: sv.photos || null, calendar: sv.calendar || null, policies: sv.policies || null, banner: sv.banner || { text: 'Holiday gift cards & merch are here', href: 'shop.html' }, rc: (sv.rc || RC).map((r, i) => Object.assign({ more: '' }, RC[i] ? { more: RC[i].more } : {}, r)).map(r => { const n = RC.find(x => x.t === r.t); return n && /^Placeholder: (date, time and venue address|date and what to bring)\./.test(r.d || '') ? Object.assign({}, n) : r; }), trial: false, sent: false, name: '', tf: {}, tAge: '', tStyle: '', tCls: -2, tTried: false, age: 'tots', menu: false, msg: false, summer: true, team: 0, ages: [], wages: [], sstyles: [], wstyles: [], panel: -1, day: 'all', teachers: [], plan: [] }; }
   // Classes come from Studio Pro: the saved copy (classes.json, refreshed nightly) shows right away,
   // then one quick live check swaps in anything that changed today. Ages always come from the saved copy.
   loadClasses() {
@@ -315,7 +315,7 @@ a{color:inherit;text-decoration:none}
   }
   persist(next) {
     this.setState(next);
-    const KEYS = ['recital', 'ownTrial', 'staff', 'banner', 'rc', 'nav', 'prices', 'home', 'photos'];
+    const KEYS = ['recital', 'ownTrial', 'staff', 'banner', 'rc', 'nav', 'prices', 'home', 'photos', 'calendar', 'policies'];
     const s = {}; KEYS.forEach(k => { s[k] = k in next ? next[k] : this.state[k]; });
     try { const prev = JSON.parse(window.localStorage.getItem('datj-admin') || '{}') || {}; window.localStorage.setItem('datj-admin', JSON.stringify(Object.assign(prev, s))); } catch (e) {}
   }
@@ -448,6 +448,34 @@ a{color:inherit;text-decoration:none}
     const HOME = this.state.home || {};
     const FACTS0 = [['Ages', '18 months to adult'], ['Styles', 'Ballet, jazz, tap, hip hop & more'], ['Where', 'Prospect Heights, IL'], ['Try it', 'Your first class is free']];
     const PH = this.state.photos || {};
+    const PORTAL = 'https://dancestudio-pro.com/online/index.php?account_id=20951';
+    const lines = (t) => String(t || '').split('\n').map(x => x.trim()).filter(Boolean).join('|');
+    const STEPS0 = [
+      { num: '01', title: 'Find the right class', sub: 'Tap your dancer’s age to see classes, times and tuition.', btn: 'Find a class', link: 'classes#schedule', embed: false, more: '- Filter by age, style and day\n- Plan a full week for siblings\n- Download the printable schedule' },
+      { num: '02', title: 'Try it free, no account', sub: 'Tell us a little about your dancer. No portal login or setup.', btn: '', link: '', embed: true, more: '- Add your dancer, then pick a class and date\n- The front desk confirms by email or text within a day\n- Wear comfy clothes, bring water, arrive 10 minutes early' },
+      { num: '03', title: 'Enroll when you’re ready', sub: 'Loved it? We’ll send a link to register in the Parent Portal.', btn: 'Parent Portal', link: PORTAL, embed: false, more: '- $30 registration per family, per year\n- Tuition is per class, priced by the week\n- 10% off each class from the 3rd\n- Sessions 3 & 4: up to 3 absences per class in total, and no make-ups in Session 4 while classes rehearse for the recital\n- No refunds once enrolled' }];
+    const POL0 = [
+      { t: 'Payments', d: 'Placeholder: auto-pay through the Parent Portal, due dates.', more: 'Placeholder: the full policy, a few short lines.', label: '', url: '' },
+      { t: 'Make-ups', d: 'Make up a missed class within the same session. No make-ups in Session 4.', more: 'Placeholder: how to schedule a make-up.', label: '', url: '' },
+      { t: 'Missed classes', d: 'Sessions 3 and 4: up to 3 absences per class in total.', more: 'In Sessions 3 and 4 every class is learning and rehearsing its recital dance, so each missed class is missed practice for the whole group.\n- Up to 3 absences per class, total, across Sessions 3 and 4\n- No make-ups in Session 4: classes spend most of their time on recital dances', label: '', url: '' },
+      { t: 'Refunds', d: 'No refunds once you’re enrolled.', more: '', label: '', url: '' },
+      { t: 'Class changes', d: 'Classes may be cancelled if enrollment is low. Instructors place dancers by level; age is a guideline.', more: '', label: '', url: '' }];
+    const CAL0 = [
+      { title: 'Windy City Bulls Performance', start: '2026-11-14', end: '', where: 'NOW Arena', type: 'Event' },
+      { title: 'Observation Week', start: '2026-11-15', end: '2026-11-21', where: 'At the studio', type: 'Event', tbc: true },
+      { title: 'Thanksgiving break, no classes', start: '2026-11-24', end: '2026-11-29', where: 'Studio closed', type: 'Closure', tbc: true },
+      { title: 'Winter break, no classes', start: '2026-12-21', end: '2027-01-03', where: 'Studio closed', type: 'Closure', tbc: true },
+      { title: 'Session 3 begins', start: '2027-01-06', end: '', where: 'All classes', type: 'Session' },
+      { title: 'Session 4 begins', start: '2027-03-09', end: '', where: 'All classes', type: 'Session' },
+      { title: 'Spring break, no classes', start: '2027-03-21', end: '2027-03-28', where: 'Studio closed', type: 'Closure' },
+      { title: 'Recital dress rehearsals', start: '2027-05-19', end: '2027-05-21', where: 'Times by class coming soon', type: 'Recital' },
+      { title: 'Annual recital', start: '2027-05-22', end: '2027-05-23', where: 'Venue coming soon', type: 'Recital' }];
+    const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const dOf = (x) => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(x || ''); return m ? { y: +m[1], m: +m[2] - 1, d: +m[3] } : null; };
+    const fmtRange = (a, b) => { const A = dOf(a), B = dOf(b); if (!A) return ''; const s1 = MON[A.m] + ' ' + A.d; if (!B || b === a) return s1; return s1 + ' – ' + (B.m === A.m && B.y === A.y ? B.d : MON[B.m] + ' ' + B.d); };
+    const todayISO = (() => { const t = new Date(); return t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0'); })();
+    const CAL = (this.state.calendar || CAL0).filter(e => dOf(e.start) && (e.end || e.start) >= todayISO).sort((x, y) => x.start < y.start ? -1 : x.start > y.start ? 1 : 0);
+    const TAGC = { Event: '#00ADB5', Closure: '#111111', Session: '#E5E5E5', Recital: '#00ADB5' };
     const isPic = (x) => /^(data:image|https?:)/.test(x || '');
     // Instructors (About page). Brittany edits these in the admin; styles come from the Studio Pro schedule.
     // Instructor bios and photos from her current site's Our Staff page (photos still load from Wix)
@@ -482,9 +510,9 @@ a{color:inherit;text-decoration:none}
         { num: '01 / FOUNDATIONS', title: 'Little Movers', sub: 'Ages 18 months – 5 · rhythm, coordination & joy', photo: 'Photo: Tiny Tots class', href: 'classes.html#schedule', cta: 'See classes', more: 'Placeholder: what little ones do in class|- Tiny Tots: 18 months – 3, with a grown-up nearby|- Preschool combos: ages 3–5|- 40-minute classes, first one free' },
         { num: '02 / TECHNIQUE', title: 'Dance Styles', sub: 'Ballet, jazz, tap, hip hop, breaking, acro & more', photo: 'Photo: jazz class', href: 'classes.html#styles', cta: 'See styles', more: 'Placeholder: how levels work|- Ballet, jazz, tap, hip hop, breaking, acro, contemporary, musical theater|- Levels I–III by age and experience|- Ages 6 through adult' },
         { num: '03 / COMPETE', title: 'Company', sub: 'Six competitive teams for dancers ready to go further', photo: 'Video: company on stage', href: 'company.html', cta: 'Meet the teams', more: 'Placeholder: what Company involves|- Six teams by age and level|- Auditions: when they happen|- Competitions and conventions each season' }
-      ]; const ed = HOME.programs || [];
-        return P0.map((p, i) => { const e = Object.assign({}, ed[i] || {}); Object.keys(e).forEach(k => { if (e[k] === '' || e[k] == null) delete e[k]; });
-          const q = Object.assign({}, p, e); q.href = e.link ? linkTo(e.link) : p.href; q.photoImg = isPic(q.photo); q.photoPh = !q.photoImg; return q; }); })(),
+      ]; const ed = HOME.programs && HOME.programs.length ? HOME.programs : P0;
+        return ed.map((x, i) => { const p = P0[i] || { num: String(i + 1).padStart(2, '0'), photo: 'Photo', href: 'classes.html', more: '' }; const e = Object.assign({}, x || {}); Object.keys(e).forEach(k => { if (e[k] === '' || e[k] == null) delete e[k]; });
+          const q = Object.assign({}, p, e); q.href = e.link ? linkTo(e.link) : p.href; q.more = lines(q.more).indexOf('|') >= 0 || !/\|/.test(q.more || '') ? lines(q.more) : q.more; q.photoImg = isPic(q.photo); q.photoPh = !q.photoImg; return q; }); })(),
       ageBtns: [['tots','18 mo–3'],['pre','3–5'],['kids','6–8'],['tween','9–12'],['teen','Teen'],['adult','Adult']].map(x => ({ label: x[1], on: x[0] === a ? 'true' : 'false', pick: () => this.setState({ age: x[0] }),
         style: 'min-height: 48px; border: 1px solid ' + (x[0] === a ? '#111111' : '#CCCCCC') + '; background: ' + (x[0] === a ? '#111111' : '#FFFFFF') + '; color: ' + (x[0] === a ? '#FFFFFF' : '#111111') + '; font-family: inherit; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 700; cursor: pointer;' })),
       fit: (() => { const b = AGEB.find(x => x[0] === a); const seen = {}; const out = C.filter(c => b && c.lo <= b[3] && c.hi >= b[2] && !(c.lo === 0 && c.hi === 99)).map(c => ({ name: c.name.replace(/ (Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)$/, ''), price: /^\$/.test(c.priceLabel) ? c.priceLabel + ' / session' : c.priceLabel })).filter(c => !seen[c.name] && (seen[c.name] = 1)); return out.length ? out.slice(0, 6) : byAge[a].map(c => ({ name: c[0], price: c[1] })); })(),
@@ -514,6 +542,12 @@ a{color:inherit;text-decoration:none}
       teacherChips: [{ label: 'All teachers', on: !selT.length, pick: () => this.setState({ teachers: [] }) }].concat(TEACH.map(t => ({ label: t, on: selT.includes(t), pick: () => this.setState({ teachers: toggle(selT, t) }) }))).map(x => Object.assign(x, { style: CHIP(x.on), pressed: x.on ? 'true' : 'false' })),
       schedSource: classesLive ? 'Live from Studio Pro' : (classesAt ? 'From Studio Pro · saved ' + new Date(classesAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Sample schedule'),
       hasTeachers: TEACH.length > 0,
+      steps: ((HOME.steps && HOME.steps.length) ? HOME.steps : STEPS0).map((x, i) => ({ num: x.num || String(i + 1).padStart(2, '0'), title: x.title, sub: x.sub, tag: 'Step ' + (x.num || String(i + 1).padStart(2, '0')),
+        hasBtn: !!(x.btn && x.link), btn: x.btn, href: linkTo(x.link), arrow: /^https?:/.test(x.link || '') ? '↗︎' : '→︎', more: lines(x.more), embed: x.embed ? 'trial' : '' })),
+      policies: (this.state.policies || POL0).map(x => ({ t: x.t, d: x.d, more: lines(x.more), hasMore: !!String(x.more || '').trim(), hasLink: !!(x.label && x.url), label: x.label, url: linkTo(x.url), arrow: /^https?:/.test(x.url || '') ? '↗︎' : '→︎' })),
+      calUpcoming: CAL.slice(0, 3).map(e => { const A = dOf(e.start); return { mon: MON[A.m], day: A.d, title: e.title, where: e.where || '' }; }),
+      calAll: CAL.map(e => ({ when: fmtRange(e.start, e.end), title: e.title, where: e.where || '', type: e.type || 'Event', tagStyle: 'display: inline-block; padding: 5px 8px; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700; background: ' + (TAGC[e.type] || '#00ADB5') + '; color: ' + (e.type === 'Closure' ? '#FFFFFF' : '#000000') + ';' })),
+      calEmpty: CAL.length === 0,
       sessName: curS.name, sessNote: curS.name + (curS.dates ? ' · ' + curS.dates : '') + (curS.weeks ? ' · ' + curS.weeks + ' weeks' : '') + '. Tuition is priced by the week, so it changes a little when a session has more or fewer weeks.',
       sessCols: SESS.filter(x => +x.weeks).map(x => ({ name: x.name + ' · ' + x.weeks + ' wks', cls: x === curS ? '' : 'p-hideM' })),
       tuitionCols: 'grid-template-columns: 1.3fr 1.2fr 100px' + ' 120px'.repeat(SESS.filter(x => +x.weeks).length) + ';',
@@ -576,7 +610,7 @@ a{color:inherit;text-decoration:none}
           hasMore: !!(r.more || '').trim(), open: () => this.setState({ rcOpen: i }) }); }),
       rcIsOpen: (this.state.rcOpen ?? -1) >= 0 && !!(this.state.rc || [])[this.state.rcOpen],
       rcCur: (() => { const r = (this.state.rc || [])[this.state.rcOpen] || {}; const lines = (r.more || '').split('\n').map(x => x.trim()).filter(Boolean);
-        return { t: r.t, d: r.d, label: r.label, url: r.url, arrow: /^https?:/.test(r.url || '') ? '↗︎' : '→︎', hasLink: !!(r.label && r.url), paras: lines.filter(x => !/^[-•]/.test(x)).map(x => ({ x })), bullets: lines.filter(x => /^[-•]/.test(x)).map(x => ({ x: x.replace(/^[-•]\s*/, '') })), num: String((this.state.rcOpen || 0) + 1) + ' / ' + (this.state.rc || []).length }; })(),
+        return { t: r.t, d: r.d, label: r.label, url: linkTo(r.url), arrow: /^https?:/.test(r.url || '') ? '↗︎' : '→︎', hasLink: !!(r.label && r.url), paras: lines.filter(x => !/^[-•]/.test(x)).map(x => ({ x })), bullets: lines.filter(x => /^[-•]/.test(x)).map(x => ({ x: x.replace(/^[-•]\s*/, '') })), num: String((this.state.rcOpen || 0) + 1) + ' / ' + (this.state.rc || []).length }; })(),
       rcClose: () => this.setState({ rcOpen: -1 }),
       openCard: (e) => { const el = e.currentTarget, ds = el.dataset || {}; this.setState({ dpf: {}, dpfTried: false, dpfSent: false, dp: { t: ds.t || '', d: ds.d || '', more: ds.more || '', label: ds.label || '', url: ds.url || '', tag: ds.tag || '', photo: ds.photo || '', embed: ds.embed || '', form: ds.form || '', gform: ds.gform || '', gformLabel: ds.gformLabel || 'Sign up' } }); },
       dpOpen: !!this.state.dp, dpClose: () => this.setState({ dp: null }),
@@ -590,7 +624,7 @@ a{color:inherit;text-decoration:none}
             err: this.state.dpfTried && dpBad(f, v), msg: f.type === 'email' ? 'Add a valid email.' : f.type === 'tel' ? 'Add a 10-digit phone number.' : 'This one is required.' }; }) } : { fields: [] },
       dpSubmit: () => { if (dpFormDef.fields.some(f => dpBad(f, (this.state.dpf || {})[f.k] || ''))) { this.setState({ dpfTried: true }); return; } const v = this.state.dpf || {}; postSignup({ type: (this.state.dp || {}).form || 'audition', first: v.first, last: v.last, age: v.age, currentClass: v.cls, parent: v.parent, email: v.email, phone: v.phone }); this.setState({ dpfSent: true }); },
       dpCur: (() => { const r = this.state.dp || {}; const lines = (r.more || '').split('|').map(x => x.trim()).filter(Boolean);
-        const ext = /^https?:/.test(r.url || ''); const isImg = /^(data:image|https?:|\/|[\w.-]+\.(jpe?g|png|webp)$)/i.test(r.photo || ''); return { hasPhoto: !!r.photo, photoImg: isImg, photoPh: !!r.photo && !isImg, photo: r.photo, t: r.t, d: r.d, tag: r.tag || 'Details', label: r.label, url: r.url, arrow: ext ? '↗︎' : '→︎', target: ext ? '_blank' : '_self', hasLink: !!(r.label && r.url && r.url !== '#'), paras: lines.filter(x => !/^[-•]/.test(x)).map(x => ({ x })), bullets: lines.filter(x => /^[-•]/.test(x)).map(x => ({ x: x.replace(/^[-•]\s*/, '') })) }; })(),
+        const ext = /^https?:/.test(linkTo(r.url) || ''); const isImg = /^(data:image|https?:|\/|[\w.-]+\.(jpe?g|png|webp)$)/i.test(r.photo || ''); return { hasPhoto: !!r.photo, photoImg: isImg, photoPh: !!r.photo && !isImg, photo: r.photo, t: r.t, d: r.d, tag: r.tag || 'Details', label: r.label, url: linkTo(r.url), arrow: ext ? '↗︎' : '→︎', target: ext ? '_blank' : '_self', hasLink: !!(r.label && r.url && r.url !== '#'), paras: lines.filter(x => !/^[-•]/.test(x)).map(x => ({ x })), bullets: lines.filter(x => /^[-•]/.test(x)).map(x => ({ x: x.replace(/^[-•]\s*/, '') })) }; })(),
       rcPrev: () => { const n = (this.state.rc || []).length; this.setState({ rcOpen: ((this.state.rcOpen || 0) + n - 1) % n }); },
       rcNext: () => { const n = (this.state.rc || []).length; this.setState({ rcOpen: ((this.state.rcOpen || 0) + 1) % n }); },
       summerOn: this.state.summer, summerOff: !this.state.summer, summerLabel: this.state.summer ? 'ON' : 'OFF', toggleSummer: () => this.setState({ summer: !this.state.summer })
