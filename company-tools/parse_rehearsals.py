@@ -68,6 +68,8 @@ weekly = []
 for row in ws.iter_rows(min_row=2):
     t = clean(row[0].value) if row[0].value else ''
     for c in row[1:]:
-        if c.value: weekly.append({'time': t, 'what': clean(c.value), 'teacher': heads.get(c.column, '').replace('Mr Daniel', 'Mr. Daniel')})
+        if c.value:
+            hd = heads.get(c.column, ''); mm = re.match(r'^(.*?)\s*[-–(]\s*(?:Studio\s*)?([ABC])\)?\s*$', hd)
+            weekly.append({'time': t, 'what': clean(c.value), 'teacher': (mm.group(1) if mm else hd).replace('Mr Daniel', 'Mr. Daniel'), 'room': ('Studio ' + mm.group(2)) if mm else ''})
 json.dump({'entries': out, 'weekly': weekly}, open(OUT, 'w'), indent=1)
 print(len(out), 'entries,', len(weekly), 'weekly slots')

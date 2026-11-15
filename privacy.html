@@ -619,16 +619,17 @@ a{color:inherit;text-decoration:none}
         const dayName = (iso) => { const A = dOf(iso); const d = new Date(A.y, A.m, A.d); return DOW[d.getDay()] + ', ' + MON[A.m] + ' ' + A.d; };
         const plus = (n) => { const t = new Date(); t.setDate(t.getDate() + n); return t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0'); };
         const q = (this.state.coQ || '').trim().toLowerCase(), qs = q.split(/[ ,]+/).filter(Boolean);
-        const K = [['all', 'Everything'], ['Solo', 'Solos'], ['Duet', 'Duets'], ['Trio', 'Trios'], ['Small group', 'Small groups'], ['Large group', 'Large groups'], ['Hip Hop Company', 'Hip Hop Company'], ['Dress rehearsal', 'Dress rehearsals']];
+        const K = [['all', 'Everything'], ['Solo', 'Solos'], ['Duet', 'Duets'], ['Trio', 'Trios'], ['Small group', 'Small groups'], ['Large group', 'Large groups'], ['Hip Hop Company', 'Hip Hop Company'], ['Dress rehearsal', 'Dress rehearsals'], ['Performance', 'Shows & competitions']];
         const k = this.state.coK || 'all';
         const nameHit = (r) => !qs.length || qs.some(w => r.what.toLowerCase().split(/[^a-z]+/).some(x => x && x.startsWith(w)));
-        const groupHit = (r) => qs.length && (r.kind === 'Large group' || r.kind === 'Hip Hop Company' || r.kind === 'Dress rehearsal' || r.kind === 'Windy City Bulls');
+        const groupHit = (r) => qs.length && (r.kind === 'Large group' || r.kind === 'Hip Hop Company' || r.kind === 'Dress rehearsal' || r.kind === 'Windy City Bulls' || r.kind === 'Performance');
         const R = co.rehearsals.filter(r => (k === 'all' || r.kind === k) && (nameHit(r) || (k === 'all' && groupHit(r))) && (this.state.coAll || r.date >= todayISO));
         const by = {}; R.forEach(r => { (by[r.date] = by[r.date] || []).push(r); });
         const offBy = {}; (co.off || []).forEach(o => offBy[o.date] = o.who);
         let dates = Object.keys(by).sort(); const total = dates.length; const limit = this.state.coAll || qs.length ? dates.length : 6; dates = dates.slice(0, limit);
-        const row = (r) => ({ time: r.time, what: r.what, where: [r.room, r.teacher].filter(Boolean).join(' · '), dot: 'display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; vertical-align: 1px; background: ' + (TC[r.teacher] || '#BBBBBB') + ';', mine: qs.length && nameHit(r) ? 'background: #EAF7F7;' : '', isGroup: groupHit(r) && !nameHit(r) });
-        const evs = CALSRC.filter(e => e.type === 'Company' || e.lock);
+        const row = (r) => ({ time: r.time, what: r.what, where: [r.room || 'Studio TBA', r.teacher].filter(Boolean).join(' · '), dot: 'display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; vertical-align: 1px; background: ' + (TC[r.teacher] || '#BBBBBB') + ';', mine: qs.length && nameHit(r) ? 'background: #EAF7F7;' : '', isGroup: groupHit(r) && !nameHit(r) });
+        const SEASON_END = '2027-07-31';
+        const evs = CALSRC.filter(e => e.type === 'Company' || e.lock || e.type === 'Recital');
         const next7 = plus(7), next14 = plus(14);
         const nx = co.rehearsals.filter(r => r.date >= todayISO && r.date <= next7 && (nameHit(r) || groupHit(r))).map(r => ({ when: dayName(r.date) + ' · ' + r.time, what: r.what, sub: [r.room, r.teacher].filter(Boolean).join(' · '), tag: 'Rehearsal', open: null }))
           .concat(CALSRC.filter(e => !e.hidden && (e.end || e.start) >= todayISO && e.start <= next14).map(e => ({ when: fmtRange(e.start, e.end), what: e.title, sub: e.where || '', tag: e.type === 'Company' ? 'Company' : 'Studio', open: () => this.setState({ ev: e.id }) })));
@@ -639,7 +640,9 @@ a{color:inherit;text-decoration:none}
           coTopics: co.topics.map(t => ({ icon: t.icon, t: t.t, d: t.d, open: () => this.setState({ tp: t.id }) })),
           coNext: nx.slice(0, 12).map(x => Object.assign(x, { hasOpen: !!x.open, noOpen: !x.open, open: x.open || (() => {}) })), coNextEmpty: nx.length === 0,
           coDue: (co.due || []).filter(d => d.date >= todayISO).sort((a, b) => a.date < b.date ? -1 : 1).slice(0, 5).map(d => ({ when: fmtRange(d.date), t: d.t })),
-          coEvents: evs.filter(e => (e.end || e.start) >= todayISO).slice(0, 8).map(e => ({ when: fmtRange(e.start, e.end), t: e.title, where: e.where || '', open: () => this.setState({ ev: e.id }) })),
+          coBig: evs.filter(e => /^Competition:|Convention/.test(e.title) && (e.end || e.start) >= todayISO).map(e => ({ when: fmtRange(e.start, e.end), t: e.title.replace(/^Competition: /, '').replace(/\s*\(.*\)$/, ''), where: e.where || '', open: () => this.setState({ ev: e.id }) })),
+          coNextSeason: evs.filter(e => e.start > SEASON_END).map(e => ({ when: fmtRange(e.start, e.end) + ', ' + e.start.slice(0, 4), t: e.title.replace(/^Company trip: /, ''), where: e.where || '', open: () => this.setState({ ev: e.id }) })),
+          coEvents: evs.filter(e => (e.end || e.start) >= todayISO && e.start <= SEASON_END).map(e => ({ when: fmtRange(e.start, e.end), t: e.title, where: e.where || '', open: () => this.setState({ ev: e.id }) })),
           coKinds: K.map(x => ({ label: x[1], style: CHIP(k === x[0]), pressed: k === x[0] ? 'true' : 'false', pick: () => this.setState({ coK: x[0] }) })),
           coQ: this.state.coQ, setCoQ: (e) => { const v = e.target.value; try { window.localStorage.setItem('datj-co-q', v); } catch (x) {} this.setState({ coQ: v }); }, clearCoQ: () => { try { window.localStorage.removeItem('datj-co-q'); } catch (x) {} this.setState({ coQ: '' }); }, hasCoQ: !!q,
           coHint: qs.length ? 'Showing rehearsals with “' + this.state.coQ.trim() + '”, plus large groups, Hip Hop Company and dress rehearsals (they don’t list names).' : 'Type your dancer’s first name to see only their rehearsals. It’s remembered on this device.',
@@ -791,7 +794,7 @@ a{color:inherit;text-decoration:none}
   function schedule(){ if (!pending) { pending = true; requestAnimationFrame(() => { pending = false; render(); }); } }
   function render(){
     const inputs = Array.from(root.querySelectorAll('input, select, textarea'));
-    const saved = inputs.map(i => i.value);
+    const fkey = (i) => i.type + '|' + (i.id || i.getAttribute('aria-label') || i.name || i.placeholder || ''); const saved = inputs.map(i => i.value), savedK = inputs.map(fkey);
     const active = inputs.indexOf(document.activeElement);
     const wy = window.scrollY, wx = window.scrollX;
     const sideScroll = Array.from(root.querySelectorAll('.p-week')).map(e => e.scrollLeft);
@@ -815,7 +818,7 @@ a{color:inherit;text-decoration:none}
         v.addEventListener('pause', () => { v._moving = false; }); }
     });
     const now = Array.from(root.querySelectorAll('input, select, textarea'));
-    if (now.length === saved.length) now.forEach((i, k) => { if (saved[k]) i.value = saved[k]; });
+    if (now.length === saved.length) now.forEach((i, k) => { if (saved[k] && savedK[k] === fkey(i) && i.type !== 'password') i.value = saved[k]; });
     // keep the page where it was: hold the section being used still on screen
     Array.from(root.querySelectorAll('.p-week')).forEach((e, i) => { if (sideScroll[i]) { e.style.scrollBehavior = 'auto'; e.scrollLeft = sideScroll[i]; e.style.scrollBehavior = ''; } });
     root.querySelectorAll('[data-keep-scroll]').forEach(e => { const v = keep[e.getAttribute('data-keep-scroll')]; if (v) { e.scrollTop = v[0]; e.scrollLeft = v[1]; } });
