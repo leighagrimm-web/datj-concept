@@ -106,7 +106,7 @@
   .pv-head .logo { width: 30px; height: 30px; border-radius: 50%; background: var(--teal); }
   .pv-card { background: #F2F2F2; display: flex; flex-direction: column; max-width: 300px; }
   .pv-card .ph { height: 190px; background: #1C1C1C; display: flex; align-items: center; justify-content: center; color: #888888; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; overflow: hidden; }
-  .pv-card .ph img { width: 100%; height: 100%; object-fit: cover; }
+  .pv-card .ph img { width: 100%; height: 100%; object-fit: cover; object-position: center 22%; }
   .pv-card .bd { padding: 20px; }
   .pv-card h3 { font-size: 21px; letter-spacing: -0.035em; margin: 0 0 6px; }
   .pv-card p { font-size: 13px; color: #555555; margin: 0; }
@@ -242,7 +242,8 @@
       {"name": "Shetal Lettvin", "role": "", "tag": "", "bio": "Dancing has been a part of Shetal's life for as long as she can remember. She began performing at family events as a child and officially started dancing at the age of six. Growing up immersed in Bollywood music and culture, dance quickly became a natural form of expression for her. She was a member of the Poms team throughout middle and high school, and later in college, she joined and led a competitive Bollywood dance team that performed at events across the country. Outside of dance, she works in the sustainability industry and stay on her toes raising three energetic young kids!", "photo": "https://static.wixstatic.com/media/4c2aeb_b177e9c03a894b2089b4313a05d30f6c~mv2.jpg/v1/fill/w_480,h_600,al_c,q_85,enc_auto/photo.jpg"},
       {"name": "Akanksha Patel", "role": "", "tag": "", "bio": "With a lifelong love of dance, Akanksha brings a rich and versatile background to the studio. Classically trained in Kathak, she has also studied a wide range of Western styles including ballet, tap, jazz, hip hop, and contemporary. In high school, she was a member of her varsity poms team, and in college, she continued dancing as part of a Bollywood fusion team, blending traditional Indian dance with Western choreography. Akanksha continues to fuel her enthusiasm for movement by training with traveling choreographers in Indian-inspired styles. She’s excited to share her passion for Bollywood fusion and looks forward to bringing energy, creativity, and joy to every class!", "photo": "https://static.wixstatic.com/media/4c2aeb_ef6223e8bb714e9fbbda156f6ef60f34~mv2.jpeg/v1/fill/w_480,h_600,al_c,q_85,enc_auto/photo.jpg"},
       {"name": "Lauren", "role": "", "tag": "", "bio": "", "photo": ""},
-      {"name": "Front desk", "role": "Name & role", "tag": "Studio team", "bio": "", "photo": ""}];
+      {"name": "Studio manager", "role": "", "tag": "Studio manager", "bio": "", "photo": ""},
+      {"name": "Front desk", "role": "", "tag": "Front desk", "bio": "", "photo": ""}];
   const P0 = [
     { title: 'Little Movers', sub: 'Ages 18 months – 5 · rhythm, coordination & joy', cta: 'See classes', link: 'classes#schedule', photo: '', more: 'Placeholder: what little ones do in class\n- Tiny Tots: 18 months – 3, with a grown-up nearby\n- Preschool combos: ages 3–5\n- 40-minute classes, first one free' },
     { title: 'Dance Styles', sub: 'Ballet, jazz, tap, hip hop, breaking, acro & more', cta: 'See styles', link: 'classes#styles', photo: '', more: 'Placeholder: how levels work\n- Ballet, jazz, tap, hip hop, breaking, acro, contemporary, musical theater\n- Levels I–III by age and experience\n- Ages 6 through adult' },
@@ -359,7 +360,7 @@
   ];
   const SOON = [];
   let page = (location.hash || '#home').slice(1); if (!PAGES.some(p => p.id === page)) page = 'home';
-  let openItem = -1, confirmDel = -1;
+  let openItem = -1, confirmDel = -1, roleOther = false;
   const go = (p) => { page = p; openItem = -1; confirmDel = -1; openCard = ''; delCard = ''; history.replaceState(null, '', '#' + p); render(); window.scrollTo(0, 0); };
 
   function navs() {
@@ -429,9 +430,9 @@
   }
 
   function staffPreview(s) {
-    const st = stylesFor(s); const sub = s.role || (st.slice(0, 3).join(' · ') + (st.length > 3 ? ' & more' : '')) || 'Styles taught';
+    const st = stylesFor(s); const sub = s.role || (st.slice(0, 3).join(' · ') + (st.length > 3 ? ' & more' : '')) || ((s.tag || 'Instructor') === 'Instructor' ? 'Styles taught' : '');
     const img = s.photo ? '<img src="' + esc(s.photo) + '" alt="">' : 'Photo: headshot';
-    return '<div class="lbl">On the About page</div><div class="pv-card"><div class="ph">' + img + '</div><div class="bd"><h3>' + esc(s.name || 'Name') + '</h3><p>' + esc(sub) + '</p><div class="acts"><span class="more">Read bio →</span></div></div></div>'
+    return '<div class="lbl">On the About page</div><div class="pv-card"><div class="ph" style="height: auto; aspect-ratio: 4 / 5;">' + img + '</div><div class="bd"><div style="font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: #007A80; font-weight: 700; margin-bottom: 6px;">' + esc(s.tag || 'Instructor') + '</div><h3>' + esc(s.name || 'Name') + '</h3><p>' + esc(sub) + '</p><div class="acts"><span class="more">Read bio →</span></div></div></div>'
       + '<div class="pv-slide"><div class="photo">' + (s.photo ? '<img src="' + esc(s.photo) + '" alt="">' : '') + '</div><div class="tg">' + esc(s.tag || 'Instructor') + '</div><h3>' + esc(s.name || 'Name') + '</h3><p>' + esc(sub) + '</p>'
       + (s.bio.trim() ? moreHtml(s.bio) : '<p style="color: #999999;">Bio goes here.</p>') + (st.length ? '<ul><li>Teaches: ' + esc(st.join(', ')) + '</li></ul>' : '') + '</div>';
   }
@@ -440,14 +441,17 @@
     const list = draft.staff.map((s, i) => {
       const thumb = '<span class="thumb">' + (s.photo ? '<img src="' + esc(s.photo) + '" alt="">' : 'Photo') + '</span>';
       const st = stylesFor(s);
-      const row = '<div class="item' + (openItem === i ? ' open' : '') + '">' + thumb + '<button type="button" class="main" data-open="' + i + '" aria-expanded="' + (openItem === i) + '"><b>' + esc(s.name || 'New instructor') + '</b><span>' + esc(s.role || st.join(' · ') || '—') + '</span></button>'
+      const row = '<div class="item' + (openItem === i ? ' open' : '') + '">' + thumb + '<button type="button" class="main" data-open="' + i + '" aria-expanded="' + (openItem === i) + '"><b>' + esc(s.name || 'New person') + '</b><span>' + esc((s.tag || 'Instructor') + ' · ' + (s.role || st.join(' · ') || '—')) + '</span></button>'
         + (!s.bio.trim() ? '<span class="tag">Needs bio</span>' : '')
         + '<button type="button" class="mini" data-up="' + i + '" aria-label="Move ' + esc(s.name) + ' up"' + (i === 0 ? ' disabled' : '') + '>↑</button><button type="button" class="mini" data-down="' + i + '" aria-label="Move ' + esc(s.name) + ' down"' + (i === n - 1 ? ' disabled' : '') + '>↓</button></div>';
       if (openItem !== i) return row;
       const cc = classCount(s);
       return row + '<div class="editor"><div class="two"><div>'
         + '<div class="field"><div class="row"><span>Photo</span></div><div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;"><label class="btn" for="sPhoto">' + (s.photo ? 'Change photo' : 'Add photo') + '</label><input type="file" id="sPhoto" accept="image/*" class="sr">' + (s.photo ? '<button type="button" class="btn ghost" id="sPhotoX">Remove</button>' : '') + '</div><div class="hint">A headshot works best. It’s cropped to a tall rectangle.</div></div>'
-        + field('sT', 'Label above the name', s.tag, 20, { optional: true, ph: 'Instructor', hint: 'The small teal word over their name in the bio, e.g. Owner, Instructor, Studio team.' })
+        + (() => { const ROLES = ['Owner', 'Instructor', 'Studio manager', 'Front desk']; const cur = s.tag || 'Instructor', other = !ROLES.includes(cur) || roleOther;
+            return '<div class="field"><div class="row"><span>Role</span></div><div class="chips" role="group" aria-label="Role">' + ROLES.map(r => '<button type="button" class="chip" data-role="' + r + '" aria-pressed="' + (!other && cur === r) + '">' + r + '</button>').join('') + '<button type="button" class="chip" data-role="__other" aria-pressed="' + other + '">Other…</button></div>'
+              + (other ? '<input type="text" id="sT" maxlength="24" value="' + esc(ROLES.includes(cur) ? '' : cur) + '" placeholder="e.g. Assistant director" style="display: block; width: 100%; padding: 12px; border: 1px solid #C9CDCB; margin-top: 8px; font-size: 15px;">' : '')
+              + '<div class="hint">Shows above their name on the card and in their bio.</div></div>'; })()
         + field('sN', 'Name', s.name, 30, { hint: 'As families know them.' })
         + field('sR', 'Title or styles', s.role, 40, { optional: true, ph: st.join(' · ') || 'e.g. Owner', hint: 'Leave empty to show the styles they teach.' })
         + field('sB', 'Bio', s.bio, 2000, { area: true, ph: 'Two or three sentences: training, what they love teaching, a fun fact.', hint: 'Start a line with “- ” to make a bullet.' })
@@ -654,7 +658,7 @@
     if (page === 'photos') document.querySelectorAll('[data-slot]').forEach(el => el.addEventListener('change', () => { const file = el.files && el.files[0]; if (!file) return; const k = el.dataset.slot;
       shrink(file, (u) => { if (/^prog/.test(k)) draft.home.programs[+k.slice(4)].photo = u; else draft.photos[k] = u; saveDraft(); render(); }, 1200, 900); }));
     if (page === 'staff' && openItem >= 0) { const s = draft.staff[openItem]; const up = () => pv().innerHTML = staffPreview(s);
-      bind('sN', 30, v => s.name = v, up); bind('sT', 20, v => s.tag = v, up); bind('sR', 40, v => s.role = v, up); bind('sB', 2000, v => s.bio = v, () => { up(); const tg = document.querySelector('.item.open .tag'); if (tg) tg.style.display = s.bio.trim() ? 'none' : ''; });
+      bind('sN', 30, v => s.name = v, up); { const st = $('sT'); if (st) st.addEventListener('input', () => { s.tag = st.value; saveDraft(); up(); }); } bind('sR', 40, v => s.role = v, up); bind('sB', 2000, v => s.bio = v, () => { up(); const tg = document.querySelector('.item.open .tag'); if (tg) tg.style.display = s.bio.trim() ? 'none' : ''; });
       const f = $('sPhoto'); if (f) f.addEventListener('change', () => { const file = f.files && f.files[0]; if (!file) return; shrink(file, (url) => { s.photo = url; saveDraft(); render(); }); }); }
   }
   // resize photos in the browser so they stay small
@@ -680,14 +684,15 @@
     if (d.slotx !== undefined) { const k = d.slotx; if (/^prog/.test(k)) draft.home.programs[+k.slice(4)].photo = ''; else delete draft.photos[k]; saveDraft(); render(); return; }
     if (t.id === 'pPhotoX') { draft.home.programs[openItem].photo = ''; saveDraft(); render(); return; }
     if (t.id === 'recSw') { draft.recital = !draft.recital; saveDraft(); render(); return; }
-    if (d.open !== undefined) { const i = +d.open; openItem = openItem === i ? -1 : i; confirmDel = -1; render(); return; }
+    if (d.open !== undefined) { const i = +d.open; openItem = openItem === i ? -1 : i; confirmDel = -1; roleOther = false; render(); return; }
     if (d.close) { openItem = -1; confirmDel = -1; render(); return; }
     if (d.up !== undefined || d.down !== undefined) { const i = +(d.up !== undefined ? d.up : d.down), j = d.up !== undefined ? i - 1 : i + 1; const a = draft.staff; [a[i], a[j]] = [a[j], a[i]]; if (openItem === i) openItem = j; else if (openItem === j) openItem = i; saveDraft(); render(); return; }
     if (t.id === 'sPhotoX') { draft.staff[openItem].photo = ''; saveDraft(); render(); return; }
     if (d.del !== undefined) { confirmDel = +d.del; render(); return; }
     if (d.delno) { confirmDel = -1; render(); return; }
     if (d.delyes !== undefined) { const nm = draft.staff[+d.delyes].name; draft.staff.splice(+d.delyes, 1); openItem = -1; confirmDel = -1; saveDraft(); render(); toast(nm + ' removed. Press Publish to update the site.'); return; }
-    if (t.id === 'sAdd') { draft.staff.push({ name: '', role: '', tag: '', bio: '', photo: '' }); openItem = draft.staff.length - 1; saveDraft(); render(); const n = $('sN'); if (n) n.focus(); return; }
+    if (d.role) { const p = draft.staff[openItem]; if (d.role === '__other') { roleOther = true; if (['Owner', 'Instructor', 'Studio manager', 'Front desk'].includes(p.tag)) p.tag = ''; } else { roleOther = false; p.tag = d.role; } saveDraft(); render(); if (roleOther) { const st = $('sT'); if (st) st.focus(); } return; }
+    if (t.id === 'sAdd') { draft.staff.push({ name: '', role: '', tag: 'Instructor', bio: '', photo: '' }); roleOther = false; openItem = draft.staff.length - 1; saveDraft(); render(); const n = $('sN'); if (n) n.focus(); return; }
   });
 
   render();
