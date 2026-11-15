@@ -851,10 +851,12 @@ a{color:inherit;text-decoration:none}
               cmpDays: [{ label: 'All days', v: 'all' }].concat(cur.days.map((d, i) => ({ label: d.label.split(',')[0], v: String(i) }))).map(o => ({ label: o.label, style: CHIP(String(dayI) === o.v), pressed: String(dayI) === o.v ? 'true' : 'false', pick: () => this.setState({ cmpDay: o.v }) })),
               cmpViews: [['schedule', 'Schedule'], ['costumes', 'Costume checklist']].map(o => ({ label: o[1], style: CHIP(view === o[0]), pressed: view === o[0] ? 'true' : 'false', pick: () => this.setState({ cmpView: o[0] }) })),
               cmpArrOpen: !!this.state.cmpArr, cmpArrLabel: this.state.cmpArr ? 'Hide' : 'Show', cmpArrToggle: () => this.setState({ cmpArr: !this.state.cmpArr }), cmpHasStages: cur.days.some(d => d.rows.some(r => r.stage)),
+              cmpFiltered: qs.length > 0, cmpFilterLine: qs.length ? 'Only ' + this.state.coQ.trim().replace(/\b\w/g, c => c.toUpperCase()) + '’s routines (plus group dances)' : '',
               cmpHint: qs.length ? (cDays.length ? 'Showing routines with “' + this.state.coQ.trim() + '”, including group and Company team dances they’re in.' : '') : 'Type your dancer’s first name to see only their routines and costumes. It’s remembered on this device.',
               cmpSched: view === 'schedule', cmpCos: view === 'costumes', cmpRows: cDays, cmpEmpty: cDays.length === 0,
               cmpProgress: done + ' of ' + total + ' packed', cmpClear: () => { const n = Object.assign({}, this.state.cmpChk || {}); Object.keys(n).forEach(k => { if (k.startsWith(cur.id + '|')) delete n[k]; }); try { window.localStorage.setItem('datj-co-checks', JSON.stringify(n)); } catch (e) {} this.setState({ cmpChk: n }); },
-              cmpPrint: () => { try { const src = document.querySelector('#competitions .p-printarea'); if (!src) return; const old = document.getElementById('printroot'); if (old) old.remove();
+              cmpPrint: (ev) => {
+                const browserPrint = () => { try { const src = document.querySelector('#competitions .p-printarea'); if (!src) return; const old = document.getElementById('printroot'); if (old) old.remove();
                 const pr = document.createElement('div'); pr.id = 'printroot'; pr.className = 'p-printarea'; pr.innerHTML = src.innerHTML; document.body.appendChild(pr); document.body.classList.add('print-comp');
                 // Fit to one landscape letter page whatever the window or printer: fixed width, then shrink to fit the height
                 // Measure off screen at a fixed width, then store how much to shrink for a landscape and a portrait page (phones pick their own orientation)
@@ -863,7 +865,27 @@ a{color:inherit;text-decoration:none}
                 const fit = (w, hh, cw, ch) => String(Math.floor(Math.min(1, w / cw, hh / ch) * 1000) / 1000); pr.style.setProperty('--zl', fit(980, 715, 1000, h)); pr.style.setProperty('--zp', fit(740, 720, 760, hp));
                 // Keep the print copy ready (rotating on a phone prints again) until the next tap or key on the page
                 const done = () => { if (document.getElementById('printroot') === pr) document.body.classList.remove('print-comp'); pr.remove(); document.removeEventListener('pointerdown', done, true); document.removeEventListener('keydown', done, true); };
-                setTimeout(() => { document.addEventListener('pointerdown', done, true); document.addEventListener('keydown', done, true); }, 800); window.print(); } catch (e) {} },
+                setTimeout(() => { document.addEventListener('pointerdown', done, true); document.addEventListener('keydown', done, true); }, 800); window.print(); } catch (e) {} };
+                const load = (src) => new Promise((ok, no) => { if (document.querySelector('script[src="' + src + '"]')) return ok(); const t = document.createElement('script'); t.src = src; t.onload = ok; t.onerror = no; document.head.appendChild(t); });
+                if (window.__pdfBusy) return; window.__pdfBusy = true;
+                const btn = ev && ev.currentTarget; const label = btn ? btn.textContent : ''; if (btn) { btn.textContent = 'Making PDF…'; btn.disabled = true; }
+                const cover = document.createElement('div'); cover.style.cssText = 'position: fixed; inset: 0; z-index: 2147483647; background: #FFFFFF; display: flex; align-items: center; justify-content: center; font: 700 14px Arial, sans-serif; letter-spacing: 0.12em; text-transform: uppercase; color: #111111;'; cover.textContent = 'Making your PDF…'; cover.id = 'pdfcover';
+                const reset = () => { window.__pdfBusy = false; cover.remove(); if (btn) { btn.textContent = label; btn.disabled = false; } };
+                const src = document.querySelector('#competitions .p-printarea'); if (!src) return reset();
+                // Build the one-page PDF ourselves: the same landscape page on every phone and computer
+                Promise.all([load('scripts/vendor/html2canvas.min.js'), load('scripts/vendor/jspdf.umd.min.js')]).then(() => {
+                  const old = document.getElementById('printroot'); if (old) old.remove();
+                  const pr = document.createElement('div'); pr.id = 'printroot'; pr.className = 'p-printarea'; pr.innerHTML = src.innerHTML;
+                  pr.style.cssText = 'display: block; position: fixed; left: 0; top: 0; width: 1000px; background: #FFFFFF; padding: 4px; z-index: 2147483646;'; document.body.appendChild(cover);
+                  document.body.appendChild(pr); document.body.classList.add('print-comp');
+                  const finish = () => { pr.remove(); document.body.classList.remove('print-comp'); reset(); };
+                  return window.html2canvas(pr, { scale: 2.5, backgroundColor: '#FFFFFF', logging: false, windowWidth: 1100, scrollX: 0, scrollY: 0, width: 1008, height: pr.offsetHeight, x: 0, y: 0, onclone: (d) => { const k = d.getElementById('pdfcover'); if (k) k.remove(); } }).then((cv) => {
+                    const pdf = new window.jspdf.jsPDF({ orientation: 'landscape', unit: 'pt', format: 'letter' });
+                    const PW = 792, PH = 612, M = 18, k = Math.min((PW - 2 * M) / cv.width, (PH - 2 * M) / cv.height);
+                    pdf.addImage(cv.toDataURL('image/jpeg', 0.92), 'JPEG', M, M, cv.width * k, cv.height * k);
+                    const nm = (cur.name + ' ' + (cur.status || '') + ' ' + (view === 'costumes' ? 'costume list' : 'schedule')).replace(/\s+/g, ' ').trim();
+                    pdf.save(nm + '.pdf'); finish(); }).catch((e) => { finish(); throw e; });
+                }).catch((e) => { try { console.warn('PDF failed', e && (e.stack || e.message || e)); } catch (x) {} reset(); browserPrint(); }); },
               cmpFor: (id) => comps.find(c => c.calId === id) };
           })(),
           coBig: evs.filter(e => /^Competition:|Convention/.test(e.title) && (e.end || e.start) >= todayISO).map(e => ({ when: fmtRange(e.start, e.end), t: e.title.replace(/^Competition: /, '').replace(/\s*\(.*\)$/, ''), where: e.where || '', hasSched: (co.comps || []).some(c => c.calId === e.id && c.show !== false && (!c.hideAfter || c.hideAfter >= todayISO) && (c.days || []).length), sched: (co.comps || []).some(c => c.calId === e.id && c.show !== false && (!c.hideAfter || c.hideAfter >= todayISO) && (c.days || []).length) ? ' · schedule ↓' : '', open: () => { const c = (co.comps || []).find(c => c.calId === e.id && c.show !== false && (!c.hideAfter || c.hideAfter >= todayISO) && (c.days || []).length); if (c) { this.setState({ cmp: c.id, cmpDay: 'all', cmpView: 'schedule' }); setTimeout(() => { try { window.__lastTap = null; document.getElementById('competitions').scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (x) {} }, 80); } else this.setState({ ev: e.id }); } })),
