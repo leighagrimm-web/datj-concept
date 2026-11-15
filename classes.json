@@ -1,22 +1,7 @@
 {
- "updated": "2026-11-14T21:45:00Z",
+ "updated": "2026-11-15T16:20:47.578Z",
  "source": "Studio Pro live schedule",
  "classes": [
-  {
-   "key": "Windy City Bulls Performance|Sun|2:30 PM",
-   "season": "2026 Windy City Bulls",
-   "name": "Windy City Bulls Performance",
-   "note": "Learn a jazz routine and perform at halftime of the Windy City Bulls Game on Saturday, November 14th!\nGame Time: 5:00 PM\nStudent Call Time: 4:15 PM\nGame T-Shirt Included, tickets need to be purchased separately.\nPractices: 10/11, 10/18, 11/1, 11/8",
-   "day": "Sun",
-   "time": "2:30",
-   "start": 870,
-   "end": 960,
-   "mins": 90,
-   "studio": "Studio C",
-   "location": "Prospect Heights",
-   "lo": 7,
-   "hi": 99
-  },
   {
    "key": "Ballet I/II Monday|Mon|4:15 PM",
    "season": "Session 2 2026",
