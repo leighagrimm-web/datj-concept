@@ -277,6 +277,9 @@
   const RATES0 = { 40: 16.63, 55: 19, 70: 23.5, 85: 28.5 };
   const SPECIAL0 = [{ label: 'Intro to Breaking', match: '^intro to break', rate: 20.88 }, { label: 'Breaking I or II (2 classes a week)', match: '^breaking i+$', rate: 41.88 }, { label: 'Breaking I & II combined class', match: 'combined', rate: 0 }];
   const SESS0 = [{ name: 'Session 1', dates: '', weeks: 8 }, { name: 'Session 2', dates: 'Oct 14 – Jan 5', weeks: 9 }, { name: 'Session 3', dates: 'Jan 6 – Mar 9', weeks: 9 }, { name: 'Session 4', dates: 'Mar 9 – May 18 · no classes Mar 21–28', weeks: 9 }];
+  const FEAT0 = [
+    { title: 'The annual recital', emoji: '✨', pill: 'Recital · May 22–23 · Info & tickets', when: 'May 22–23 · Dress rehearsals May 19–21', desc: 'Every dancer takes the stage. Tickets, costumes, picture day and the show-day checklist, all in one place.', photo: 'hero_poster.jpg', btn: 'Recital info', link: 'families#recital', showFrom: '2026-11-14', hideAfter: '2027-05-23', showPill: true, showStrip: true },
+    { title: 'Halloween Party', emoji: '🎃', pill: 'Halloween Party · Sign up', when: 'Late October · details coming soon', desc: 'Costumes, dancing and treats. Students can bring a friend. Families sign up in the Parent Portal; friends can sign up and pay without an account.', photo: '', btn: 'Sign up', link: '', showFrom: '2027-10-01', hideAfter: '2027-10-31', showPill: true, showStrip: true }];
   const DEFAULTS = { recital: false, banner: { text: 'Holiday gift cards & merch are here', href: 'shop' }, rc: RC0, staff: STAFF0, home: HOME0, nav: NAV0, prices: { rates: RATES0, specials: SPECIAL0, sessions: SESS0, current: 1, byKey: {} }, photos: {}, calendar: CAL0, policies: POL0 };
   // Saved links are page ids like "families#recital"; older saves used file names
   const normLink = (h) => { h = String(h || '').trim(); const old = /^(?:H-(\w+)\.dc|HomeH\.dc|(\w+))\.html(#[\w-]+)?$/.exec(h); if (old) return (old[1] ? old[1].toLowerCase() : !old[2] || old[2] === 'index' ? 'home' : old[2]) + (old[3] || ''); return h; };
@@ -288,7 +291,7 @@
   const pick = (o) => ({ recital: !!o.recital, banner: (() => { const b = Object.assign({}, DEFAULTS.banner, o.banner || {}); b.href = normLink(b.href); return b; })(),
     home: mergeHome(o.home), nav: (o.nav && o.nav.length ? o.nav : NAV0).filter(n => NAMES[n.id]).map(n => ({ id: n.id, header: !!n.header })),
     prices: (() => { const q = o.prices || {}; const ss = (q.sessions && q.sessions.length ? q.sessions : SESS0).map(x => Object.assign({ name: '', dates: '', weeks: '', liveFrom: '' }, x));
-      return { rates: Object.assign({}, RATES0, q.rates || {}), specials: (q.specials || SPECIAL0).map(x => Object.assign({}, x)), sessions: ss, current: q.current != null && ss[q.current] ? q.current : Math.min(1, ss.length - 1), byKey: q.tiers ? {} : Object.assign({}, q.byKey || {}) }; })(), photos: Object.assign({}, o.photos || {}), calendar: (o.calendar || CAL0).map(e => Object.assign({ title: '', start: '', end: '', where: '', type: 'Event' }, e)), policies: (o.policies || POL0).map(x => Object.assign({ t: '', d: '', more: '', label: '', url: '' }, x)), rc: (o.rc && o.rc.length ? o.rc : RC0).map(r => Object.assign({ t: '', d: '', label: '', url: '', more: '' }, r)).map(r => { const n = RC0.find(x => x.t === r.t); return n && /^Placeholder: (date, time and venue address|date and what to bring)\./.test(r.d) ? Object.assign({}, n) : r; }), staffV: 2, staff: (o.staff && o.staff.length ? (o.staffV === 2 ? o.staff : mergeStaff(o.staff)) : STAFF0).map(s => Object.assign({ name: '', role: '', tag: '', bio: '', photo: '' }, s)) });
+      return { rates: Object.assign({}, RATES0, q.rates || {}), specials: (q.specials || SPECIAL0).map(x => Object.assign({}, x)), sessions: ss, current: q.current != null && ss[q.current] ? q.current : Math.min(1, ss.length - 1), byKey: q.tiers ? {} : Object.assign({}, q.byKey || {}) }; })(), photos: Object.assign({}, o.photos || {}), featured: (o.featured || FEAT0).map(f => Object.assign({ title: '', emoji: '', pill: '', when: '', desc: '', photo: '', btn: '', link: '', showFrom: '', hideAfter: '', showPill: true, showStrip: true }, f)), calendar: (o.calendar || CAL0).map(e => Object.assign({ title: '', start: '', end: '', where: '', type: 'Event' }, e)), policies: (o.policies || POL0).map(x => Object.assign({ t: '', d: '', more: '', label: '', url: '' }, x)), rc: (o.rc && o.rc.length ? o.rc : RC0).map(r => Object.assign({ t: '', d: '', label: '', url: '', more: '' }, r)).map(r => { const n = RC0.find(x => x.t === r.t); return n && /^Placeholder: (date, time and venue address|date and what to bring)\./.test(r.d) ? Object.assign({}, n) : r; }), staffV: 2, staff: (o.staff && o.staff.length ? (o.staffV === 2 ? o.staff : mergeStaff(o.staff)) : STAFF0).map(s => Object.assign({ name: '', role: '', tag: '', bio: '', photo: '' }, s)) });
   const clone = (x) => JSON.parse(JSON.stringify(x));
 
   let live = pick(Object.assign({}, DEFAULTS, read(LIVE) || {}));
@@ -349,6 +352,7 @@
   const PAGES = [
     { id: 'home', label: 'Home', short: 'Home' },
     { id: 'banner', label: 'Top banner', short: 'Banner' },
+    { id: 'featured', label: 'Featured events', short: 'Featured' },
     { id: 'recital', label: 'Recital season', short: 'Recital' },
     { id: 'staff', label: 'Instructors', short: 'Instructors' },
     { id: 'homepage', label: 'Homepage', short: 'Homepage' },
@@ -389,6 +393,7 @@
     return '<h1>Hi Brittany.</h1><p class="lede">What would you like to update? Changes stay private until you press <b>Publish</b>.</p>'
       + '<div class="tiles">'
       + '<button class="tile" type="button" data-go="banner"><b>Post an announcement</b><span>The teal line across the top of every page.</span><span class="now">Now: “' + esc(draft.banner.text) + '” → ' + esc(bannerTo) + '</span></button>'
+      + '<button class="tile" type="button" data-go="featured"><b>Featured events</b><span>Halloween party, recital, camps. A corner pill and a homepage strip that turn on and off by date.</span><span class="now">' + (draft.featured.filter(featLive).map(f => f.title).join(', ') || 'Nothing showing') + '</span></button>'
       + '<button class="tile" type="button" data-go="recital"><b>Recital season</b><span>Turn on recital info for families, and edit the recital cards.</span><span class="now">Now: ' + (draft.recital ? 'On' : 'Off') + '</span></button>'
       + '<button class="tile" type="button" data-go="staff"><b>Instructors</b><span>Photos and bios on the About page.</span><span class="now">' + draft.staff.length + ' people · ' + (missing ? missing + ' need a bio' : 'all bios done') + (noPhoto ? ' · ' + noPhoto + ' need a photo' : '') + '</span></button>'
       + '<button class="tile" type="button" data-go="homepage"><b>Homepage</b><span>The line under “Move with purpose,” the quick facts, program cards and getting-started steps.</span><span class="now">' + draft.home.programs.length + ' cards · ' + draft.home.steps.length + ' steps · 4 facts</span></button>'
@@ -534,6 +539,25 @@
         flag: e => e.tbc ? 'To confirm' : isPast(e) ? 'Past' : '', preview: calPreview, newItem: () => ({ title: '', start: todayISO, end: '', where: '', type: 'Event' }),
         fields: [{ k: 'title', label: 'What', max: 40 }, { k: 'start', label: 'Date (or first day)', type: 'date' }, { k: 'end', label: 'Last day', type: 'date', opt: true, hint: 'Only for things that last more than a day, like a break.' }, { k: 'where', label: 'Where or note', max: 30, opt: true, ph: 'e.g. Studio closed' }, { k: 'type', label: 'Shows under', type: 'select', opts: TYPES, labels: TYPE_LABEL }] }); }
 
+  // Featured events
+  const featLive = (f) => !!f.title && (!f.showFrom || f.showFrom <= todayISO) && (!f.hideAfter || f.hideAfter >= todayISO);
+  const featState = (f) => !f.title ? '' : featLive(f) ? 'Showing now' : (f.showFrom && f.showFrom > todayISO ? 'Starts ' + fmtRange(f.showFrom) : 'Ended');
+  function featPreview(f) {
+    return '<div class="lbl">Corner pill (every page)</div>' + (f.showPill ? '<div style="display: inline-flex; align-items: center; gap: 10px; background: #000000; color: #FFFFFF; border: 1px solid #00ADB5; border-radius: 999px; padding: 12px 14px 12px 16px; font-size: 13px; font-weight: 700; max-width: 100%;"><span style="width: 9px; height: 9px; border-radius: 50%; background: #00ADB5;"></span>' + esc(f.emoji) + ' <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">' + esc(f.pill || f.title || 'Pill text') + '</span><span style="color: #00ADB5;">→</span><span style="color: #AEB8B3; margin-left: 6px;">×</span></div>' : '<p class="pv-note">Off</p>')
+      + '<div class="lbl" style="margin-top: 18px;">Homepage strip (under the video)</div>' + (f.showStrip ? '<div style="background: #00ADB5; color: #000000; padding: 18px; display: flex; gap: 14px; align-items: center; flex-wrap: wrap;">' + (f.photo ? '<img src="' + esc(f.photo) + '" alt="" style="width: 90px; height: 66px; object-fit: cover;">' : '') + '<div style="flex: 1; min-width: 160px;"><div style="font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 700;">Featured · ' + esc(f.when) + '</div><div style="font-size: 22px; font-weight: 800; letter-spacing: -0.04em;">' + esc(f.emoji) + ' ' + esc(f.title || 'Title') + '</div><div style="font-size: 13px;">' + esc(f.desc) + '</div></div>' + (f.link ? '<span style="background: #000000; color: #FFFFFF; padding: 10px 12px; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700;">' + esc(f.btn || 'Learn more') + ' →</span>' : '') + '</div>' : '<p class="pv-note">Off</p>')
+      + '<p class="pv-note">' + esc(featState(f) || '') + (f.link ? ' · Button opens: ' + esc(destName(f.link)) : ' · Add where the button goes, or it won’t show a button.') + '</p>';
+  }
+  function vFeatured() {
+    return '<h1>Featured events</h1><p class="lede">For the things you want everyone to notice: the Halloween party, recital, a camp. Each one shows as a small pill in the corner of every page and a bright strip on the homepage, between its dates. Visitors can close the pill.</p>'
+      + '<div class="note"><b>Halloween party sign-ups:</b> Studio Pro’s Ticket-Pro can sell to the public (no account needed). Set up tickets on the Halloween Party event in Studio Pro, then paste its ticket link under “Another website…”.</div>'
+      + listEditor({ key: 'feat', noun: 'a featured event', get: () => draft.featured, thumb: f => f.photo, title: f => (f.emoji ? f.emoji + ' ' : '') + (f.title || 'New featured event'), sub: f => (f.showFrom ? fmtRange(f.showFrom, f.hideAfter) : 'No dates yet') + (f.when ? ' · ' + f.when : ''),
+        flag: featState, preview: featPreview, newItem: () => ({ title: '', emoji: '', pill: '', when: '', desc: '', photo: '', btn: 'Learn more', link: '', showFrom: todayISO, hideAfter: '', showPill: true, showStrip: true }),
+        fields: [{ k: 'title', label: 'Title', max: 40 }, { k: 'emoji', label: 'Emoji', max: 4, opt: true, ph: '🎃' }, { k: 'pill', label: 'Corner pill text', max: 40, hint: 'Short: what + when, e.g. “Halloween Party · Oct 30 · Sign up”.' },
+          { k: 'when', label: 'Date line', max: 50, ph: 'e.g. Fri, Oct 30 · 5–7 pm' }, { k: 'desc', label: 'Short description', max: 200, area: true }, { k: 'photo', label: 'Photo (homepage strip)', type: 'photo' },
+          { k: 'btn', label: 'Button text', max: 20 }, { k: 'link', label: 'The pill and button go to', type: 'link', hint: 'A page on the site, or paste a Studio Pro ticket link under “Another website…”.' },
+          { k: 'showFrom', label: 'Start showing on', type: 'date' }, { k: 'hideAfter', label: 'Stop showing after', type: 'date', opt: true },
+          { k: 'showPill', label: 'Show the corner pill on every page', type: 'check' }, { k: 'showStrip', label: 'Show the strip on the homepage', type: 'check' }] }); }
+
   // Policies
   function polPreview(x) { return '<div class="lbl">On the Pricing page</div><div class="pv-card" style="background: #FFFFFF; border: 1px solid var(--line);"><div class="bd"><h3>' + esc(x.t || 'Policy') + '</h3><p>' + esc(x.d) + '</p><div class="acts">' + (x.label && x.url ? '<span class="lnk">' + esc(x.label) + ' →</span>' : '') + (x.more.trim() ? '<span class="more">More details →</span>' : '') + '</div></div></div>' + (x.more.trim() ? '<div class="pv-slide"><div class="tg">Policy</div><h3>' + esc(x.t) + '</h3><p>' + esc(x.d) + '</p>' + moreHtml(x.more) + '</div>' : ''); }
   function vPolicies() {
@@ -645,7 +669,7 @@
   // ---------- render + events ----------
   function render() {
     navs(); status();
-    $('main').innerHTML = page === 'banner' ? vBanner() : page === 'recital' ? vRecital() : page === 'staff' ? vStaff() : page === 'homepage' ? vHomepage() : page === 'prices' ? vPrices() : page === 'nav' ? vNav() : page === 'photos' ? vPhotos() : page === 'calendar' ? vCalendar() : page === 'policies' ? vPolicies() : vHome();
+    $('main').innerHTML = page === 'banner' ? vBanner() : page === 'recital' ? vRecital() : page === 'staff' ? vStaff() : page === 'homepage' ? vHomepage() : page === 'prices' ? vPrices() : page === 'nav' ? vNav() : page === 'photos' ? vPhotos() : page === 'featured' ? vFeatured() : page === 'calendar' ? vCalendar() : page === 'policies' ? vPolicies() : vHome();
     const pv = () => $('pv');
     if (page === 'banner') { bind('bText', 60, v => draft.banner.text = v, () => pv().innerHTML = bannerPreview()); bindPicker('bLink', v => draft.banner.href = v, () => pv().innerHTML = bannerPreview()); }
     if (page === 'homepage') { const h = draft.home, uh = () => $('pvHero').innerHTML = heroPreview();
