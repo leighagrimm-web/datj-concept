@@ -270,7 +270,7 @@
     { t: 'Missed classes', d: 'Sessions 3 and 4: up to 3 absences per class in total.', more: 'In Sessions 3 and 4 every class is learning and rehearsing its performance dance, so each missed class is missed practice for the whole group.\n- Up to 3 absences per class, total, across Sessions 3 and 4\n- No make-ups in Session 4: classes spend most of their time on performance dances', label: '', url: '' },
     { t: 'Refunds', d: 'No refunds once you’re enrolled.', more: '', label: '', url: '' },
     { t: 'Class changes', d: 'Classes may be cancelled if enrollment is low. Instructors place dancers by level; age is a guideline.', more: '', label: '', url: '' }];
-  const CAL0 = [
+  const CAL0 = window.DATJ_CAL0 || [
     { title: 'Windy City Bulls Performance', start: '2026-11-14', end: '', where: 'NOW Arena', type: 'Event' },
     { title: 'Observation Week', start: '2026-11-15', end: '2026-11-21', where: 'At the studio', type: 'Event', tbc: true },
     { title: 'Thanksgiving break, no classes', start: '2026-11-24', end: '2026-11-29', where: 'Studio closed', type: 'Closure', tbc: true },
@@ -293,6 +293,10 @@
     { title: 'Halloween Party', emoji: '🎃', pill: 'Halloween Party · Sign up', when: 'Late October · details coming soon', desc: 'Costumes, dancing and treats. Students can bring a friend. Families sign up in the Parent Portal; friends can sign up without an account.', photo: '', btn: 'Sign up', link: '', showFrom: '2027-10-01', hideAfter: '2027-10-31', showPill: true, showStrip: true, signup: true, portal: true, signupUrl: '' }];
   const C0 = window.DATJ_CONTENT0 || { lists: {}, texts: {} };
   const CARDF = { t: '', d: '', more: '', tag: '', photo: '', label: '', url: '' };
+  // Event details are written as plain text: a first paragraph, then "## Heading", "- bullet" and "[Button](link)" lines
+  const infoToText = (i) => { i = i || {}; return [i.summary || ''].concat((i.sections || []).map(x => (x.h ? '## ' + x.h + '\n' : '') + (x.items || []).map(y => '- ' + y).join('\n'))).concat((i.links || []).map(l => '[' + l.label + '](' + (l.url || '') + ')')).filter(Boolean).join('\n\n'); };
+  const flatCal = (e) => { const x = Object.assign({ title: '', start: '', end: '', where: '', type: 'Event', lock: false, hidden: false, iWhen: '', iWhere: '', iBody: '' }, e);
+    if (e.info) { x.iWhen = e.info.when || ''; x.iWhere = e.info.where || ''; x.iBody = infoToText(e.info); } delete x.info; return x; };
   const DEFAULTS = { recital: false, banner: { text: 'Holiday gift cards & merch are here', href: 'shop' }, rc: RC0, staff: STAFF0, home: HOME0, nav: NAV0, prices: { rates: RATES0, specials: SPECIAL0, sessions: SESS0, current: 1, byKey: {} }, photos: {}, calendar: CAL0, policies: POL0 };
   // Saved links are page ids like "families#recital"; older saves used file names
   const normLink = (h) => { h = String(h || '').trim(); const old = /^(?:H-(\w+)\.dc|HomeH\.dc|(\w+))\.html(#[\w-]+)?$/.exec(h); if (old) return (old[1] ? old[1].toLowerCase() : !old[2] || old[2] === 'index' ? 'home' : old[2]) + (old[3] || ''); return h; };
@@ -304,7 +308,7 @@
   const pick = (o) => ({ recital: !!o.recital, banner: (() => { const b = Object.assign({}, DEFAULTS.banner, o.banner || {}); b.href = normLink(b.href); return b; })(),
     home: mergeHome(o.home), nav: (o.nav && o.nav.length ? o.nav : NAV0).filter(n => NAMES[n.id]).map(n => ({ id: n.id, header: !!n.header })),
     prices: (() => { const q = o.prices || {}; const ss = (q.sessions && q.sessions.length ? q.sessions : SESS0).map(x => Object.assign({ name: '', dates: '', weeks: '', liveFrom: '' }, x));
-      return { rates: Object.assign({}, RATES0, q.rates || {}), specials: (q.specials || SPECIAL0).map(x => Object.assign({}, x)), sessions: ss, current: q.current != null && ss[q.current] ? q.current : Math.min(1, ss.length - 1), byKey: q.tiers ? {} : Object.assign({}, q.byKey || {}) }; })(), photos: Object.assign({}, o.photos || {}), featured: (o.featured || FEAT0).map(f => Object.assign({ title: '', emoji: '', pill: '', when: '', desc: '', photo: '', btn: '', link: '', showFrom: '', hideAfter: '', showPill: true, showStrip: true, signup: false, portal: true, signupUrl: '', payUrl: '', price: '' }, f)), calendar: (o.calendar || CAL0).map(e => Object.assign({ title: '', start: '', end: '', where: '', type: 'Event' }, e)), policies: (o.policies || POL0).map(x => Object.assign({ t: '', d: '', more: '', label: '', url: '' }, x)), rc: (o.rc && o.rc.length ? o.rc : RC0).map(r => Object.assign({ t: '', d: '', label: '', url: '', more: '' }, r)).map(r => { const n = RC0.find(x => x.t === r.t); return n && /^Placeholder: (date, time and venue address|date and what to bring)\./.test(r.d) ? Object.assign({}, n) : r; }), lists: (() => { const L = o.lists || {}, out = {}; Object.keys(C0.lists).forEach(k => { out[k] = JSON.parse(JSON.stringify(L[k] || C0.lists[k])).map(x => Object.assign({}, CARDF, x)); }); return out; })(), texts: Object.assign({}, C0.texts, o.texts || {}), staffV: 2, staff: (o.staff && o.staff.length ? (o.staffV === 2 ? o.staff : mergeStaff(o.staff)) : STAFF0).map(s => Object.assign({ name: '', role: '', tag: '', bio: '', photo: '' }, s)) });
+      return { rates: Object.assign({}, RATES0, q.rates || {}), specials: (q.specials || SPECIAL0).map(x => Object.assign({}, x)), sessions: ss, current: q.current != null && ss[q.current] ? q.current : Math.min(1, ss.length - 1), byKey: q.tiers ? {} : Object.assign({}, q.byKey || {}) }; })(), photos: Object.assign({}, o.photos || {}), featured: (o.featured || FEAT0).map(f => Object.assign({ title: '', emoji: '', pill: '', when: '', desc: '', photo: '', btn: '', link: '', showFrom: '', hideAfter: '', showPill: true, showStrip: true, signup: false, portal: true, signupUrl: '', payUrl: '', price: '' }, f)), calendar: (o.calendar || CAL0).map(flatCal), coEdit: o.coEdit || null, policies: (o.policies || POL0).map(x => Object.assign({ t: '', d: '', more: '', label: '', url: '' }, x)), rc: (o.rc && o.rc.length ? o.rc : RC0).map(r => Object.assign({ t: '', d: '', label: '', url: '', more: '' }, r)).map(r => { const n = RC0.find(x => x.t === r.t); return n && /^Placeholder: (date, time and venue address|date and what to bring)\./.test(r.d) ? Object.assign({}, n) : r; }), lists: (() => { const L = o.lists || {}, out = {}; Object.keys(C0.lists).forEach(k => { out[k] = JSON.parse(JSON.stringify(L[k] || C0.lists[k])).map(x => Object.assign({}, CARDF, x)); }); return out; })(), texts: Object.assign({}, C0.texts, o.texts || {}), staffV: 2, staff: (o.staff && o.staff.length ? (o.staffV === 2 ? o.staff : mergeStaff(o.staff)) : STAFF0).map(s => Object.assign({ name: '', role: '', tag: '', bio: '', photo: '' }, s)) });
   const clone = (x) => JSON.parse(JSON.stringify(x));
 
   let live = pick(JSON.parse(JSON.stringify(Object.assign({}, DEFAULTS, read(LIVE) || {}))));
@@ -371,6 +375,7 @@
     { id: 'styles', label: 'Classes: dance styles', short: 'Styles', g: 'Pages' },
     { id: 'summer', label: 'Summer', short: 'Summer', g: 'Pages' },
     { id: 'company', label: 'Company', short: 'Company', g: 'Pages' },
+    { id: 'company2', label: '🔒 Company Central', short: 'Co. Central', g: 'Pages' },
     { id: 'families', label: 'Current Families', short: 'Families', g: 'Pages' },
     { id: 'recital', label: 'Annual Performance', short: 'Performance', g: 'Pages' },
     { id: 'about', label: 'About & mission', short: 'About', g: 'Pages' },
@@ -563,7 +568,9 @@
   const isPast = (e) => !!e.start && (e.end || e.start) < todayISO;
   const upcoming = () => draft.calendar.filter(e => dOf(e.start) && !isPast(e));
   const sortCal = () => draft.calendar.sort((x, y) => (x.start || '9') < (y.start || '9') ? -1 : (x.start || '9') > (y.start || '9') ? 1 : 0);
-  function calPreview(e) { const A = dOf(e.start);
+  function calPreview(e) { return calPreview0(e) + '<div class="lbl" style="margin-top: 16px;">When families tap it</div>' + (e.lock ? '<p class="pv-note">🔒 Families see the title and date. The details below need the Company password.</p>' : '') + '<div class="pv-slide" style="margin-top: 0;"><div class="tg">' + esc(TYPE_LABEL[e.type] || '') + '</div><h3>' + esc(e.title) + '</h3>' + (e.iWhen ? '<p>🕒 ' + esc(e.iWhen) + '</p>' : '') + ((e.iWhere || e.where) ? '<p>📍 ' + esc(e.iWhere || e.where) + '</p>' : '') + (e.iBody ? bodyHtml(e.iBody) : '<p style="color: var(--mut);">No details yet. Families see “More details coming soon.”</p>') + '</div>'; }
+  const bodyHtml = (t) => String(t).split('\n').map(l => l.trim()).filter(Boolean).map(l => /^## /.test(l) ? '<p style="margin: 12px 0 2px; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--teal-dark); font-weight: 700;">' + esc(l.slice(3)) + '</p>' : /^- /.test(l) ? '<p style="margin: 2px 0;">▪ ' + esc(l.slice(2)) + '</p>' : /^\[(.+)\]\((.*)\)$/.test(l) ? '<p><span class="lnk" style="display: inline-block; background: #111111; color: #FFFFFF; padding: 8px 10px; font-size: 11px;">' + esc(l.replace(/^\[(.+)\]\((.*)\)$/, '$1')) + (/\]\(\)$/.test(l) ? ' · link needed' : '') + '</span></p>' : '<p>' + esc(l) + '</p>').join('');
+  function calPreview0(e) { const A = dOf(e.start);
     return '<div class="lbl">On the homepage</div><div style="background: #FFFFFF; border: 1px solid var(--line); padding: 18px; display: flex; gap: 16px; align-items: center;"><div style="text-align: center; min-width: 54px;"><div style="font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--teal-dark); font-weight: 700;">' + (A ? MON[A.m] : '—') + '</div><div style="font-size: 32px; font-weight: 800; letter-spacing: -0.05em;">' + (A ? A.d : '') + '</div></div><div><b style="font-size: 17px;">' + esc(e.title || 'Event name') + '</b><div style="color: var(--mut); font-size: 13px;">' + esc(e.where) + '</div></div></div>'
       + '<div class="lbl" style="margin-top: 16px;">In the full calendar</div><div style="background: #FFFFFF; border: 1px solid var(--line); padding: 14px 18px; display: flex; gap: 14px; flex-wrap: wrap; align-items: center; font-size: 14px;"><b>' + esc(fmtRange(e.start, e.end)) + '</b><span>' + esc(e.title) + '</span><span class="tag" style="background: ' + (e.type === 'Closure' ? '#111111; color: #FFFFFF' : e.type === 'Session' ? '#E5E5E5; color: #000000' : e.type === 'Company' ? '#B8E8EA; color: #000000' : '#00ADB5; color: #000000') + ';">' + esc(TYPE_LABEL[e.type] || e.type) + '</span></div>'
       + '<p class="pv-note">' + (isPast(e) ? 'This date has passed, so it’s hidden on the site.' : 'The homepage shows the next three coming up.') + '</p>'; }
@@ -572,7 +579,12 @@
       + (draft.calendar.some(e => e.tbc) ? '<div class="note">Dates marked <b>To confirm</b> came from the old sample calendar. Check them, then edit or remove them.</div>' : '')
       + listEditor({ key: 'cal', noun: 'a date', noMove: true, sort: sortCal, get: () => draft.calendar, title: e => e.title || 'New date', sub: e => fmtRange(e.start, e.end) + (e.where ? ' · ' + e.where : ''),
         flag: e => e.tbc ? 'To confirm' : isPast(e) ? 'Past' : '', preview: calPreview, newItem: () => ({ title: '', start: todayISO, end: '', where: '', type: 'Event' }),
-        fields: [{ k: 'title', label: 'What', max: 40 }, { k: 'start', label: 'Date (or first day)', type: 'date' }, { k: 'end', label: 'Last day', type: 'date', opt: true, hint: 'Only for things that last more than a day, like a break.' }, { k: 'where', label: 'Where or note', max: 30, opt: true, ph: 'e.g. Studio closed' }, { k: 'type', label: 'Shows under', type: 'select', opts: TYPES, labels: TYPE_LABEL }] }); }
+        fields: [{ k: 'title', label: 'What', max: 40 }, { k: 'start', label: 'Date (or first day)', type: 'date' }, { k: 'end', label: 'Last day', type: 'date', opt: true, hint: 'Only for things that last more than a day, like a break.' }, { k: 'where', label: 'Where or note', max: 30, opt: true, ph: 'e.g. Studio closed' }, { k: 'type', label: 'Shows under', type: 'select', opts: TYPES, labels: TYPE_LABEL },
+          { k: 'iWhen', label: 'Details: time', max: 120, opt: true, ph: 'e.g. Sat, Nov 14 · Call time 4:15 PM · Game 5:00 PM' },
+          { k: 'iWhere', label: 'Details: address', max: 120, opt: true },
+          { k: 'iBody', label: 'Details', max: 3000, area: true, opt: true, hint: 'Opens when families tap the date. First line: a short summary. Then “## What to wear” for a heading, “- ” for each point, and [Buy tickets](https://…) for a button.' },
+          { k: 'lock', label: 'Company families only: details need the Company password', type: 'check', hint: 'The date still shows on the public calendar. Times, costs and addresses stay behind the password.' },
+          { k: 'hidden', label: 'Only on Company Central, not the public calendar', type: 'check' }] }); }
 
   // Featured events
   const featLive = (f) => !!f.title && (!f.showFrom || f.showFrom <= todayISO) && (!f.hideAfter || f.hideAfter >= todayISO);
@@ -686,6 +698,36 @@
     prices: () => sec('Discounts & fees list', 'The list on the Pricing page.', cList('fees')) + sec('Printable schedule', '', '<div class="panel">' + tfield('schedulePdf') + '</div>'),
     recital: () => sec('Pricing page line', 'The short Annual Performance note on the Pricing page.', '<div class="panel">' + tfield('perfNote') + '</div>')
   };
+  // ---------- Company Central (password page) ----------
+  let co = null, coBusy = false, coErr = '';
+  async function coDecrypt(pw) {
+    const r = await fetch('company.enc.json', { cache: 'no-store' }); const j = await r.json();
+    const b = (x) => Uint8Array.from(atob(x), c => c.charCodeAt(0)), E = new TextEncoder();
+    const base = await crypto.subtle.importKey('raw', E.encode(pw), 'PBKDF2', false, ['deriveKey']);
+    const key = await crypto.subtle.deriveKey({ name: 'PBKDF2', salt: b(j.s), iterations: j.it, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+    return JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b(j.i) }, key, b(j.c))));
+  }
+  function coUnlock(pw) { coBusy = true; coErr = ''; render();
+    coDecrypt(pw).then(d => { co = d; coBusy = false; try { sessionStorage.setItem('datj-co-pw', pw); } catch (e) {}
+      if (!draft.coEdit) draft.coEdit = { topics: d.topics.map(t => ({ id: t.id, icon: t.icon, t: t.t, d: t.d, body: infoToText({ sections: t.sections, links: t.links }) })), due: (d.due || []).map(x => Object.assign({}, x)), sheet: 'https://docs.google.com/spreadsheets/d/1a9fwbWr6gM7gwWyXFFpK4UKVbqalJyhi/edit', pwNote: '' };
+      draft.calendar.forEach(e => { const L = e.lock && d.locked && d.locked[e.id]; if (L && !e.iBody && !e.iWhen) { e.iWhen = L.when || ''; e.iWhere = L.where || ''; e.iBody = infoToText(L); } });
+      render(); })
+    .catch(() => { coBusy = false; coErr = 'That password didn’t work.'; render(); }); }
+  function vCompany() {
+    if (!co) return '<h1>Company Central</h1><p class="lede">The password-protected page for Company families: rehearsal calendar, what’s due, the handbook and forms. Enter the Company password to edit it.</p>'
+      + '<div class="panel"><div class="field"><label for="coPw">Company password</label><input id="coPw" type="password" autocomplete="current-password"></div><button type="button" class="btn primary" id="coGo">' + (coBusy ? 'Unlocking…' : 'Unlock') + '</button>' + (coErr ? '<p style="color: #B00020;">' + esc(coErr) + '</p>' : '') + '<p class="hint" style="margin-top: 10px;">Prototype password: <b>jazzhands2027</b></p></div>';
+    const R = co.rehearsals || [], up = R.filter(r => r.date >= todayISO);
+    return '<h1>Company Central</h1><p class="lede">Only Company families with the password can open this page. Everything on it is locked with that password.</p>'
+      + sec('Rehearsal calendar', 'Comes straight from your Company Rehearsal Calendar spreadsheet. Keep editing the spreadsheet the way you do now; the site picks up changes every night.',
+          '<div class="panel">' + '<p style="margin: 0 0 10px;"><b>' + R.length + ' rehearsals</b> on ' + new Set(R.map(r => r.date)).size + ' dates · ' + up.length + ' still to come · updated ' + esc(co.updated || '') + '</p>'
+          + field('coSheet', 'Spreadsheet link', draft.coEdit.sheet, 400, { hint: 'Keep the month tabs and the color for each teacher. “NO REHEARSALS” and “Weekly Rehearsals” are read too.' }) + '</div>')
+      + sec('Due soon', 'Deadlines that show in the teal box at the top.', listEditor({ key: 'codue', noun: 'a deadline', get: () => draft.coEdit.due, title: x => x.t || 'New', sub: x => fmtRange(x.date), preview: x => '<div class="lbl">How it looks</div><div style="background: #00ADB5; padding: 14px;"><b>' + esc(fmtRange(x.date)) + '</b> · ' + esc(x.t) + '</div>', newItem: () => ({ date: todayISO, t: '' }), fields: [{ k: 'date', label: 'Date', type: 'date' }, { k: 't', label: 'What’s due', max: 60 }] }))
+      + sec('Handbook', 'The topic tiles. Write each like a cheat sheet: headings and short points, no long paragraphs.', listEditor({ key: 'cotop', noun: 'a topic', get: () => draft.coEdit.topics, title: x => (x.icon ? x.icon + ' ' : '') + (x.t || 'New topic'), sub: x => x.d,
+          preview: x => '<div class="lbl">When families open it</div><div class="pv-slide" style="margin-top: 0;"><div class="tg">Company families</div><h3>' + esc(x.t) + '</h3><p style="color: var(--mut);">' + esc(x.d) + '</p>' + bodyHtml(x.body || '') + '</div>',
+          newItem: () => ({ id: 't' + Date.now(), icon: '★', t: '', d: '', body: '' }), fields: [{ k: 'icon', label: 'Icon', max: 2 }, { k: 't', label: 'Topic', max: 28 }, { k: 'd', label: 'One line', max: 80 }, { k: 'body', label: 'What it says', max: 4000, area: true, hint: '“## Heading”, then “- ” for each point. [Form name](https://…) for a button.' }] }))
+      + sec('Company-only calendar details', 'Revel, competitions, the Soirée and other dates marked “Company families only” are edited on the Studio calendar screen. Their details stay behind the password.', '<button type="button" class="btn" data-go="calendar">Open the Studio calendar</button>')
+      + sec('Password', '', '<div class="panel"><p style="margin: 0 0 8px;">Share it in the Company welcome email. Change it at the start of each season.</p>' + field('coNewPw', 'New password (in the real site)', draft.coEdit.pwNote || '', 60, { hint: 'In the prototype the password stays jazzhands2027. In the real site, changing it here re-locks everything with the new password.' }) + '</div>');
+  }
   const bindTexts = () => Object.keys(TXT).forEach(k => bind('tx-' + k, TXT[k][1], v => draft.texts[k] = v));
 
   // Homepage
@@ -794,13 +836,16 @@
   // ---------- render + events ----------
   function render() {
     navs(); status();
-    $('main').innerHTML = CPAGES[page] ? CPAGES[page]() : page === 'banner' ? vBanner() : page === 'recital' ? vRecital() : page === 'staff' ? vStaff() : page === 'homepage' ? vHomepage() : page === 'prices' ? vPrices() : page === 'nav' ? vNav() : page === 'photos' ? vPhotos() : page === 'featured' ? vFeatured() : page === 'calendar' ? vCalendar() : page === 'policies' ? vPolicies() : vHome();
+    $('main').innerHTML = page === 'company2' ? vCompany() : CPAGES[page] ? CPAGES[page]() : page === 'banner' ? vBanner() : page === 'recital' ? vRecital() : page === 'staff' ? vStaff() : page === 'homepage' ? vHomepage() : page === 'prices' ? vPrices() : page === 'nav' ? vNav() : page === 'photos' ? vPhotos() : page === 'featured' ? vFeatured() : page === 'calendar' ? vCalendar() : page === 'policies' ? vPolicies() : vHome();
     const pv = () => $('pv');
     if (page === 'banner') { bind('bText', 60, v => draft.banner.text = v, () => pv().innerHTML = bannerPreview()); bindPicker('bLink', v => draft.banner.href = v, () => pv().innerHTML = bannerPreview()); }
     if (page === 'homepage') { const h = draft.home, uh = () => $('pvHero').innerHTML = heroPreview();
       bind('hTag', 80, v => h.tagline = v, uh); h.facts.forEach((f, i) => { bind('fL' + i, 14, v => f.label = v, uh); bind('fT' + i, 40, v => f.text = v, uh); });
     }
     if (EXTRA[page]) $('main').insertAdjacentHTML('beforeend', EXTRA[page]());
+    if (page === 'company2' && !co && !coBusy && !coErr) { let pw = ''; try { pw = sessionStorage.getItem('datj-co-pw') || ''; } catch (e) {} if (pw) setTimeout(() => coUnlock(pw), 0); }
+    if (page === 'company2') { const g = $('coGo'); if (g) { g.addEventListener('click', () => coUnlock($('coPw').value)); $('coPw').addEventListener('keydown', (e) => { if (e.key === 'Enter') coUnlock($('coPw').value); }); }
+      if (co) { bind('coSheet', 400, v => draft.coEdit.sheet = v); bind('coNewPw', 60, v => draft.coEdit.pwNote = v); } }
     bindList(); bindTexts();
     if (page === 'prices') { const P = draft.prices;
       const on = (sel, fn) => document.querySelectorAll(sel).forEach(el => el.addEventListener('change', () => { fn(el); saveDraft(); render(); }));
