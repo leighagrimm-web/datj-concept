@@ -2,3 +2,6 @@ company_plain.json
 *.xlsx
 raw.json
 build_company.py
+comp_data.py
+comp_vip.json
+Competition_Workbook_2026-27.xlsx
