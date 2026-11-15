@@ -186,10 +186,10 @@
     ['Picture day', 'Placeholder: date and schedule.', '', '', 'Placeholder: picture day date\n- Photo times by class\n- Come in full costume, hair and makeup done\n- How to order prints'],
     ['Show-day checklist', 'Placeholder: hair, makeup, arrival time.', '', '', '- Hair: style for each class\n- Makeup: what to wear\n- Arrival and drop-off time\n- Snacks, water, a cover-up over costumes']
   ].map(r => ({ t: r[0], d: r[1], label: r[2], url: r[3], more: r[4] }));
-  const STAFF0 = [['Brittany', 'Owner'], ['Katie', ''], ['Meghan', ''], ['Kelly', ''], ['Dillon', ''], ['Daniel', ''], ['Lauren', ''], ['Akanksha', ''], ['Shetal', ''], ['Front desk', 'Name & role']]
-    .map(x => ({ name: x[0], role: x[1], bio: '', photo: '' }));
+  const STAFF0 = [['Brittany', 'Owner'], ['Katie', ''], ['Meghan', ''], ['Kelly', ''], ['Dillon', ''], ['Daniel', ''], ['Lauren', ''], ['Akanksha', ''], ['Shetal', ''], ['Front desk', 'Name & role', 'Studio team']]
+    .map(x => ({ name: x[0], role: x[1], tag: x[2] || '', bio: '', photo: '' }));
   const DEFAULTS = { recital: false, banner: { text: 'Holiday gift cards & merch are here', href: 'H-Shop.dc.html' }, rc: RC0, staff: STAFF0 };
-  const pick = (o) => ({ recital: !!o.recital, banner: Object.assign({}, DEFAULTS.banner, o.banner || {}), rc: (o.rc && o.rc.length ? o.rc : RC0).map(r => Object.assign({ t: '', d: '', label: '', url: '', more: '' }, r)), staff: (o.staff && o.staff.length ? o.staff : STAFF0).map(s => Object.assign({ name: '', role: '', bio: '', photo: '' }, s)) });
+  const pick = (o) => ({ recital: !!o.recital, banner: Object.assign({}, DEFAULTS.banner, o.banner || {}), rc: (o.rc && o.rc.length ? o.rc : RC0).map(r => Object.assign({ t: '', d: '', label: '', url: '', more: '' }, r)), staff: (o.staff && o.staff.length ? o.staff : STAFF0).map(s => Object.assign({ name: '', role: '', tag: '', bio: '', photo: '' }, s)) });
   const clone = (x) => JSON.parse(JSON.stringify(x));
 
   let live = pick(Object.assign({}, DEFAULTS, read(LIVE) || {}));
@@ -310,7 +310,7 @@
     const st = stylesFor(s.name); const sub = s.role || st.join(' · ') || 'Styles taught';
     const img = s.photo ? '<img src="' + esc(s.photo) + '" alt="">' : 'Photo: headshot';
     return '<div class="lbl">On the About page</div><div class="pv-card"><div class="ph">' + img + '</div><div class="bd"><h3>' + esc(s.name || 'Name') + '</h3><p>' + esc(sub) + '</p><div class="acts"><span class="more">Read bio →</span></div></div></div>'
-      + '<div class="pv-slide"><div class="photo">' + (s.photo ? '<img src="' + esc(s.photo) + '" alt="">' : '') + '</div><div class="tg">Instructor</div><h3>' + esc(s.name || 'Name') + '</h3><p>' + esc(sub) + '</p>'
+      + '<div class="pv-slide"><div class="photo">' + (s.photo ? '<img src="' + esc(s.photo) + '" alt="">' : '') + '</div><div class="tg">' + esc(s.tag || 'Instructor') + '</div><h3>' + esc(s.name || 'Name') + '</h3><p>' + esc(sub) + '</p>'
       + (s.bio.trim() ? moreHtml(s.bio) : '<p style="color: #999999;">Bio goes here.</p>') + (st.length ? '<ul><li>Teaches: ' + esc(st.join(', ')) + '</li></ul>' : '') + '</div>';
   }
   function vStaff() {
@@ -325,6 +325,7 @@
       const cc = classCount(s.name);
       return row + '<div class="editor"><div class="two"><div>'
         + '<div class="field"><div class="row"><span>Photo</span></div><div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;"><label class="btn" for="sPhoto">' + (s.photo ? 'Change photo' : 'Add photo') + '</label><input type="file" id="sPhoto" accept="image/*" class="sr">' + (s.photo ? '<button type="button" class="btn ghost" id="sPhotoX">Remove</button>' : '') + '</div><div class="hint">A headshot works best. It’s cropped to a tall rectangle.</div></div>'
+        + field('sT', 'Label above the name', s.tag, 20, { optional: true, ph: 'Instructor', hint: 'The small teal word over their name in the bio, e.g. Owner, Instructor, Studio team.' })
         + field('sN', 'Name', s.name, 24, { hint: 'First name, as families know them.' })
         + field('sR', 'Title or styles', s.role, 40, { optional: true, ph: st.join(' · ') || 'e.g. Owner', hint: 'Leave empty to show the styles they teach.' })
         + field('sB', 'Bio', s.bio, 600, { area: true, ph: 'Two or three sentences: training, what they love teaching, a fun fact.', hint: 'Start a line with “- ” to make a bullet.' })
@@ -346,7 +347,7 @@
     if (page === 'recital' && openItem >= 0) { const r = draft.rc[openItem]; const up = () => pv().innerHTML = rcPreview(r);
       bind('rT', 28, v => r.t = v, up); bind('rD', 140, v => r.d = v, up); bind('rM', 600, v => r.more = v, up); bind('rL', 20, v => r.label = v, up); bind('rU', 300, v => r.url = v.trim(), up); }
     if (page === 'staff' && openItem >= 0) { const s = draft.staff[openItem]; const up = () => pv().innerHTML = staffPreview(s);
-      bind('sN', 24, v => s.name = v, up); bind('sR', 40, v => s.role = v, up); bind('sB', 600, v => s.bio = v, () => { up(); const tg = document.querySelector('.item.open .tag'); if (tg) tg.style.display = s.bio.trim() ? 'none' : ''; });
+      bind('sN', 24, v => s.name = v, up); bind('sT', 20, v => s.tag = v, up); bind('sR', 40, v => s.role = v, up); bind('sB', 600, v => s.bio = v, () => { up(); const tg = document.querySelector('.item.open .tag'); if (tg) tg.style.display = s.bio.trim() ? 'none' : ''; });
       const f = $('sPhoto'); if (f) f.addEventListener('change', () => { const file = f.files && f.files[0]; if (!file) return; shrink(file, (url) => { s.photo = url; saveDraft(); render(); }); }); }
   }
   // resize photos in the browser so they stay small
@@ -373,7 +374,7 @@
     if (d.del !== undefined) { confirmDel = +d.del; render(); return; }
     if (d.delno) { confirmDel = -1; render(); return; }
     if (d.delyes !== undefined) { const nm = draft.staff[+d.delyes].name; draft.staff.splice(+d.delyes, 1); openItem = -1; confirmDel = -1; saveDraft(); render(); toast(nm + ' removed. Press Publish to update the site.'); return; }
-    if (t.id === 'sAdd') { draft.staff.push({ name: '', role: '', bio: '', photo: '' }); openItem = draft.staff.length - 1; saveDraft(); render(); const n = $('sN'); if (n) n.focus(); return; }
+    if (t.id === 'sAdd') { draft.staff.push({ name: '', role: '', tag: '', bio: '', photo: '' }); openItem = draft.staff.length - 1; saveDraft(); render(); const n = $('sN'); if (n) n.focus(); return; }
   });
 
   render();

@@ -404,8 +404,8 @@ a{color:inherit;text-decoration:none}
     const TROW = (on) => 'display: flex; gap: 12px; align-items: center; width: 100%; text-align: left; padding: 11px 12px; border: 0; border-bottom: 1px solid #EEEEEE; font-family: inherit; font-size: 13px; cursor: pointer; background: ' + (on ? '#00ADB5' : '#FFFFFF') + '; color: #111111;';
     const TEACH = [...new Set(C.map(c => c.teacher).filter(Boolean))].sort();
     // Instructors (About page). Brittany edits these in the admin; styles come from the Studio Pro schedule.
-    const STAFF0 = [['Brittany', 'Owner'], ['Katie', ''], ['Meghan', ''], ['Kelly', ''], ['Dillon', ''], ['Daniel', ''], ['Lauren', ''], ['Akanksha', ''], ['Shetal', ''], ['Front desk', 'Name & role']]
-      .map(x => ({ name: x[0], role: x[1], bio: '', photo: '' }));
+    const STAFF0 = [['Brittany', 'Owner'], ['Katie', ''], ['Meghan', ''], ['Kelly', ''], ['Dillon', ''], ['Daniel', ''], ['Lauren', ''], ['Akanksha', ''], ['Shetal', ''], ['Front desk', 'Name & role', 'Studio team']]
+      .map(x => ({ name: x[0], role: x[1], tag: x[2] || '', bio: '', photo: '' }));
     const stylesFor = (n) => { const st = []; C.filter(c => c.teacher === n).forEach(c => styleOf(c.name).forEach(x => { if (!st.includes(x) && x !== 'Technique') st.push(x); })); return st; };
     const staffList = (this.state.staff && this.state.staff.length ? this.state.staff : STAFF0);
     const planned = C.filter(c => plan.includes(c.id));
@@ -453,7 +453,7 @@ a{color:inherit;text-decoration:none}
       staffCards: staffList.map(m => { const st = stylesFor(m.name); const sub = m.role || st.join(' · ') || 'Styles taught';
         const isImg = /^(data:image|https?:)/.test(m.photo || '');
         const more = [m.bio || 'Placeholder: a short bio, two or three sentences.'].concat(st.length ? ['- Teaches: ' + st.join(', ')] : []).join('|');
-        return { name: m.name, sub: sub, more: more, photo: m.photo || 'Photo: headshot', photoImg: isImg, photoPh: !isImg }; }),
+        return { name: m.name, tag: m.tag || 'Instructor', sub: sub, more: more, photo: m.photo || 'Photo: headshot', photoImg: isImg, photoPh: !isImg }; }),
       schedRows: C.filter(c => ageOK(c) && sOK(c) && (selDay === 'all' || c.day === selDay)).map(c => Object.assign({}, c, { tryIt: () => this.setState({ trial: true, ownForm: !!this.state.ownTrial, sent: false, tTried: false, tCls: /company/i.test(c.name) ? -1 : c.id, tStyle: '', tAge: (AGEB.find(b => c.lo <= b[3] && c.hi >= b[2]) || AGEB[0])[0] }), isCo: /company/i.test(c.name), notCo: !/company/i.test(c.name), teacherCol: c.teacher || '—', teacherDot: c.teacher ? ' · ' + c.teacher : '', hasNote: !!c.note })),
       schedEmpty: !C.some(c => ageOK(c) && sOK(c) && (selDay === 'all' || c.day === selDay)),
       styleChips: [{ label: 'All styles', on: !sSty.length, pick: () => this.setState({ sstyles: [] }) }].concat(STYLES.filter(x => C.some(c => styleOf(c.name).includes(x))).map(x => ({ label: x, on: sSty.includes(x), pick: () => this.setState({ sstyles: toggle(sSty, x) }) }))).map(x => Object.assign(x, { style: CHIP(x.on), pressed: x.on ? 'true' : 'false' })),
