@@ -701,7 +701,7 @@
       + sec('Teams', 'Tap a team to change its name, details or team photo.', cList('teams'))
       + sec('Rosters', 'Pick a team, then add its dancers. Families see them when they open the team.', rosterEditor())
       + sec('Auditions', '', '<div class="panel">' + tfield('auditions') + tfield('auditionsMore') + '</div>')
-      + sec('Competition schedule', 'Shown in the order listed here.', cList('comps')),
+      + sec('Competition schedule', 'The list on the Company page fills in from the competition dates in Company Central, in date order.', '<a class="btn" href="#company2" data-go="company2">Edit competition dates in Company Central →</a>'),
     families: () => '<h1>Current Families</h1><p class="lede">Dress code on the Current Families page, plus the link to Company Central. The homepage quick links are on the Homepage screen.</p>'
       + sec('Dress code', '', cList('dress')) + sec('Company families', 'The Company section on this page is now one link to Company Central, where rehearsals, competitions, costumes and the handbook live.', '<button type="button" class="btn" data-go="company2">Open Company Central</button>'),
     about: () => '<h1>About &amp; mission</h1><p class="lede">The story and the three words on the About page. Instructors have their own screen.</p>'
