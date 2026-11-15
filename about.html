@@ -53,18 +53,18 @@ a{color:inherit;text-decoration:none}
 
   <!-- top line -->
   <div class="h-topline" style="height: 34px; padding: 0 5.5vw; display: flex; align-items: center; justify-content: space-between; background: #00ADB5; color: #000000; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;">
-    <span>Prospect Heights, Illinois</span><sc-if value="{{recitalOn}}" hint-placeholder-val="{{ false }}"><a href="families.html#recital" style="font-weight: 700;"><span class="h-hideM">Recital season · tickets, costumes &amp; schedule →︎</span><span class="h-showM">Recital info →︎</span></a></sc-if><sc-if value="{{recitalOff}}" hint-placeholder-val="{{ true }}"><a class="h-hideM" href="{{bannerHref}}" style="font-weight: 700;">{{bannerText}} →︎</a><a class="h-showM" href="https://dancestudio-pro.com/online/index.php?account_id=20951" style="font-weight: 700;">Parent Portal ↗︎</a></sc-if>
+    <span>Prospect Heights, Illinois</span><sc-if value="{{recitalOn}}" hint-placeholder-val="{{ false }}"><a href="families.html#recital" style="font-weight: 700;"><span class="h-hideM">Recital season · tickets, costumes &amp; schedule →︎</span><span class="h-showM">Recital info →︎</span></a></sc-if><sc-if value="{{recitalOff}}" hint-placeholder-val="{{ true }}"><a class="h-hideM" href="{{bannerHref}}" onClick="{{bannerClick}}" style="font-weight: 700;">{{bannerText}} →︎</a><a class="h-showM" href="https://dancestudio-pro.com/online/index.php?account_id=20951" style="font-weight: 700;">Parent Portal ↗︎</a></sc-if>
   </div>
 
   <!-- header -->
   <header class="h-header" style="position: absolute; top: 34px; left: 0; right: 0; z-index: 5; height: 88px; padding: 0 5.5vw; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.18); background: rgba(0,0,0,0.35);">
     <a href="index.html" style="display: block;"><img class="h-logo" src="logos/stacked_teal-white.svg" alt="Dance &amp; All That Jazz" style="height: 56px; width: auto; display: block;"></a>
     <nav class="h-nav" aria-label="Main" style="display: flex; gap: 30px; align-items: center;">
-      <a class="h-navlink" href="classes.html" style="font-size: 10px; letter-spacing: 0.13em; text-transform: uppercase; color: #E4E8E5;">Classes</a>
-      <a class="h-navlink" href="pricing.html" style="font-size: 10px; letter-spacing: 0.13em; text-transform: uppercase; color: #E4E8E5;">Pricing</a>
-      <a class="h-navlink" href="company.html" style="font-size: 10px; letter-spacing: 0.13em; text-transform: uppercase; color: #E4E8E5;">Company</a>
-      <a class="h-navlink h-hide-md" href="about.html" style="font-size: 10px; letter-spacing: 0.13em; text-transform: uppercase; color: #E4E8E5;">About</a>
-      <a class="h-navlink" href="families.html" style="font-size: 10px; letter-spacing: 0.13em; text-transform: uppercase; color: #E4E8E5;">Current Families</a>
+      <sc-for list="{{headerLinks}}" as="hl" hint-placeholder-count="5"><a class="{{hl.cls}}" href="{{hl.href}}" style="font-size: 10px; letter-spacing: 0.13em; text-transform: uppercase; color: #E4E8E5;">{{hl.label}}</a></sc-for>
+      
+      
+      
+      
       <a class="h-hideM" href="https://dancestudio-pro.com/online/index.php?account_id=20951" style="font-size: 10px; letter-spacing: 0.13em; text-transform: uppercase; border: 1px solid #CBD2CF; padding: 13px 16px;">Parent Portal ↗︎</a>
       <button type="button" onClick="{{openTrial}}" style="font-family: inherit; font-size: 10px; letter-spacing: 0.13em; text-transform: uppercase; font-weight: 700; background: #00ADB5; color: #000000; padding: 15px 19px; border: 0; cursor: pointer;">Free Trial →︎</button>
       <button type="button" class="h-menubtn" onClick="{{openMenu}}" aria-label="Open menu" aria-expanded="{{menuOpen}}" style="width: 46px; height: 46px; border: 1px solid #CBD2CF; background: transparent; color: #FFFFFF; display: flex; align-items: center; justify-content: center; cursor: pointer;"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 7h18M3 12h18M3 17h18"></path></svg></button>
@@ -85,7 +85,7 @@ a{color:inherit;text-decoration:none}
       </div>
       
     </div>
-    <div class="h-split" style="display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 6vw; align-items: center;"><div class="h-photo" style="height: 420px; background: #1C1C1C; display: flex; align-items: center; justify-content: center; color: #888888; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;">Photo: the studio</div><div><div class="p-ph"><b style="letter-spacing: 0.16em; font-size: 10px; text-transform: uppercase;">Placeholder</b> · The studio story in three sentences: how it started, what it believes, who it’s for.</div><a href="https://winnie.com/place/dance-all-that-jazz-studio-prospect-heights" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; gap: 14px; margin-top: 22px;"><img src="https://media.winnie.com/award_local_2018.png" alt="Winnie Family Favorite award" width="74" height="80" style="display: block;"><span style="font-size: 12px; line-height: 1.5; color: #444444;"><b style="color: #111111; letter-spacing: 0.12em; text-transform: uppercase; font-size: 10px;">Family Favorite</b><br>Voted by local families on Winnie</span></a></div></div>
+    <div class="h-split" style="display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 6vw; align-items: center;"><div class="h-photo" style="height: 420px; background: #1C1C1C; display: flex; align-items: center; justify-content: center; color: #888888; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; overflow: hidden;"><sc-if value="{{photoStudioImg}}" hint-placeholder-val="{{ false }}"><img src="{{photoStudio}}" alt="" style="width: 100%; height: 100%; object-fit: cover; display: block;"></sc-if><sc-if value="{{photoStudioPh}}" hint-placeholder-val="{{ true }}">{{photoStudio}}</sc-if></div><div><div class="p-ph"><b style="letter-spacing: 0.16em; font-size: 10px; text-transform: uppercase;">Placeholder</b> · The studio story in three sentences: how it started, what it believes, who it’s for.</div><a href="https://winnie.com/place/dance-all-that-jazz-studio-prospect-heights" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; gap: 14px; margin-top: 22px;"><img src="https://media.winnie.com/award_local_2018.png" alt="Winnie Family Favorite award" width="74" height="80" style="display: block;"><span style="font-size: 12px; line-height: 1.5; color: #444444;"><b style="color: #111111; letter-spacing: 0.12em; text-transform: uppercase; font-size: 10px;">Family Favorite</b><br>Voted by local families on Winnie</span></a></div></div>
   </section>
   <section id="mission" class="h-sec p-dark" style="padding: 100px 8vw; background: #0A0A0A; color: #F7F7F3;">
     <div class="h-head" style="display: flex; justify-content: space-between; align-items: flex-end; gap: 30px; margin-bottom: 40px;">
@@ -144,7 +144,7 @@ a{color:inherit;text-decoration:none}
         <img src="logos/circle_teal.svg" alt="Dance &amp; All That Jazz" style="height: 56px; width: 56px; display: block;">
         <button type="button" onClick="{{closeMenu}}" aria-label="Close menu" style="width: 46px; height: 46px; border: 1px solid #CBD2CF; background: transparent; color: #FFFFFF; display: flex; align-items: center; justify-content: center; cursor: pointer;"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 5l14 14M19 5L5 19"></path></svg></button>
       </div>
-      <nav aria-label="Main" style="display: flex; flex-direction: column; border-top: 1px solid rgba(255,255,255,0.18); padding-top: 18px;"><sc-if value="{{recitalOn}}" hint-placeholder-val="{{ false }}"><a href="families.html#recital" onClick="{{closeMenu}}" style="font-size: 26px; letter-spacing: -0.04em; font-weight: 800; text-transform: uppercase; line-height: 1.35; color: #00ADB5;">Recital →︎</a></sc-if><a href="classes.html" style="font-size: 26px; letter-spacing: -0.04em; font-weight: 800; text-transform: uppercase; line-height: 1.35; color: #FFFFFF;" onClick="{{closeMenu}}">Classes</a><a href="pricing.html" style="font-size: 26px; letter-spacing: -0.04em; font-weight: 800; text-transform: uppercase; line-height: 1.35; color: #FFFFFF;" onClick="{{closeMenu}}">Pricing</a><a href="company.html" style="font-size: 26px; letter-spacing: -0.04em; font-weight: 800; text-transform: uppercase; line-height: 1.35; color: #FFFFFF;" onClick="{{closeMenu}}">Company</a><a href="about.html" style="font-size: 26px; letter-spacing: -0.04em; font-weight: 800; text-transform: uppercase; line-height: 1.35; color: #FFFFFF;" onClick="{{closeMenu}}">About</a><a href="families.html" style="font-size: 26px; letter-spacing: -0.04em; font-weight: 800; text-transform: uppercase; line-height: 1.35; color: #FFFFFF;" onClick="{{closeMenu}}">Current Families</a><div style="display: flex; flex-direction: column; margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.18);"><a href="classes.html#week" style="font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; line-height: 2.2; color: #CBD2CF;" onClick="{{closeMenu}}">Plan your week</a><a href="families.html#calendar" style="font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; line-height: 2.2; color: #CBD2CF;" onClick="{{closeMenu}}">Calendar</a><a href="families.html#dress" style="font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; line-height: 2.2; color: #CBD2CF;" onClick="{{closeMenu}}">Dress code</a><a href="families.html#recital" style="font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; line-height: 2.2; color: #CBD2CF;" onClick="{{closeMenu}}">Recital info</a><a href="shop.html" style="font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; line-height: 2.2; color: #CBD2CF;" onClick="{{closeMenu}}">Gift cards &amp; shop</a><a href="index.html#contact" style="font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; line-height: 2.2; color: #CBD2CF;" onClick="{{closeMenu}}">Contact us</a></div><button type="button" onClick="{{menuTrial}}" style="text-align: left; padding: 0; margin-top: 14px; border: 0; background: none; font-family: Georgia, serif; font-style: italic; font-size: 32px; color: #00ADB5; line-height: 1.3; cursor: pointer;">Free trial →︎</button></nav>
+      <nav aria-label="Main" style="display: flex; flex-direction: column; border-top: 1px solid rgba(255,255,255,0.18); padding-top: 18px;"><sc-if value="{{recitalOn}}" hint-placeholder-val="{{ false }}"><a href="families.html#recital" onClick="{{closeMenu}}" style="font-size: 26px; letter-spacing: -0.04em; font-weight: 800; text-transform: uppercase; line-height: 1.35; color: #00ADB5;">Recital →︎</a></sc-if><sc-for list="{{menuLinks}}" as="ml" hint-placeholder-count="5"><a href="{{ml.href}}" style="font-size: 26px; letter-spacing: -0.04em; font-weight: 800; text-transform: uppercase; line-height: 1.35; color: #FFFFFF;" onClick="{{closeMenu}}">{{ml.label}}</a></sc-for><div style="display: flex; flex-direction: column; margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.18);"><a href="classes.html#week" style="font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; line-height: 2.2; color: #CBD2CF;" onClick="{{closeMenu}}">Plan your week</a><a href="families.html#calendar" style="font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; line-height: 2.2; color: #CBD2CF;" onClick="{{closeMenu}}">Calendar</a><a href="families.html#dress" style="font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; line-height: 2.2; color: #CBD2CF;" onClick="{{closeMenu}}">Dress code</a><a href="families.html#recital" style="font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; line-height: 2.2; color: #CBD2CF;" onClick="{{closeMenu}}">Recital info</a><a href="shop.html" style="font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; line-height: 2.2; color: #CBD2CF;" onClick="{{closeMenu}}">Gift cards &amp; shop</a><a href="index.html#contact" style="font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; line-height: 2.2; color: #CBD2CF;" onClick="{{closeMenu}}">Contact us</a></div><button type="button" onClick="{{menuTrial}}" style="text-align: left; padding: 0; margin-top: 14px; border: 0; background: none; font-family: Georgia, serif; font-style: italic; font-size: 32px; color: #00ADB5; line-height: 1.3; cursor: pointer;">Free trial →︎</button></nav>
       <a href="https://dancestudio-pro.com/online/index.php?account_id=20951" style="display: flex; align-items: center; justify-content: center; min-height: 54px; border: 1px solid rgba(255,255,255,0.7); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 700;">Parent Portal ↗︎</a>
       <div style="margin-top: auto; font-size: 12px; line-height: 1.8; color: #AAB3AF;"><a href="tel:8479478464">(847) 947-8464</a> · 844 N Elmhurst Rd, Prospect Heights</div>
     </div>
@@ -288,12 +288,15 @@ a{color:inherit;text-decoration:none}
       ['Show-day checklist', 'Placeholder: hair, makeup, arrival time.', '', '', '- Hair: style for each class\n- Makeup: what to wear\n- Arrival and drop-off time\n- Snacks, water, a cover-up over costumes']
     ].map(r => ({ t: r[0], d: r[1], label: r[2], url: r[3], more: r[4] }));
     this.RC = RC;
-    this.state = { sound: false, admin: false, rcEdit: false, rcOpen: -1, dp: null, dpf: {}, dpfTried: false, dpfSent: false, recital: !!sv.recital, ownTrial: !!sv.ownTrial, staff: sv.staff || null, banner: sv.banner || { text: 'Holiday gift cards & merch are here', href: 'shop.html' }, rc: (sv.rc || RC).map((r, i) => Object.assign({ more: '' }, RC[i] ? { more: RC[i].more } : {}, r)), trial: false, sent: false, name: '', tf: {}, tAge: '', tStyle: '', tCls: -2, tTried: false, age: 'tots', menu: false, msg: false, summer: true, team: 0, ages: [], wages: [], sstyles: [], wstyles: [], panel: -1, day: 'all', teachers: [], plan: [] }; }
+    this.state = { sound: false, admin: false, rcEdit: false, rcOpen: -1, dp: null, dpf: {}, dpfTried: false, dpfSent: false, recital: !!sv.recital, ownTrial: !!sv.ownTrial, staff: sv.staff || null, nav: sv.nav || null, prices: sv.prices || null, home: sv.home || null, photos: sv.photos || null, banner: sv.banner || { text: 'Holiday gift cards & merch are here', href: 'shop.html' }, rc: (sv.rc || RC).map((r, i) => Object.assign({ more: '' }, RC[i] ? { more: RC[i].more } : {}, r)), trial: false, sent: false, name: '', tf: {}, tAge: '', tStyle: '', tCls: -2, tTried: false, age: 'tots', menu: false, msg: false, summer: true, team: 0, ages: [], wages: [], sstyles: [], wstyles: [], panel: -1, day: 'all', teachers: [], plan: [] }; }
   // Classes come from Studio Pro: the saved copy (classes.json, refreshed nightly) shows right away,
   // then one quick live check swaps in anything that changed today. Ages always come from the saved copy.
   loadClasses() {
     if (this._spInit || typeof window === 'undefined' || typeof fetch === 'undefined') return;
     this._spInit = true;
+    // Any link to "#trial" (banner, cards) opens the free trial form
+    const trialHash = () => { if (location.hash === '#trial') { try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {} this.setState({ trial: true, ownForm: false, sent: false, tTried: false }); } };
+    window.addEventListener('hashchange', trialHash); setTimeout(trialHash, 0);
     const saved = () => this.state.savedClasses || (window.DATJ_CLASSES && window.DATJ_CLASSES.classes) || [];
     fetch('classes.json', { cache: 'no-cache' }).then(r => r.ok ? r.json() : null).then(j => { if (j && j.classes && j.classes.length) this.setState({ savedClasses: j.classes, classesAt: j.updated }); }).catch(() => {})
       .then(() => window.StudioPro ? window.StudioPro.fetchClasses(fetch.bind(window)) : null)
@@ -312,8 +315,9 @@ a{color:inherit;text-decoration:none}
   }
   persist(next) {
     this.setState(next);
-    const s = Object.assign({ recital: this.state.recital, ownTrial: this.state.ownTrial, staff: this.state.staff, banner: this.state.banner, rc: this.state.rc }, next);
-    try { const prev = JSON.parse(window.localStorage.getItem('datj-admin') || '{}') || {}; window.localStorage.setItem('datj-admin', JSON.stringify(Object.assign(prev, { recital: s.recital, ownTrial: s.ownTrial, staff: s.staff, banner: s.banner, rc: s.rc }))); } catch (e) {}
+    const KEYS = ['recital', 'ownTrial', 'staff', 'banner', 'rc', 'nav', 'prices', 'home', 'photos'];
+    const s = {}; KEYS.forEach(k => { s[k] = k in next ? next[k] : this.state[k]; });
+    try { const prev = JSON.parse(window.localStorage.getItem('datj-admin') || '{}') || {}; window.localStorage.setItem('datj-admin', JSON.stringify(Object.assign(prev, s))); } catch (e) {}
   }
   renderVals() {
     const byAge = {
@@ -353,11 +357,15 @@ a{color:inherit;text-decoration:none}
     const classesLive = !!this.state.liveClasses, classesAt = this.state.classesAt || (typeof window !== 'undefined' && window.DATJ_CLASSES && window.DATJ_CLASSES.updated) || '';
     const tOf = (c) => c.teacher || TEACHER_BY_CLASS[c.key] || '';
     const idOf = (k) => { let h = 7; for (let i = 0; i < k.length; i++) h = (h * 31 + k.charCodeAt(i)) % 2147483647; return h; };
-    const priceOf = (m) => m == null ? 152 : m <= 45 ? 133 : m <= 60 ? 152 : m <= 75 ? 188 : 228;
+    const PR = this.state.prices || {};
+    const TIERS = (PR.tiers && PR.tiers.length ? PR.tiers : [[40, 133], [55, 152], [70, 188], [85, 228]]).slice().sort((a, b) => a[0] - b[0]);
+    const priceOf = (m) => { if (m == null) m = 55; let best = TIERS[0]; TIERS.forEach(t => { if (Math.abs(t[0] - m) < Math.abs(best[0] - m)) best = t; }); return +best[1]; };
+    const OVR0 = (c) => /intro to break/i.test(c.name) ? 167 : /^breaking i/i.test(c.name) ? 335 : null;
+    const priceFor = (c) => { const o = (PR.byKey || {})[c.key]; if (o != null && o !== '') return +o; const d = OVR0(c); return d != null ? d : priceOf(c.mins); };
     const C = RAW.filter(c => !c.season || /session|summer|intensive|camp/i.test(c.season)).sort((x, y) => DAYS.indexOf(x.day) - DAYS.indexOf(y.day) || (x.start || 0) - (y.start || 0)).map(c => {
       const lo = c.lo == null ? 0 : c.lo, hi = c.hi == null ? 99 : c.hi;
       return { id: idOf(c.key), key: c.key, day: c.day, time: c.time, name: c.name.replace(/\//g, '/\u200B'), lo: lo, hi: hi,
-        teacher: tOf(c), teacherDot: tOf(c) ? ' · ' + tOf(c) : '', studio: c.studio, price: /intro to break/i.test(c.name) ? 167 : /^breaking i/i.test(c.name) ? 335 : priceOf(c.mins), note: (c.note || '').split('\n')[0].slice(0, 70),
+        teacher: tOf(c), teacherDot: tOf(c) ? ' · ' + tOf(c) : '', studio: c.studio, price: priceFor(c), note: (c.note || '').split('\n')[0].slice(0, 70),
         ages: c.lo == null ? 'All ages' : hi >= 99 ? lo + '+' : lo + '–' + hi };
     });
 
@@ -423,6 +431,18 @@ a{color:inherit;text-decoration:none}
     const dpBad = (f, v) => f.req !== false && (f.type === 'email' ? !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) : f.type === 'tel' ? v.replace(/\D/g, '').length < 10 : !v.trim());
     const TROW = (on) => 'display: flex; gap: 12px; align-items: center; width: 100%; text-align: left; padding: 11px 12px; border: 0; border-bottom: 1px solid #EEEEEE; font-family: inherit; font-size: 13px; cursor: pointer; background: ' + (on ? '#00ADB5' : '#FFFFFF') + '; color: #111111;';
     const TEACH = [...new Set(C.map(c => c.teacher).filter(Boolean))].sort();
+    // Brittany's links are saved as page ids ("families#recital"), turned into real page addresses here.
+    const PAGEF = { home: 'index.html', classes: 'classes.html', pricing: 'pricing.html', company: 'company.html', about: 'about.html', families: 'families.html', shop: 'shop.html' };
+    const linkTo = (h) => { h = String(h || '').trim(); if (!h) return '#'; if (/^(https?:|mailto:|tel:)/.test(h)) return h; if (h === 'trial') return '#trial';
+      const old = /^(?:H-(\w+)\.dc|HomeH\.dc|(\w+))\.html(#[\w-]+)?$/.exec(h); if (old) h = (old[1] ? old[1].toLowerCase() : !old[2] || old[2] === 'index' ? 'home' : old[2]) + (old[3] || '');
+      const m = /^(\w+)(#[\w-]+)?$/.exec(h); return m && PAGEF[m[1]] ? PAGEF[m[1]] + (m[2] || '') : h; };
+    const NAMES = { classes: 'Classes', pricing: 'Pricing', company: 'Company', about: 'About', families: 'Current Families', shop: 'Gift Cards & Shop' };
+    const NAV0 = [['classes', 1], ['pricing', 1], ['company', 1], ['about', 1], ['families', 1], ['shop', 0]].map(x => ({ id: x[0], header: !!x[1] }));
+    const navList = (this.state.nav && this.state.nav.length ? this.state.nav : NAV0).filter(n => NAMES[n.id]);
+    const HOME = this.state.home || {};
+    const FACTS0 = [['Ages', '18 months to adult'], ['Styles', 'Ballet, jazz, tap, hip hop & more'], ['Where', 'Prospect Heights, IL'], ['Try it', 'Your first class is free']];
+    const PH = this.state.photos || {};
+    const isPic = (x) => /^(data:image|https?:)/.test(x || '');
     // Instructors (About page). Brittany edits these in the admin; styles come from the Studio Pro schedule.
     const STAFF0 = [['Brittany', 'Owner'], ['Katie', ''], ['Meghan', ''], ['Kelly', ''], ['Dillon', ''], ['Daniel', ''], ['Lauren', ''], ['Akanksha', ''], ['Shetal', ''], ['Front desk', 'Name & role', 'Studio team']]
       .map(x => ({ name: x[0], role: x[1], tag: x[2] || '', bio: '', photo: '' }));
@@ -436,11 +456,13 @@ a{color:inherit;text-decoration:none}
     const ti = this.state.team || 0;
     const goTeam = (i) => { this.setState({ team: (i + 6) % 6 }); if (this._timer) { clearInterval(this._timer); this._timer = setInterval(() => this.setState({ team: ((this.state.team || 0) + 1) % 6 }), 10000); } };
     return {
-      programs: [
+      programs: (() => { const P0 = [
         { num: '01 / FOUNDATIONS', title: 'Little Movers', sub: 'Ages 18 months – 5 · rhythm, coordination & joy', photo: 'Photo: Tiny Tots class', href: 'classes.html#schedule', cta: 'See classes', more: 'Placeholder: what little ones do in class|- Tiny Tots: 18 months – 3, with a grown-up nearby|- Preschool combos: ages 3–5|- 40-minute classes, first one free' },
         { num: '02 / TECHNIQUE', title: 'Dance Styles', sub: 'Ballet, jazz, tap, hip hop, breaking, acro & more', photo: 'Photo: jazz class', href: 'classes.html#styles', cta: 'See styles', more: 'Placeholder: how levels work|- Ballet, jazz, tap, hip hop, breaking, acro, contemporary, musical theater|- Levels I–III by age and experience|- Ages 6 through adult' },
         { num: '03 / COMPETE', title: 'Company', sub: 'Six competitive teams for dancers ready to go further', photo: 'Video: company on stage', href: 'company.html', cta: 'Meet the teams', more: 'Placeholder: what Company involves|- Six teams by age and level|- Auditions: when they happen|- Competitions and conventions each season' }
-      ],
+      ]; const ed = HOME.programs || [];
+        return P0.map((p, i) => { const e = Object.assign({}, ed[i] || {}); Object.keys(e).forEach(k => { if (e[k] === '' || e[k] == null) delete e[k]; });
+          const q = Object.assign({}, p, e); q.href = e.link ? linkTo(e.link) : p.href; q.photoImg = isPic(q.photo); q.photoPh = !q.photoImg; return q; }); })(),
       ageBtns: [['tots','18 mo–3'],['pre','3–5'],['kids','6–8'],['tween','9–12'],['teen','Teen'],['adult','Adult']].map(x => ({ label: x[1], on: x[0] === a ? 'true' : 'false', pick: () => this.setState({ age: x[0] }),
         style: 'min-height: 48px; border: 1px solid ' + (x[0] === a ? '#111111' : '#CCCCCC') + '; background: ' + (x[0] === a ? '#111111' : '#FFFFFF') + '; color: ' + (x[0] === a ? '#FFFFFF' : '#111111') + '; font-family: inherit; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 700; cursor: pointer;' })),
       fit: (() => { const b = AGEB.find(x => x[0] === a); const seen = {}; const out = C.filter(c => b && c.lo <= b[3] && c.hi >= b[2] && !(c.lo === 0 && c.hi === 99)).map(c => ({ name: c.name.replace(/ (Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)$/, ''), price: '$' + c.price })).filter(c => !seen[c.name] && (seen[c.name] = 1)); return out.length ? out.slice(0, 6) : byAge[a].map(c => ({ name: c[0], price: c[1] })); })(),
@@ -470,6 +492,12 @@ a{color:inherit;text-decoration:none}
       teacherChips: [{ label: 'All teachers', on: !selT.length, pick: () => this.setState({ teachers: [] }) }].concat(TEACH.map(t => ({ label: t, on: selT.includes(t), pick: () => this.setState({ teachers: toggle(selT, t) }) }))).map(x => Object.assign(x, { style: CHIP(x.on), pressed: x.on ? 'true' : 'false' })),
       schedSource: classesLive ? 'Live from Studio Pro' : (classesAt ? 'From Studio Pro · saved ' + new Date(classesAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Sample schedule'),
       hasTeachers: TEACH.length > 0,
+      headerLinks: navList.filter(n => n.header).slice(0, 5).map((n, i) => ({ label: NAMES[n.id], href: PAGEF[n.id], cls: i >= 3 ? 'h-navlink h-hide-md' : 'h-navlink' })),
+      menuLinks: navList.map(n => ({ label: NAMES[n.id], href: PAGEF[n.id] })),
+      heroTagline: HOME.tagline || 'Technique, artistry and confidence for every dancer.',
+      heroFacts: FACTS0.map((f, i) => { const e = (HOME.facts || [])[i] || {}; return { label: e.label || f[0], text: e.text || f[1] }; }),
+      photoStudio: PH.studio || 'Photo: the studio', photoStudioImg: isPic(PH.studio), photoStudioPh: !isPic(PH.studio),
+      photoCompany: PH.company || 'Video: company on stage', photoCompanyImg: isPic(PH.company), photoCompanyPh: !isPic(PH.company),
       staffCards: staffList.map(m => { const st = stylesFor(m.name); const sub = m.role || st.join(' · ') || 'Styles taught';
         const isImg = /^(data:image|https?:)/.test(m.photo || '');
         const more = [m.bio || 'Placeholder: a short bio, two or three sentences.'].concat(st.length ? ['- Teaches: ' + st.join(', ')] : []).join('|');
@@ -507,9 +535,9 @@ a{color:inherit;text-decoration:none}
       recitalBtnBg: this.state.recital ? '#00ADB5' : 'transparent', recitalBtnFg: this.state.recital ? '#000000' : '#FFFFFF',
       toggleRecital: () => this.persist({ recital: !this.state.recital }),
       toggleOwnTrial: () => this.persist({ ownTrial: !this.state.ownTrial }), ownTrialLabel: this.state.ownTrial ? 'Our site form' : 'Studio Pro', ownTrialPressed: this.state.ownTrial ? 'true' : 'false',
-      bannerText: this.state.banner.text, bannerHref: this.state.banner.href, bannerCount: (this.state.banner.text || '').length,
+      bannerText: this.state.banner.text, bannerHref: linkTo(this.state.banner.href), bannerClick: (e) => { if (this.state.banner.href === 'trial') { if (e && e.preventDefault) e.preventDefault(); this.setState({ trial: true, ownForm: false, sent: false, tTried: false }); } }, bannerCount: (this.state.banner.text || '').length,
       setBannerText: (e) => this.persist({ banner: Object.assign({}, this.state.banner, { text: e.target.value.slice(0, 60) }) }),
-      bannerLinks: [['Gift Cards & Shop', 'shop.html'], ['Classes', 'classes.html'], ['Pricing', 'pricing.html'], ['Company', 'company.html'], ['Current Families', 'families.html']].map(l => ({ label: l[0], on: this.state.banner.href === l[1], pick: () => this.persist({ banner: Object.assign({}, this.state.banner, { href: l[1] }) }) })).map(x => Object.assign(x, { style: CHIP(x.on).replace('#111111', '#00ADB5').replace('#111111', '#00ADB5'), pressed: x.on ? 'true' : 'false' })),
+      bannerLinks: [['Gift Cards & Shop', 'shop'], ['Classes', 'classes'], ['Company info', 'company'], ['Recital info', 'families#recital'], ['Free trial', 'trial']].map(l => ({ label: l[0], on: this.state.banner.href === l[1], pick: () => this.persist({ banner: Object.assign({}, this.state.banner, { href: l[1] }) }) })).map(x => Object.assign(x, { style: CHIP(x.on).replace('#111111', '#00ADB5').replace('#111111', '#00ADB5'), pressed: x.on ? 'true' : 'false' })),
       rcEditing: !!this.state.rcEdit, rcEditLabel: this.state.rcEdit ? 'ON' : 'OFF', toggleRcEdit: () => this.setState({ rcEdit: !this.state.rcEdit }),
       rcReset: () => this.persist({ rc: this.RC.map(x => Object.assign({}, x)) }),
       rcCards: (this.state.rc || []).map((r, i) => { const up = (k, n) => (e) => { const rc = (this.state.rc || []).map(x => Object.assign({}, x)); rc[i][k] = e.target.value.slice(0, n); this.persist({ rc }); };

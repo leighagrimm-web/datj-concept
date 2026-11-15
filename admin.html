@@ -124,6 +124,41 @@
   .styles { display: flex; flex-wrap: wrap; gap: 6px; }
   .styles span { font-size: 12px; padding: 4px 9px; background: #EAF7F7; color: #00575B; }
 
+  select.pick { display: block; width: 100%; min-height: 46px; padding: 10px 12px; border: 1px solid #C9CDCB; background: #FFFFFF; font-size: 15px; }
+  select.pick:focus { outline: 2px solid var(--teal); outline-offset: 0; }
+  .grid2 { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 12px; }
+  .tiers { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+  .tier { background: var(--bg); padding: 12px; }
+  .tier b { display: block; font-size: 13px; margin-bottom: 6px; }
+  .money { display: flex; align-items: center; border: 1px solid #C9CDCB; background: #FFFFFF; }
+  .money span { padding: 0 0 0 10px; color: var(--mut); }
+  .money input { border: 0; padding: 10px 10px 10px 4px; width: 100%; font-size: 15px; min-width: 0; }
+  .money input:focus { outline: none; }
+  .money:focus-within { outline: 2px solid var(--teal); }
+  .ptable { width: 100%; border-collapse: collapse; background: #FFFFFF; }
+  .ptable th { text-align: left; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mut); padding: 10px 12px; border-bottom: 1px solid var(--line); background: #FFFFFF; position: sticky; top: 0; }
+  .ptable td { padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: middle; font-size: 14px; }
+  .ptable td.cls b { display: block; }
+  .ptable td.cls span { color: var(--mut); font-size: 12px; }
+  .ptable .money { max-width: 120px; }
+  .ptable .src { font-size: 12px; color: var(--mut); }
+  .ptable .src.ovr { color: #7A5A00; font-weight: 700; }
+  .search { display: block; width: 100%; max-width: 360px; padding: 12px; border: 1px solid #C9CDCB; margin: 0 0 12px; font-size: 15px; }
+  .navrow { display: flex; align-items: center; gap: 12px; background: #FFFFFF; border: 1px solid var(--line); padding: 10px 14px; }
+  .navrow b { flex: 1; }
+  .check { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; padding: 8px 0; }
+  .check input { width: 20px; height: 20px; accent-color: var(--teal); }
+  .pv-nav { background: #000000; color: #E4E8E5; display: flex; align-items: center; gap: 18px; padding: 16px; flex-wrap: wrap; font-size: 10px; letter-spacing: 0.13em; text-transform: uppercase; }
+  .pv-nav .logo { width: 34px; height: 34px; border-radius: 50%; background: var(--teal); }
+  .pv-nav .tr { margin-left: auto; background: var(--teal); color: #000000; padding: 8px 10px; font-weight: 700; }
+  .pv-menu { background: #000000; color: #FFFFFF; padding: 18px; margin-top: 12px; }
+  .pv-menu div { font-size: 20px; font-weight: 800; text-transform: uppercase; letter-spacing: -0.03em; line-height: 1.4; }
+  .slot { display: flex; gap: 16px; align-items: center; background: #FFFFFF; border: 1px solid var(--line); padding: 14px; }
+  .slot .thumb { width: 96px; height: 72px; }
+  .slot .info { flex: 1; min-width: 0; }
+  .slot .info b { display: block; }
+  .slot .info span { color: var(--mut); font-size: 13px; }
+  .note { background: #FFFFFF; border: 1px solid var(--line); border-left: 4px solid #F2B705; padding: 14px 16px; margin: 0 0 14px; font-size: 14px; }
   .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: #111111; color: #FFFFFF; padding: 12px 18px; font-size: 14px; z-index: 30; display: none; }
   .toast.show { display: block; }
   .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
@@ -149,8 +184,13 @@
     .top { padding: 8px 14px; gap: 10px; }
     .top .ttl small, .top .viewsite, .status .txt { display: none; }
     .top { position: static; }
-    .tabs { display: grid; grid-template-columns: repeat(4, 1fr); position: sticky; top: 0; z-index: 10; background: #FFFFFF; border-bottom: 1px solid var(--line); }
-    .tabs button { border: 0; background: none; padding: 14px 4px 12px; font-size: 12px; cursor: pointer; border-bottom: 3px solid transparent; }
+    .tabs { display: flex; overflow-x: auto; position: sticky; top: 0; z-index: 10; background: #FFFFFF; border-bottom: 1px solid var(--line); scrollbar-width: none; }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tabs button { flex: none; border: 0; background: none; padding: 14px 14px 12px; font-size: 13px; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; }
+    .tiers { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid2 { grid-template-columns: minmax(0, 1fr); gap: 0; }
+    .ptable .hideM { display: none; }
+    .slot { flex-wrap: wrap; }
     .tabs button[aria-current="page"] { border-bottom-color: var(--teal); font-weight: 700; }
     main { padding-bottom: 60px; }
   }
@@ -194,8 +234,23 @@
   ].map(r => ({ t: r[0], d: r[1], label: r[2], url: r[3], more: r[4] }));
   const STAFF0 = [['Brittany', 'Owner'], ['Katie', ''], ['Meghan', ''], ['Kelly', ''], ['Dillon', ''], ['Daniel', ''], ['Lauren', ''], ['Akanksha', ''], ['Shetal', ''], ['Front desk', 'Name & role', 'Studio team']]
     .map(x => ({ name: x[0], role: x[1], tag: x[2] || '', bio: '', photo: '' }));
-  const DEFAULTS = { recital: false, banner: { text: 'Holiday gift cards & merch are here', href: 'H-Shop.dc.html' }, rc: RC0, staff: STAFF0 };
-  const pick = (o) => ({ recital: !!o.recital, banner: Object.assign({}, DEFAULTS.banner, o.banner || {}), rc: (o.rc && o.rc.length ? o.rc : RC0).map(r => Object.assign({ t: '', d: '', label: '', url: '', more: '' }, r)), staff: (o.staff && o.staff.length ? o.staff : STAFF0).map(s => Object.assign({ name: '', role: '', tag: '', bio: '', photo: '' }, s)) });
+  const P0 = [
+    { title: 'Little Movers', sub: 'Ages 18 months – 5 · rhythm, coordination & joy', cta: 'See classes', link: 'classes#schedule', photo: '', more: 'Placeholder: what little ones do in class\n- Tiny Tots: 18 months – 3, with a grown-up nearby\n- Preschool combos: ages 3–5\n- 40-minute classes, first one free' },
+    { title: 'Dance Styles', sub: 'Ballet, jazz, tap, hip hop, breaking, acro & more', cta: 'See styles', link: 'classes#styles', photo: '', more: 'Placeholder: how levels work\n- Ballet, jazz, tap, hip hop, breaking, acro, contemporary, musical theater\n- Levels I–III by age and experience\n- Ages 6 through adult' },
+    { title: 'Company', sub: 'Six competitive teams for dancers ready to go further', cta: 'Meet the teams', link: 'company', photo: '', more: 'Placeholder: what Company involves\n- Six teams by age and level\n- Auditions: when they happen\n- Competitions and conventions each season' }];
+  const PNUM = ['01 / Foundations', '02 / Technique', '03 / Compete'];
+  const FACTS0 = [['Ages', '18 months to adult'], ['Styles', 'Ballet, jazz, tap, hip hop & more'], ['Where', 'Prospect Heights, IL'], ['Try it', 'Your first class is free']];
+  const HOME0 = { tagline: 'Technique, artistry and confidence for every dancer.', facts: FACTS0.map(f => ({ label: f[0], text: f[1] })), programs: P0 };
+  const NAMES = { classes: 'Classes', pricing: 'Pricing', company: 'Company', about: 'About', families: 'Current Families', shop: 'Gift Cards & Shop' };
+  const NAV0 = [['classes', 1], ['pricing', 1], ['company', 1], ['about', 1], ['families', 1], ['shop', 0]].map(x => ({ id: x[0], header: !!x[1] }));
+  const TIERS0 = [[40, 133], [55, 152], [70, 188], [85, 228]];
+  const DEFAULTS = { recital: false, banner: { text: 'Holiday gift cards & merch are here', href: 'shop' }, rc: RC0, staff: STAFF0, home: HOME0, nav: NAV0, prices: { tiers: TIERS0, byKey: {} }, photos: {} };
+  // Saved links are page ids like "families#recital"; older saves used file names
+  const normLink = (h) => { h = String(h || '').trim(); const old = /^(?:H-(\w+)\.dc|HomeH\.dc|(\w+))\.html(#[\w-]+)?$/.exec(h); if (old) return (old[1] ? old[1].toLowerCase() : !old[2] || old[2] === 'index' ? 'home' : old[2]) + (old[3] || ''); return h; };
+  const mergeHome = (h) => { h = h || {}; return { tagline: h.tagline || HOME0.tagline, facts: FACTS0.map((f, i) => Object.assign({ label: f[0], text: f[1] }, ((h.facts || [])[i]) || {})), programs: P0.map((p, i) => Object.assign({}, p, ((h.programs || [])[i]) || {})) }; };
+  const pick = (o) => ({ recital: !!o.recital, banner: (() => { const b = Object.assign({}, DEFAULTS.banner, o.banner || {}); b.href = normLink(b.href); return b; })(),
+    home: mergeHome(o.home), nav: (o.nav && o.nav.length ? o.nav : NAV0).filter(n => NAMES[n.id]).map(n => ({ id: n.id, header: !!n.header })),
+    prices: { tiers: (o.prices && o.prices.tiers && o.prices.tiers.length ? o.prices.tiers : TIERS0).map(t => [+t[0], +t[1]]), byKey: Object.assign({}, (o.prices && o.prices.byKey) || {}) }, photos: Object.assign({}, o.photos || {}), rc: (o.rc && o.rc.length ? o.rc : RC0).map(r => Object.assign({ t: '', d: '', label: '', url: '', more: '' }, r)), staff: (o.staff && o.staff.length ? o.staff : STAFF0).map(s => Object.assign({ name: '', role: '', tag: '', bio: '', photo: '' }, s)) });
   const clone = (x) => JSON.parse(JSON.stringify(x));
 
   let live = pick(Object.assign({}, DEFAULTS, read(LIVE) || {}));
@@ -207,8 +262,29 @@
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const $ = (id) => document.getElementById(id);
   let tt; const toast = (m) => { const t = $('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('show'), 2600); };
-  const LINKS = [['Gift Cards & Shop', 'H-Shop.dc.html'], ['Classes', 'H-Classes.dc.html'], ['Pricing', 'H-Pricing.dc.html'], ['Company', 'H-Company.dc.html'], ['Current Families', 'H-Families.dc.html']];
-  const SITE = { 'H-Shop.dc.html': 'shop.html', 'H-Classes.dc.html': 'classes.html', 'H-Pricing.dc.html': 'pricing.html', 'H-Company.dc.html': 'company.html', 'H-Families.dc.html': 'families.html' };
+  const PORTAL = 'https://dancestudio-pro.com/online/index.php?account_id=20951';
+  const DESTS = [
+    ['Classes', [['classes', 'Classes page'], ['classes#schedule', 'Class schedule'], ['classes#week', 'Plan your week'], ['classes#styles', 'Dance styles'], ['classes#summer', 'Summer Session']]],
+    ['Free trial', [['trial', 'Book a free trial (opens the form)']]],
+    ['Pricing', [['pricing', 'Pricing page'], ['pricing#tuition', 'Tuition'], ['pricing#fees', 'Discounts & fees'], ['pricing#recital', 'Recital fees'], ['pricing#policies', 'Policies']]],
+    ['Company', [['company', 'Company info'], ['company#teams', 'Company teams'], ['company#auditions', 'Auditions'], ['company#competitions', 'Competition schedule']]],
+    ['Current Families', [['families', 'Current Families page'], ['families#recital', 'Recital info'], ['families#calendar', 'Studio calendar'], ['families#dress', 'Dress code'], ['families#company', 'Company parent info']]],
+    ['About', [['about', 'About the studio'], ['about#instructors', 'Instructors'], ['about#visit', 'Visit & address']]],
+    ['Shop', [['shop', 'Gift Cards & Shop'], ['shop#gift', 'Gift cards'], ['shop#merch', 'Holiday merch']]],
+    ['Other', [['home', 'Homepage'], [PORTAL, 'Parent Portal (Studio Pro)'], ['custom', 'Another website…']]]
+  ];
+  const destName = (v) => { for (const g of DESTS) for (const d of g[1]) if (d[0] === v) return d[1]; return v ? 'Another website' : 'Nothing'; };
+  const isKnown = (v) => DESTS.some(g => g[1].some(d => d[0] === v && v !== 'custom'));
+  const customOpen = {};
+  const linkPicker = (id, label, value, hint) => { const custom = customOpen[id] || (!!value && !isKnown(value));
+    return '<label class="field" for="' + id + '"><span class="row"><span>' + esc(label) + '</span></span><select class="pick" id="' + id + '">'
+      + DESTS.map(g => '<optgroup label="' + esc(g[0]) + '">' + g[1].map(d => '<option value="' + esc(d[0]) + '"' + ((custom ? d[0] === 'custom' : d[0] === value) ? ' selected' : '') + '>' + esc(d[1]) + '</option>').join('') + '</optgroup>').join('') + '</select>'
+      + (custom ? '<input type="url" id="' + id + '-url" value="' + esc(isKnown(value) ? '' : value) + '" placeholder="https://…" style="display: block; width: 100%; padding: 12px; border: 1px solid #C9CDCB; margin-top: 8px; font-size: 15px;">' : '')
+      + (hint ? '<div class="hint">' + hint + '</div>' : '') + '</label>'; };
+  // select + optional URL box -> value
+  const bindPicker = (id, set, after) => { const sel = $(id); if (!sel) return;
+    sel.addEventListener('change', () => { if (sel.value === 'custom') { customOpen[id] = true; set(''); saveDraft(); render(); const u = $(id + '-url'); if (u) u.focus(); return; } customOpen[id] = false; set(sel.value); saveDraft(); render(); });
+    const u = $(id + '-url'); if (u) u.addEventListener('input', () => { set(u.value.trim()); saveDraft(); if (after) after(); }); };
   const moreHtml = (txt) => { const lines = String(txt || '').split('\n').map(l => l.trim()).filter(Boolean); let out = '', ul = [];
     const flush = () => { if (ul.length) { out += '<ul>' + ul.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul>'; ul = []; } };
     lines.forEach(l => { if (/^- /.test(l)) ul.push(l.slice(2)); else { flush(); out += '<p>' + esc(l) + '</p>'; } }); flush(); return out; };
@@ -235,17 +311,22 @@
     { id: 'home', label: 'Home', short: 'Home' },
     { id: 'banner', label: 'Top banner', short: 'Banner' },
     { id: 'recital', label: 'Recital season', short: 'Recital' },
-    { id: 'staff', label: 'Instructors', short: 'Instructors' }
+    { id: 'staff', label: 'Instructors', short: 'Instructors' },
+    { id: 'homepage', label: 'Homepage', short: 'Homepage' },
+    { id: 'prices', label: 'Class prices', short: 'Prices' },
+    { id: 'nav', label: 'Menu & header', short: 'Menu' },
+    { id: 'photos', label: 'Photos & videos', short: 'Photos' }
   ];
-  const SOON = ['Homepage cards', 'Class prices', 'Menu & header', 'Photos & videos'];
+  const SOON = [];
   let page = (location.hash || '#home').slice(1); if (!PAGES.some(p => p.id === page)) page = 'home';
   let openItem = -1, confirmDel = -1;
   const go = (p) => { page = p; openItem = -1; confirmDel = -1; history.replaceState(null, '', '#' + p); render(); window.scrollTo(0, 0); };
 
   function navs() {
     $('side').innerHTML = '<div class="grp">Your site</div>' + PAGES.map(p => '<button type="button" data-go="' + p.id + '"' + (p.id === page ? ' aria-current="page"' : '') + '>' + esc(p.label) + '</button>').join('')
-      + '<div class="grp">Coming next</div>' + SOON.map(s => '<button type="button" class="soon" disabled>' + esc(s) + '<em>Soon</em></button>').join('');
+      ;
     $('tabs').innerHTML = PAGES.map(p => '<button type="button" data-go="' + p.id + '"' + (p.id === page ? ' aria-current="page"' : '') + '>' + esc(p.short) + '</button>').join('');
+    const cur = $('tabs').querySelector('[aria-current]'); if (cur && cur.scrollIntoView) cur.scrollIntoView({ block: 'nearest', inline: 'center' });
   }
   function status() {
     const d = dirty();
@@ -262,13 +343,17 @@
   // ---------- pages ----------
   function vHome() {
     const missing = draft.staff.filter(s => !s.bio.trim()).length, noPhoto = draft.staff.filter(s => !s.photo).length;
-    const bannerTo = (LINKS.find(l => l[1] === draft.banner.href) || ['a page'])[0];
+    const bannerTo = destName(draft.banner.href);
+    const ovr = Object.keys(draft.prices.byKey).length, hdr = draft.nav.filter(n => n.header).length;
     return '<h1>Hi Brittany.</h1><p class="lede">What would you like to update? Changes stay private until you press <b>Publish</b>.</p>'
       + '<div class="tiles">'
       + '<button class="tile" type="button" data-go="banner"><b>Post an announcement</b><span>The teal line across the top of every page.</span><span class="now">Now: “' + esc(draft.banner.text) + '” → ' + esc(bannerTo) + '</span></button>'
       + '<button class="tile" type="button" data-go="recital"><b>Recital season</b><span>Turn on recital info for families, and edit the recital cards.</span><span class="now">Now: ' + (draft.recital ? 'On' : 'Off') + '</span></button>'
       + '<button class="tile" type="button" data-go="staff"><b>Instructors</b><span>Photos and bios on the About page.</span><span class="now">' + draft.staff.length + ' people · ' + (missing ? missing + ' need a bio' : 'all bios done') + (noPhoto ? ' · ' + noPhoto + ' need a photo' : '') + '</span></button>'
-      + SOON.map(s => '<div class="tile soon"><b>' + esc(s) + '</b><span>Coming next.</span></div>').join('')
+      + '<button class="tile" type="button" data-go="homepage"><b>Homepage</b><span>The line under “Move with purpose,” the four quick facts, and the three program cards.</span><span class="now">3 cards · 4 facts</span></button>'
+      + '<button class="tile" type="button" data-go="prices"><b>Class prices</b><span>Price by class length, plus any class that costs something different.</span><span class="now">' + draft.prices.tiers.map(t => t[0] + ' min $' + t[1]).join(' · ') + (ovr ? ' · ' + ovr + ' special' : '') + '</span></button>'
+      + '<button class="tile" type="button" data-go="nav"><b>Menu &amp; header</b><span>Which pages show across the top, and their order.</span><span class="now">' + hdr + ' in the header · ' + draft.nav.length + ' in the menu</span></button>'
+      + '<button class="tile" type="button" data-go="photos"><b>Photos &amp; videos</b><span>Swap the placeholder photos around the site.</span><span class="now">' + (Object.values(draft.photos).filter(Boolean).length + draft.home.programs.filter(p => p.photo).length) + ' photos added</span></button>'
       + '</div>'
       + '<div class="auto"><div><b>You don’t need to update these here</b><ul><li>Classes, days, times and ages: change them in Studio Pro and the website updates by itself.</li><li>Free trial sign-ups: they go straight into Studio Pro.</li></ul></div></div>';
   }
@@ -277,14 +362,13 @@
     return '<div class="lbl">How it looks</div>'
       + '<div class="pv-banner"><span>Prospect Heights, Illinois</span><b>' + (draft.recital ? 'Recital season · tickets, costumes &amp; schedule →' : esc(draft.banner.text || 'Your message') + ' →') + '</b></div>'
       + '<div class="pv-head"><span class="logo"></span>Dance &amp; All That Jazz</div>'
-      + '<p class="pv-note">' + (draft.recital ? '<b>Recital season is on</b>, so the banner shows the recital link. Your message comes back when you turn it off.' : 'On phones the banner shows “Parent Portal” instead, so keep anything urgent on the homepage too.') + '</p>';
+      + '<p class="pv-note">Tapping it opens: <b>' + esc(destName(draft.banner.href)) + '</b></p><p class="pv-note">' + (draft.recital ? '<b>Recital season is on</b>, so the banner shows the recital link. Your message comes back when you turn it off.' : 'On phones the banner shows “Parent Portal” instead, so keep anything urgent on the homepage too.') + '</p>';
   }
   function vBanner() {
     return '<h1>Top banner</h1><p class="lede">A short line across the top of every page. Good for a sale, a closure or a deadline.</p>'
       + '<div class="two"><div class="panel">'
       + field('bText', 'Message', draft.banner.text, 60, { ph: 'e.g. Registration for Session 3 is open', hint: 'Keep it short. It’s shown in small capital letters.' })
-      + '<div class="field"><div class="row"><span>When someone taps it, go to</span></div><div class="chips" role="group" aria-label="Banner link">'
-      + LINKS.map(l => '<button type="button" class="chip" data-link="' + l[1] + '" aria-pressed="' + (draft.banner.href === l[1]) + '">' + esc(l[0]) + '</button>').join('') + '</div></div>'
+      + linkPicker('bLink', 'When someone taps it, go to', draft.banner.href, 'Pick a page, a section of a page, the free trial form, or another website.')
       + '</div><div class="previewbox" id="pv">' + bannerPreview() + '</div></div>';
   }
 
@@ -343,12 +427,108 @@
       + '<div class="list">' + list + '</div><button type="button" class="btn" id="sAdd" style="margin-top: 14px;">+ Add a person</button>';
   }
 
+  // Homepage
+  function progPreview(p, i) {
+    const img = p.photo ? '<img src="' + esc(p.photo) + '" alt="">' : 'Photo';
+    return '<div class="lbl">How the card looks</div><div class="pv-card" style="background: #161616; color: #FFFFFF;"><div class="ph">' + img + '</div><div class="bd"><div style="font-size: 10px; letter-spacing: 0.18em; color: #00ADB5; margin-bottom: 8px;">' + esc(PNUM[i]) + '</div><h3>' + esc(p.title || 'Title') + '</h3><p style="color: #AEB8B3;">' + esc(p.sub) + '</p><div class="acts"><span class="lnk" style="background: #00ADB5; color: #000000;">' + esc(p.cta || 'Button') + ' →</span>' + (p.more.trim() ? '<span class="more" style="border-color: #FFFFFF;">More details →</span>' : '') + '</div></div></div>'
+      + '<p class="pv-note">The button opens: <b>' + esc(destName(p.link)) + '</b></p>';
+  }
+  function vHomepage() {
+    const h = draft.home;
+    const facts = h.facts.map((f, i) => '<div class="grid2">' + field('fL' + i, 'Fact ' + (i + 1) + ' label', f.label, 14) + field('fT' + i, 'Fact ' + (i + 1), f.text, 40) + '</div>').join('');
+    const list = h.programs.map((p, i) => {
+      const row = '<div class="item' + (openItem === i ? ' open' : '') + '"><span class="thumb">' + (p.photo ? '<img src="' + esc(p.photo) + '" alt="">' : 'Photo') + '</span><button type="button" class="main" data-open="' + i + '" aria-expanded="' + (openItem === i) + '"><b>' + esc(PNUM[i]) + ' · ' + esc(p.title) + '</b><span>' + esc(p.sub) + '</span></button>' + (/placeholder/i.test(p.more) ? '<span class="tag">Placeholder</span>' : '') + '</div>';
+      if (openItem !== i) return row;
+      return row + '<div class="editor"><div class="two"><div>'
+        + '<div class="field"><div class="row"><span>Photo</span></div><div style="display: flex; gap: 10px; flex-wrap: wrap;"><label class="btn" for="pPhoto">' + (p.photo ? 'Change photo' : 'Add photo') + '</label><input type="file" id="pPhoto" accept="image/*" class="sr">' + (p.photo ? '<button type="button" class="btn ghost" id="pPhotoX">Remove</button>' : '') + '</div></div>'
+        + field('pT', 'Title', p.title, 24) + field('pS', 'Short line', p.sub, 70, { hint: 'Shown under the title on the card.' })
+        + field('pC', 'Button text', p.cta, 20) + linkPicker('pL', 'The button goes to', p.link)
+        + field('pM', 'More details', p.more, 600, { area: true, optional: true, hint: 'Opens in a slide-out panel. Start a line with “- ” for a bullet.' })
+        + '<button type="button" class="btn dark" data-close="1">Done</button></div><div class="previewbox" id="pv">' + progPreview(p, i) + '</div></div></div>';
+    }).join('');
+    return '<h1>Homepage</h1><p class="lede">The words under the big “Move with purpose” headline, the quick facts, and the three program cards.</p>'
+      + '<div class="two"><div class="panel">' + field('hTag', 'Line under the headline', h.tagline, 80) + facts + '</div><div class="previewbox"><div class="lbl">How it looks</div><div id="pvHero" style="background: #000000; color: #FFFFFF; padding: 22px;">' + heroPreview() + '</div></div></div>'
+      + '<h2 style="margin-top: 30px;">Program cards</h2><p class="lede" style="margin-bottom: 14px;">Tap a card to edit it. The numbers (01, 02, 03) stay as they are.</p><div class="list">' + list + '</div>';
+  }
+  function heroPreview() { const h = draft.home;
+    return '<div style="font-size: 34px; font-weight: 800; letter-spacing: -0.05em; line-height: 0.95;">Move<br>with <span class="serif" style="color: #00ADB5;">purpose.</span></div><p style="color: #E2E7E4; font-size: 14px; margin: 12px 0 16px;">' + esc(h.tagline) + '</p>'
+      + '<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; border-top: 1px solid rgba(255,255,255,0.25); padding-top: 12px; font-size: 13px;">' + h.facts.map(f => '<div><span style="display: block; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: #00ADB5;">' + esc(f.label) + '</span>' + esc(f.text) + '</div>').join('') + '</div>'; }
+
+  // Prices
+  const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const regular = () => CLASSES.filter(c => !c.season || /session|summer|intensive|camp/i.test(c.season)).sort((a, b) => DAYS.indexOf(a.day) - DAYS.indexOf(b.day) || (a.start || 0) - (b.start || 0));
+  const tierFor = (m) => { const T = draft.prices.tiers; if (m == null) m = 55; let best = T[0]; T.forEach(t => { if (Math.abs(t[0] - m) < Math.abs(best[0] - m)) best = t; }); return best; };
+  const special0 = (c) => /intro to break/i.test(c.name) ? 167 : /^breaking i/i.test(c.name) ? 335 : null;
+  let priceQ = '';
+  function vPrices() {
+    const T = draft.prices.tiers, ovr = draft.prices.byKey;
+    const tiers = '<div class="tiers">' + T.map((t, i) => '<div class="tier"><b>' + t[0] + '-minute classes</b><div class="money"><span>$</span><input inputmode="decimal" id="tier' + i + '" value="' + esc(t[1]) + '" aria-label="Price for ' + t[0] + '-minute classes"></div></div>').join('') + '</div>';
+    const rows = regular().filter(c => !priceQ || (c.name + ' ' + c.day + ' ' + (TEACH[c.key] || '')).toLowerCase().includes(priceQ.toLowerCase())).map(c => {
+      const has = ovr[c.key] != null && ovr[c.key] !== ''; const sp = special0(c); const t = tierFor(c.mins);
+      const shown = has ? ovr[c.key] : (sp != null ? sp : t[1]);
+      const src = has ? '<span class="src ovr">Special price</span>' : sp != null ? '<span class="src ovr">Special price</span>' : '<span class="src">' + (c.mins || '?') + ' min · from the length price</span>';
+      return '<tr><td class="cls"><b>' + esc(c.name) + '</b><span>' + esc(c.day + ' ' + c.time + (TEACH[c.key] ? ' · ' + TEACH[c.key] : '')) + '</span></td><td class="hideM">' + src + '</td><td><div class="money"><span>$</span><input inputmode="decimal" data-price="' + esc(c.key) + '" value="' + esc(shown) + '" aria-label="Price for ' + esc(c.name + ' ' + c.day) + '"></div>'
+        + (has ? '<button type="button" class="btn ghost" data-reset="' + esc(c.key) + '" style="min-height: 30px; font-size: 10px;">Use length price</button>' : '') + '</td></tr>';
+    }).join('');
+    return '<h1>Class prices</h1><p class="lede">Most classes are priced by how long they are. Set those four prices once, then change any class that costs something different.</p>'
+      + '<div class="note">Not final: these are waiting on your pricing decision with Leigha. Studio Pro’s public schedule doesn’t include prices, so they live here.</div>'
+      + '<div class="panel"><h2>Price by class length</h2><p class="lede" style="margin-bottom: 14px;">Per session.</p>' + tiers + '</div>'
+      + '<h2 style="margin-top: 30px;">Every class</h2><p class="lede" style="margin-bottom: 12px;">Type a new price to give a class its own price.</p>'
+      + '<input class="search" id="pQ" type="search" placeholder="Find a class, day or teacher" value="' + esc(priceQ) + '"><div style="overflow-x: auto;"><table class="ptable"><thead><tr><th>Class</th><th class="hideM">Where the price comes from</th><th>Price</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+  }
+
+  // Menu & header
+  function navPreview() {
+    const hd = draft.nav.filter(n => n.header);
+    return '<div class="lbl">Header on a computer</div><div class="pv-nav"><span class="logo"></span>' + hd.map(n => '<span>' + esc(NAMES[n.id]) + '</span>').join('') + '<span>Parent Portal ↗</span><span class="tr">Free trial →</span></div>'
+      + '<div class="lbl" style="margin-top: 18px;">Menu (☰)</div><div class="pv-menu">' + (draft.recital ? '<div style="color: #00ADB5;">Recital →</div>' : '') + draft.nav.map(n => '<div>' + esc(NAMES[n.id]) + '</div>').join('') + '</div>'
+      + '<p class="pv-note">Parent Portal and Free trial always stay in the header. On phones the header shows just the logo, Free trial and the menu.</p>';
+  }
+  function vNav() {
+    const hd = draft.nav.filter(n => n.header).length;
+    const rows = draft.nav.map((n, i) => '<div class="navrow"><b>' + esc(NAMES[n.id]) + '</b><label class="check"><input type="checkbox" data-hdr="' + i + '"' + (n.header ? ' checked' : '') + (!n.header && hd >= 5 ? ' disabled' : '') + '> In the header</label>'
+      + '<button type="button" class="mini" data-nup="' + i + '" aria-label="Move ' + esc(NAMES[n.id]) + ' up"' + (i === 0 ? ' disabled' : '') + '>↑</button><button type="button" class="mini" data-ndown="' + i + '" aria-label="Move ' + esc(NAMES[n.id]) + ' down"' + (i === draft.nav.length - 1 ? ' disabled' : '') + '>↓</button></div>').join('');
+    return '<h1>Menu &amp; header</h1><p class="lede">Every page is in the menu. Tick the ones that should also show across the top (up to 5). Use the arrows to change the order of both.</p>'
+      + '<div class="two"><div class="list">' + rows + '<p class="hint">' + hd + ' of 5 header spots used.</p></div><div class="previewbox">' + navPreview() + '</div></div>';
+  }
+
+  // Photos & videos
+  function slot(key, title, where, src, go) {
+    return '<div class="slot"><span class="thumb">' + (src ? '<img src="' + esc(src) + '" alt="">' : 'Photo') + '</span><div class="info"><b>' + esc(title) + '</b><span>' + esc(where) + '</span></div>'
+      + (go ? '<button type="button" class="btn" data-go="' + go + '">Edit there</button>' : '<label class="btn" for="ph-' + key + '">' + (src ? 'Change' : 'Add photo') + '</label><input type="file" accept="image/*" class="sr" id="ph-' + key + '" data-slot="' + key + '">' + (src ? '<button type="button" class="btn ghost" data-slotx="' + key + '">Remove</button>' : '')) + '</div>';
+  }
+  function vPhotos() {
+    const P = draft.photos, hp = draft.home.programs;
+    return '<h1>Photos &amp; videos</h1><p class="lede">Every photo spot on the site, in one place. Photos are resized for you.</p>'
+      + '<h2>Videos</h2><div class="note"><b>Homepage video:</b> your recital montage is playing now. Videos are too big for this preview admin, so send a new one to Leigha for now. In the finished admin you’ll upload it here.</div>'
+      + '<div class="slot"><span class="thumb"><img src="hero_poster.jpg" alt=""></span><div class="info"><b>Homepage video</b><span>Loops at the top of the homepage, sound off.</span></div><button type="button" class="btn" disabled>Upload video</button></div>'
+      + '<h2 style="margin-top: 26px;">Photos</h2><div class="list">'
+      + slot('studio', 'The studio', 'About page · next to the studio story', P.studio)
+      + slot('company', 'Company on stage', 'Company page · next to “The program”', P.company)
+      + hp.map((p, i) => slot('prog' + i, 'Homepage card ' + (i + 1) + ': ' + p.title, 'Homepage · program cards', p.photo)).join('')
+      + slot('staff', 'Instructor headshots', draft.staff.filter(s => s.photo).length + ' of ' + draft.staff.length + ' added', (draft.staff.find(s => s.photo) || {}).photo, 'staff')
+      + '</div>';
+  }
+
   // ---------- render + events ----------
   function render() {
     navs(); status();
-    $('main').innerHTML = page === 'banner' ? vBanner() : page === 'recital' ? vRecital() : page === 'staff' ? vStaff() : vHome();
+    $('main').innerHTML = page === 'banner' ? vBanner() : page === 'recital' ? vRecital() : page === 'staff' ? vStaff() : page === 'homepage' ? vHomepage() : page === 'prices' ? vPrices() : page === 'nav' ? vNav() : page === 'photos' ? vPhotos() : vHome();
     const pv = () => $('pv');
-    if (page === 'banner') bind('bText', 60, v => draft.banner.text = v, () => pv().innerHTML = bannerPreview());
+    if (page === 'banner') { bind('bText', 60, v => draft.banner.text = v, () => pv().innerHTML = bannerPreview()); bindPicker('bLink', v => draft.banner.href = v, () => pv().innerHTML = bannerPreview()); }
+    if (page === 'homepage') { const h = draft.home, uh = () => $('pvHero').innerHTML = heroPreview();
+      bind('hTag', 80, v => h.tagline = v, uh); h.facts.forEach((f, i) => { bind('fL' + i, 14, v => f.label = v, uh); bind('fT' + i, 40, v => f.text = v, uh); });
+      if (openItem >= 0) { const p = h.programs[openItem], i = openItem, up = () => pv().innerHTML = progPreview(p, i);
+        bind('pT', 24, v => p.title = v, up); bind('pS', 70, v => p.sub = v, up); bind('pC', 20, v => p.cta = v, up); bind('pM', 600, v => p.more = v, up); bindPicker('pL', v => p.link = v, up);
+        const f = $('pPhoto'); if (f) f.addEventListener('change', () => { const file = f.files && f.files[0]; if (file) shrink(file, (u) => { p.photo = u; saveDraft(); render(); }, 900, 600); }); } }
+    if (page === 'prices') {
+      draft.prices.tiers.forEach((t, i) => { const el = $('tier' + i); if (el) el.addEventListener('change', () => { const v = parseFloat(el.value.replace(/[^0-9.]/g, '')); if (!isNaN(v)) { t[1] = v; saveDraft(); render(); } else el.value = t[1]; }); });
+      document.querySelectorAll('[data-price]').forEach(el => el.addEventListener('change', () => { const k = el.dataset.price, c = CLASSES.find(x => x.key === k); const v = parseFloat(el.value.replace(/[^0-9.]/g, ''));
+        if (isNaN(v)) { delete draft.prices.byKey[k]; } else if (c && v === tierFor(c.mins)[1] && special0(c) == null) { delete draft.prices.byKey[k]; } else draft.prices.byKey[k] = v; saveDraft(); render(); }));
+      const q = $('pQ'); if (q) q.addEventListener('input', () => { priceQ = q.value; const pos = q.selectionStart; render(); const q2 = $('pQ'); q2.focus(); try { q2.setSelectionRange(pos, pos); } catch (e) {} }); }
+    if (page === 'nav') document.querySelectorAll('[data-hdr]').forEach(el => el.addEventListener('change', () => { draft.nav[+el.dataset.hdr].header = el.checked; saveDraft(); render(); }));
+    if (page === 'photos') document.querySelectorAll('[data-slot]').forEach(el => el.addEventListener('change', () => { const file = el.files && el.files[0]; if (!file) return; const k = el.dataset.slot;
+      shrink(file, (u) => { if (/^prog/.test(k)) draft.home.programs[+k.slice(4)].photo = u; else draft.photos[k] = u; saveDraft(); render(); }, 1200, 900); }));
     if (page === 'recital' && openItem >= 0) { const r = draft.rc[openItem]; const up = () => pv().innerHTML = rcPreview(r);
       bind('rT', 28, v => r.t = v, up); bind('rD', 140, v => r.d = v, up); bind('rM', 600, v => r.more = v, up); bind('rL', 20, v => r.label = v, up); bind('rU', 300, v => r.url = v.trim(), up); }
     if (page === 'staff' && openItem >= 0) { const s = draft.staff[openItem]; const up = () => pv().innerHTML = staffPreview(s);
@@ -356,9 +536,9 @@
       const f = $('sPhoto'); if (f) f.addEventListener('change', () => { const file = f.files && f.files[0]; if (!file) return; shrink(file, (url) => { s.photo = url; saveDraft(); render(); }); }); }
   }
   // resize photos in the browser so they stay small
-  function shrink(file, done) {
+  function shrink(file, done, tw, th) {
     const img = new Image(); const r = new FileReader();
-    r.onload = () => { img.onload = () => { const W = 480, H = 600, c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d');
+    r.onload = () => { img.onload = () => { const W = tw || 480, H = th || 600, c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d');
       const s = Math.max(W / img.width, H / img.height), w = img.width * s, h = img.height * s; g.drawImage(img, (W - w) / 2, (H - h) / 2, w, h); done(c.toDataURL('image/jpeg', 0.82)); };
       img.onerror = () => toast('That file doesn’t look like a photo.'); img.src = r.result; };
     r.readAsDataURL(file);
@@ -370,7 +550,10 @@
     if (d.go) return go(d.go);
     if (t.id === 'publishTop' || t.id === 'publishBar') return publish();
     if (t.id === 'discardTop' || t.id === 'discardBar') return discard();
-    if (d.link) { draft.banner.href = d.link; saveDraft(); render(); return; }
+    if (d.nup !== undefined || d.ndown !== undefined) { const i = +(d.nup !== undefined ? d.nup : d.ndown), j = d.nup !== undefined ? i - 1 : i + 1; const a = draft.nav; [a[i], a[j]] = [a[j], a[i]]; saveDraft(); render(); return; }
+    if (d.reset !== undefined) { delete draft.prices.byKey[d.reset]; const c = CLASSES.find(x => x.key === d.reset); if (c && special0(c) != null) draft.prices.byKey[d.reset] = tierFor(c.mins)[1]; saveDraft(); render(); return; }
+    if (d.slotx !== undefined) { const k = d.slotx; if (/^prog/.test(k)) draft.home.programs[+k.slice(4)].photo = ''; else delete draft.photos[k]; saveDraft(); render(); return; }
+    if (t.id === 'pPhotoX') { draft.home.programs[openItem].photo = ''; saveDraft(); render(); return; }
     if (t.id === 'recSw') { draft.recital = !draft.recital; saveDraft(); render(); return; }
     if (d.open !== undefined) { const i = +d.open; openItem = openItem === i ? -1 : i; confirmDel = -1; render(); return; }
     if (d.close) { openItem = -1; confirmDel = -1; render(); return; }
