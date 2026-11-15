@@ -193,6 +193,16 @@
     .tabs button[aria-current="page"] { border-bottom-color: var(--teal); font-weight: 700; }
     main { padding-bottom: 60px; }
   }
+  .tabs .menubtn { margin-left: auto; font-weight: 700; }
+  .sheet { position: fixed; inset: 0; z-index: 40; background: rgba(0,0,0,0.4); display: none; }
+  .sheet.show { display: block; }
+  .sheet .in { position: absolute; inset: 0 0 0 auto; width: min(360px, 100%); background: #FFFFFF; overflow-y: auto; padding: 8px 12px 40px; }
+  .sheet .hd { display: flex; align-items: center; justify-content: space-between; padding: 10px 6px; position: sticky; top: 0; background: #FFFFFF; }
+  .sheet .hd b { font-size: 18px; }
+  .sheet .grp { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--mut); margin: 18px 6px 4px; }
+  .sheet button.it { display: block; width: 100%; text-align: left; padding: 13px 12px; border: 0; border-left: 3px solid transparent; background: none; font-size: 16px; cursor: pointer; }
+  .sheet button.it[aria-current="page"] { background: #EAF7F7; border-left-color: var(--teal); font-weight: 700; }
+  .tiles h2.tg { grid-column: 1 / -1; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--mut); margin: 14px 0 0; font-weight: 600; }
   .pubbar { display: none; }
   .pubbar.show { display: flex; gap: 10px; align-items: center; justify-content: space-between; background: #FFF8E1; border-top: 1px solid #F2D27A; padding: 10px 16px; }
   @media (min-width: 861px) { .pubbar.show { display: none; } }
@@ -209,6 +219,7 @@
   <a class="viewsite" href="index.html" target="_blank" rel="noopener">View site ↗</a>
 </header>
 <nav class="tabs" id="tabs" aria-label="Admin sections"></nav>
+<div class="sheet" id="sheet"><div class="in" role="dialog" aria-modal="true" aria-label="All sections"><div class="hd"><b>All sections</b><button type="button" class="btn ghost" data-menux="1">Close</button></div><div id="sheetList"></div></div></div>
 <div class="wrap">
   <nav class="side" id="side" aria-label="Admin sections"></nav>
   <main id="main"></main>
@@ -280,6 +291,8 @@
   const FEAT0 = [
     { title: '14th Annual Performance', emoji: '✨', pill: '14th Annual Performance · May 22–23', when: 'May 22–23 · Dress rehearsals May 19–21', desc: 'Every dancer takes the stage. Tickets, costumes, picture day and the show-day checklist, all in one place.', photo: 'hero_poster.jpg', btn: 'Performance info', link: 'families#recital', showFrom: '2026-11-14', hideAfter: '2027-05-23', showPill: true, showStrip: true },
     { title: 'Halloween Party', emoji: '🎃', pill: 'Halloween Party · Sign up', when: 'Late October · details coming soon', desc: 'Costumes, dancing and treats. Students can bring a friend. Families sign up in the Parent Portal; friends can sign up without an account.', photo: '', btn: 'Sign up', link: '', showFrom: '2027-10-01', hideAfter: '2027-10-31', showPill: true, showStrip: true, signup: true, portal: true, signupUrl: '' }];
+  const C0 = window.DATJ_CONTENT0 || { lists: {}, texts: {} };
+  const CARDF = { t: '', d: '', more: '', tag: '', photo: '', label: '', url: '' };
   const DEFAULTS = { recital: false, banner: { text: 'Holiday gift cards & merch are here', href: 'shop' }, rc: RC0, staff: STAFF0, home: HOME0, nav: NAV0, prices: { rates: RATES0, specials: SPECIAL0, sessions: SESS0, current: 1, byKey: {} }, photos: {}, calendar: CAL0, policies: POL0 };
   // Saved links are page ids like "families#recital"; older saves used file names
   const normLink = (h) => { h = String(h || '').trim(); const old = /^(?:H-(\w+)\.dc|HomeH\.dc|(\w+))\.html(#[\w-]+)?$/.exec(h); if (old) return (old[1] ? old[1].toLowerCase() : !old[2] || old[2] === 'index' ? 'home' : old[2]) + (old[3] || ''); return h; };
@@ -291,7 +304,7 @@
   const pick = (o) => ({ recital: !!o.recital, banner: (() => { const b = Object.assign({}, DEFAULTS.banner, o.banner || {}); b.href = normLink(b.href); return b; })(),
     home: mergeHome(o.home), nav: (o.nav && o.nav.length ? o.nav : NAV0).filter(n => NAMES[n.id]).map(n => ({ id: n.id, header: !!n.header })),
     prices: (() => { const q = o.prices || {}; const ss = (q.sessions && q.sessions.length ? q.sessions : SESS0).map(x => Object.assign({ name: '', dates: '', weeks: '', liveFrom: '' }, x));
-      return { rates: Object.assign({}, RATES0, q.rates || {}), specials: (q.specials || SPECIAL0).map(x => Object.assign({}, x)), sessions: ss, current: q.current != null && ss[q.current] ? q.current : Math.min(1, ss.length - 1), byKey: q.tiers ? {} : Object.assign({}, q.byKey || {}) }; })(), photos: Object.assign({}, o.photos || {}), featured: (o.featured || FEAT0).map(f => Object.assign({ title: '', emoji: '', pill: '', when: '', desc: '', photo: '', btn: '', link: '', showFrom: '', hideAfter: '', showPill: true, showStrip: true, signup: false, portal: true, signupUrl: '', payUrl: '', price: '' }, f)), calendar: (o.calendar || CAL0).map(e => Object.assign({ title: '', start: '', end: '', where: '', type: 'Event' }, e)), policies: (o.policies || POL0).map(x => Object.assign({ t: '', d: '', more: '', label: '', url: '' }, x)), rc: (o.rc && o.rc.length ? o.rc : RC0).map(r => Object.assign({ t: '', d: '', label: '', url: '', more: '' }, r)).map(r => { const n = RC0.find(x => x.t === r.t); return n && /^Placeholder: (date, time and venue address|date and what to bring)\./.test(r.d) ? Object.assign({}, n) : r; }), staffV: 2, staff: (o.staff && o.staff.length ? (o.staffV === 2 ? o.staff : mergeStaff(o.staff)) : STAFF0).map(s => Object.assign({ name: '', role: '', tag: '', bio: '', photo: '' }, s)) });
+      return { rates: Object.assign({}, RATES0, q.rates || {}), specials: (q.specials || SPECIAL0).map(x => Object.assign({}, x)), sessions: ss, current: q.current != null && ss[q.current] ? q.current : Math.min(1, ss.length - 1), byKey: q.tiers ? {} : Object.assign({}, q.byKey || {}) }; })(), photos: Object.assign({}, o.photos || {}), featured: (o.featured || FEAT0).map(f => Object.assign({ title: '', emoji: '', pill: '', when: '', desc: '', photo: '', btn: '', link: '', showFrom: '', hideAfter: '', showPill: true, showStrip: true, signup: false, portal: true, signupUrl: '', payUrl: '', price: '' }, f)), calendar: (o.calendar || CAL0).map(e => Object.assign({ title: '', start: '', end: '', where: '', type: 'Event' }, e)), policies: (o.policies || POL0).map(x => Object.assign({ t: '', d: '', more: '', label: '', url: '' }, x)), rc: (o.rc && o.rc.length ? o.rc : RC0).map(r => Object.assign({ t: '', d: '', label: '', url: '', more: '' }, r)).map(r => { const n = RC0.find(x => x.t === r.t); return n && /^Placeholder: (date, time and venue address|date and what to bring)\./.test(r.d) ? Object.assign({}, n) : r; }), lists: (() => { const L = o.lists || {}, out = {}; Object.keys(C0.lists).forEach(k => { out[k] = (L[k] || C0.lists[k]).map(x => Object.assign({}, CARDF, x)); }); return out; })(), texts: Object.assign({}, C0.texts, o.texts || {}), staffV: 2, staff: (o.staff && o.staff.length ? (o.staffV === 2 ? o.staff : mergeStaff(o.staff)) : STAFF0).map(s => Object.assign({ name: '', role: '', tag: '', bio: '', photo: '' }, s)) });
   const clone = (x) => JSON.parse(JSON.stringify(x));
 
   let live = pick(Object.assign({}, DEFAULTS, read(LIVE) || {}));
@@ -350,28 +363,41 @@
 
   // ---------- navigation ----------
   const PAGES = [
-    { id: 'home', label: 'Home', short: 'Home' },
-    { id: 'banner', label: 'Top banner', short: 'Banner' },
-    { id: 'featured', label: 'Featured events', short: 'Featured' },
-    { id: 'recital', label: 'Annual Performance', short: 'Performance' },
-    { id: 'staff', label: 'Instructors', short: 'Instructors' },
-    { id: 'homepage', label: 'Homepage', short: 'Homepage' },
-    { id: 'prices', label: 'Sessions & prices', short: 'Prices' },
-    { id: 'nav', label: 'Menu & header', short: 'Menu' },
-    { id: 'calendar', label: 'Studio calendar', short: 'Calendar' },
-    { id: 'policies', label: 'Policies', short: 'Policies' },
-    { id: 'photos', label: 'Photos & videos', short: 'Photos' }
+    { id: 'home', label: 'Home', short: 'Home', g: 'Everyday', tab: 1 },
+    { id: 'banner', label: 'Top banner', short: 'Banner', g: 'Everyday', tab: 1 },
+    { id: 'featured', label: 'Featured events', short: 'Featured', g: 'Everyday', tab: 1 },
+    { id: 'calendar', label: 'Studio calendar', short: 'Calendar', g: 'Everyday', tab: 1 },
+    { id: 'homepage', label: 'Homepage', short: 'Homepage', g: 'Pages' },
+    { id: 'styles', label: 'Classes: dance styles', short: 'Styles', g: 'Pages' },
+    { id: 'summer', label: 'Summer', short: 'Summer', g: 'Pages' },
+    { id: 'company', label: 'Company', short: 'Company', g: 'Pages' },
+    { id: 'families', label: 'Current Families', short: 'Families', g: 'Pages' },
+    { id: 'recital', label: 'Annual Performance', short: 'Performance', g: 'Pages' },
+    { id: 'about', label: 'About & mission', short: 'About', g: 'Pages' },
+    { id: 'staff', label: 'Instructors & staff', short: 'Instructors', g: 'Pages' },
+    { id: 'shop', label: 'Gift cards & shop', short: 'Shop', g: 'Pages' },
+    { id: 'prices', label: 'Sessions & prices', short: 'Prices', g: 'Money & rules' },
+    { id: 'policies', label: 'Policies', short: 'Policies', g: 'Money & rules' },
+    { id: 'contact', label: 'Contact info & hours', short: 'Contact', g: 'Site setup' },
+    { id: 'nav', label: 'Menu & header', short: 'Menu', g: 'Site setup' },
+    { id: 'photos', label: 'Photos & videos', short: 'Photos', g: 'Site setup' }
   ];
+  const GROUPS = ['Everyday', 'Pages', 'Money & rules', 'Site setup'];
+  let menuOpen = false;
+
   const SOON = [];
   let page = (location.hash || '#home').slice(1); if (!PAGES.some(p => p.id === page)) page = 'home';
   let openItem = -1, confirmDel = -1, roleOther = false;
-  const go = (p) => { page = p; openItem = -1; confirmDel = -1; openCard = ''; delCard = ''; history.replaceState(null, '', '#' + p); render(); window.scrollTo(0, 0); };
+  const go = (p) => { menuOpen = false; page = p; openItem = -1; confirmDel = -1; openCard = ''; delCard = ''; history.replaceState(null, '', '#' + p); render(); window.scrollTo(0, 0); };
 
   function navs() {
-    $('side').innerHTML = '<div class="grp">Your site</div>' + PAGES.map(p => '<button type="button" data-go="' + p.id + '"' + (p.id === page ? ' aria-current="page"' : '') + '>' + esc(p.label) + '</button>').join('')
-      ;
-    $('tabs').innerHTML = PAGES.map(p => '<button type="button" data-go="' + p.id + '"' + (p.id === page ? ' aria-current="page"' : '') + '>' + esc(p.short) + '</button>').join('');
-    const cur = $('tabs').querySelector('[aria-current]'); if (cur && cur.scrollIntoView) cur.scrollIntoView({ block: 'nearest', inline: 'center' });
+    const btn = (p, cls) => '<button type="button" class="' + (cls || '') + '" data-go="' + p.id + '"' + (p.id === page ? ' aria-current="page"' : '') + '>' + esc(p.label) + '</button>';
+    $('side').innerHTML = GROUPS.map(g => '<div class="grp">' + esc(g) + '</div>' + PAGES.filter(p => p.g === g).map(p => btn(p)).join('')).join('');
+    const cur = PAGES.find(p => p.id === page) || PAGES[0], onTab = cur.tab;
+    $('tabs').innerHTML = PAGES.filter(p => p.tab).map(p => '<button type="button" data-go="' + p.id + '"' + (p.id === page ? ' aria-current="page"' : '') + '>' + esc(p.short) + '</button>').join('')
+      + '<button type="button" class="menubtn" data-menu="1" aria-expanded="' + menuOpen + '"' + (onTab ? '' : ' aria-current="page"') + '>☰ ' + (onTab ? 'More' : esc(cur.short)) + '</button>';
+    $('sheetList').innerHTML = GROUPS.map(g => '<div class="grp">' + esc(g) + '</div>' + PAGES.filter(p => p.g === g).map(p => btn(p, 'it')).join('')).join('');
+    $('sheet').classList.toggle('show', menuOpen);
   }
   function status() {
     const d = dirty();
@@ -402,6 +428,15 @@
       + '<button class="tile" type="button" data-go="calendar"><b>Studio calendar</b><span>Breaks, session dates, the Annual Performance and events. The next three show on the homepage.</span><span class="now">' + upcoming().length + ' coming up' + (draft.calendar.some(e => e.tbc) ? ' · ' + draft.calendar.filter(e => e.tbc).length + ' to confirm' : '') + '</span></button>'
       + '<button class="tile" type="button" data-go="policies"><b>Policies</b><span>Payments, make-ups, missed classes, refunds. Shown on the Pricing page.</span><span class="now">' + draft.policies.length + ' policies</span></button>'
       + '<button class="tile" type="button" data-go="photos"><b>Photos &amp; videos</b><span>Swap the placeholder photos around the site.</span><span class="now">' + (Object.values(draft.photos).filter(Boolean).length + draft.home.programs.filter(p => p.photo).length) + ' photos added</span></button>'
+      + '<h2 class="tg">More pages</h2>'
+      + [['styles', 'Dance styles', 'The style cards on the Classes page.', () => draft.lists.styles.length + ' styles'],
+         ['summer', 'Summer', 'Camps, summer classes and Summer Intensives. Show or hide the section.', () => (draft.texts.summerShow === 'off' ? 'Hidden' : 'Showing') + ' · ' + draft.lists.summer.length + ' cards'],
+         ['company', 'Company', 'Teams, auditions and the competition schedule.', () => draft.lists.teams.length + ' teams · ' + draft.lists.comps.length + ' competitions'],
+         ['families', 'Current Families', 'Dress code and Company parent cards.', () => draft.lists.dress.length + ' dress code cards · ' + draft.lists.compfam.length + ' Company cards'],
+         ['about', 'About & mission', 'The studio story and the three mission words.', () => draft.lists.mission.map(w => w.t).join(' · ')],
+         ['shop', 'Gift cards & shop', 'Gift card link and merch.', () => draft.lists.merch.length + ' items' + (draft.texts.giftUrl ? '' : ' · no gift card link yet')],
+         ['contact', 'Contact info & hours', 'Address, phone, email and front desk hours.', () => draft.texts.phone + (/placeholder/i.test(draft.texts.hours) ? ' · hours needed' : '')]]
+        .map(x => '<button class="tile" type="button" data-go="' + x[0] + '"><b>' + esc(x[1]) + '</b><span>' + esc(x[2]) + '</span><span class="now">' + esc(x[3]()) + '</span></button>').join('')
       + '</div>'
       + '<div class="auto"><div><b>You don’t need to update these here</b><ul><li>Classes, days, times and ages: change them in Studio Pro and the website updates by itself.</li><li>Free trial sign-ups: they go straight into Studio Pro.</li></ul></div></div>';
   }
@@ -572,6 +607,72 @@
         newItem: () => ({ t: '', d: '', more: '', label: '', url: '' }),
         fields: [{ k: 't', label: 'Title', max: 28 }, { k: 'd', label: 'Short version', max: 140, area: true }, { k: 'more', label: 'More details', max: 1200, area: true, opt: true, hint: 'Opens in a slide-out panel. Start a line with “- ” for a bullet.' }, { k: 'label', label: 'Button text', max: 20, opt: true, ph: 'e.g. Full policy' }, { k: 'url', label: 'Button goes to', type: 'link' }] }); }
 
+  // ---------- the rest of the site: cards and text ----------
+  const isPicV = (x) => /^(data:|https?:|\/)|\.(jpe?g|png|webp|gif)$/i.test(x || '');
+  const THEMES = { dark: ['#161616', '#FFFFFF', '#AEB8B3', '#00ADB5'], white: ['#F2F2F2', '#111111', '#555555', '#111111'], teal: ['#FFFFFF', '#111111', '#555555', '#111111'] };
+  const cardPreview = (theme) => (x) => { const [bg, fg, mut, tg] = THEMES[theme] || THEMES.white;
+    return '<div class="lbl">How the card looks</div><div class="pv-card" style="background: ' + bg + '; color: ' + fg + (theme === 'teal' ? '; outline: 14px solid #00ADB5;' : '') + '">' + (x.photo ? '<div class="ph">' + (isPicV(x.photo) ? '<img src="' + esc(x.photo) + '" alt="">' : esc(x.photo)) + '</div>' : '')
+      + '<div class="bd">' + (x.tag ? '<div style="font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: ' + tg + '; margin-bottom: 8px;">' + esc(x.tag) + '</div>' : '') + '<h3>' + esc(x.t || 'Title') + '</h3><p style="color: ' + mut + ';">' + esc(x.d) + '</p>'
+      + '<div class="acts">' + (x.label && x.url ? '<span class="lnk">' + esc(x.label) + ' →</span>' : '') + (String(x.more || '').trim() || x.gform ? '<span class="more" style="border-color: ' + fg + ';">More details →</span>' : '') + '</div></div></div>'
+      + (x.label && x.url ? '<p class="pv-note">The button opens: <b>' + esc(destName(x.url)) + '</b></p>' : '')
+      + (String(x.more || '').trim() ? '<div class="pv-slide"><h3>' + esc(x.t) + '</h3>' + moreHtml(x.more) + (x.gform ? '<p style="color: var(--teal-dark); font-weight: 700;">+ ' + esc(x.gformLabel || 'Form') + ' button</p>' : '') + '</div>' : ''); };
+  const rowPreview = (fn) => (x) => '<div class="lbl">How it looks</div><div class="panel" style="font-size: 15px;">' + fn(x) + '</div>';
+  const F = {
+    photo: { k: 'photo', label: 'Photo', type: 'photo' },
+    tag: { k: 'tag', label: 'Small label', max: 24, opt: true, hint: 'e.g. Ages 3–6' },
+    t: { k: 't', label: 'Title', max: 30 },
+    d: { k: 'd', label: 'Short line', max: 140, area: true },
+    label: { k: 'label', label: 'Button text', max: 20, opt: true, ph: 'e.g. Register' },
+    url: { k: 'url', label: 'The button goes to', type: 'link' },
+    more: { k: 'more', label: 'More details', max: 1200, area: true, opt: true, hint: 'Opens in a slide-out panel. Start a line with “- ” for a bullet.' }
+  };
+  const CARD = [F.photo, F.tag, F.t, F.d, F.label, F.url, F.more];
+  const LISTCFG = {
+    styles: { noun: 'a style', fields: [F.photo, F.t, F.d, F.more], theme: 'dark', newItem: { t: '', d: '' } },
+    summer: { noun: 'a summer card', fields: CARD, theme: 'teal', newItem: { label: 'Register', url: PORTAL } },
+    teams: { noun: 'a team', fields: [{ k: 't', label: 'Team name', max: 24 }, { k: 'd', label: 'Details', max: 200, area: true, hint: 'Shown when families open the team. e.g. Director, ages, rehearsal day and time.' }], prev: x => '<b>' + esc(x.t || 'Team') + ' team</b><br><span style="color: var(--mut);">' + esc(x.d) + '</span>' },
+    comps: { noun: 'a competition', noMoveSort: true, fields: [{ k: 't', label: 'When', max: 24, ph: 'e.g. Feb 13–15, 2027' }, { k: 'd', label: 'Competition', max: 60 }, { k: 'tag', label: 'Where', max: 50 }], prev: x => '<b>' + esc(x.t) + '</b> · ' + esc(x.d) + ' · <span style="color: var(--mut);">' + esc(x.tag) + '</span>', sub: x => x.d + (x.tag ? ' · ' + x.tag : '') },
+    mission: { noun: 'a word', fields: [{ k: 't', label: 'Word', max: 14 }, { k: 'd', label: 'What it means', max: 160, area: true }], prev: x => '<div style="font-size: 40px; font-weight: 800; letter-spacing: -0.05em;">' + esc(x.t) + '.</div><p>' + esc(x.d) + '</p>' },
+    dress: { noun: 'a dress code card', fields: [F.tag, F.t, F.d, F.more], theme: 'dark', newItem: { tag: 'Dress code' } },
+    compfam: { noun: 'a card', fields: CARD.concat([{ k: 'gform', label: 'Google Form link', max: 300, opt: true, ph: 'https://docs.google.com/forms/…', hint: 'Adds a form button inside More details.' }, { k: 'gformLabel', label: 'Form button text', max: 30, opt: true }]), theme: 'white' },
+    merch: { noun: 'an item', fields: [F.photo, F.t, { k: 'd', label: 'Price & sizes', max: 100, area: true }, F.label, F.url], theme: 'dark', newItem: { label: 'Buy' } },
+    tuitionBullets: { noun: 'a bullet', fields: [{ k: 't', label: 'Bullet', max: 70 }], prev: x => '✦ ' + esc(x.t), sub: () => '' },
+    familyLinks: { noun: 'a link', fields: [{ k: 't', label: 'Label', max: 28 }, { k: 'url', label: 'Goes to', type: 'link' }], prev: x => '<b style="text-transform: uppercase; letter-spacing: 0.06em;">' + esc(x.t) + ' →</b>', sub: x => destName(x.url) }
+  };
+  const cList = (key) => { const c = LISTCFG[key];
+    return listEditor({ key: 'c_' + key, noun: c.noun, get: () => draft.lists[key], thumb: c.fields.includes(F.photo) ? (x => isPicV(x.photo) ? x.photo : '') : null,
+      title: x => x.t || 'New', sub: c.sub || (x => x.d), flag: x => /placeholder/i.test((x.d || '') + (x.more || '') + (x.tag || '')) ? 'Placeholder' : '',
+      preview: c.prev ? rowPreview(c.prev) : cardPreview(c.theme), newItem: () => Object.assign({}, CARDF, c.newItem || {}), fields: c.fields }); };
+  const TXT = {
+    introBody: ['Homepage intro (under “Make room for possibility”)', 400, true], story: ['The studio story', 900, true],
+    companyIntro: ['What Company is', 600, true], auditions: ['Auditions, short version', 200, true], auditionsMore: ['Auditions, more details', 1200, true, 'Opens from the More details button. Start a line with “- ” for a bullet.'],
+    address: ['Address', 80], phone: ['Phone', 20], email: ['Email', 60], hours: ['Front desk hours', 200, true],
+    giftNote: ['Gift card line', 120, true], giftUrl: ['Where “Buy a gift card” goes', 300, false, 'Paste the Square gift card link. Leave empty to hide the button.'], merchNote: ['Merch line', 120, true]
+  };
+  const tfield = (k) => { const c = TXT[k]; return field('tx-' + k, c[0], draft.texts[k], c[1], { area: c[2], hint: c[3] }); };
+  const sec = (h, lede, body) => '<h2 style="margin-top: 30px;">' + h + '</h2>' + (lede ? '<p class="lede" style="margin-bottom: 14px;">' + lede + '</p>' : '') + body;
+  const CPAGES = {
+    styles: () => '<h1>Dance styles</h1><p class="lede">The style cards on the Classes page. Tap a card to edit it, or add a new style.</p>' + cList('styles'),
+    summer: () => { const on = draft.texts.summerShow !== 'off';
+      return '<h1>Summer</h1><p class="lede">Mini camps, summer classes and Summer Intensives on the Classes page.</p>'
+        + '<button type="button" class="switch" role="switch" id="sumSw" aria-checked="' + on + '"><span class="knob"></span><span><b>Summer is ' + (on ? 'showing' : 'hidden') + '</b><span>' + (on ? 'Families see the Summer section on the Classes page.' : 'Turn on when summer registration opens.') + '</span></span></button>'
+        + sec('Summer cards', '', cList('summer')); },
+    company: () => '<h1>Company</h1><p class="lede">The Company page: what it is, the teams, auditions and the competition schedule.</p>'
+      + '<div class="panel">' + tfield('companyIntro') + '</div>'
+      + sec('Teams', 'Rosters stay private. Families only see the team name and details.', cList('teams'))
+      + sec('Auditions', '', '<div class="panel">' + tfield('auditions') + tfield('auditionsMore') + '</div>')
+      + sec('Competition schedule', 'Shown in the order listed here.', cList('comps')),
+    families: () => '<h1>Current Families</h1><p class="lede">Dress code and the Company parent cards on the Current Families page. The homepage quick links are on the Homepage screen.</p>'
+      + sec('Dress code', '', cList('dress')) + sec('Company families', 'Team calendar, fees, forms and more.', cList('compfam')),
+    about: () => '<h1>About &amp; mission</h1><p class="lede">The story and the three words on the About page. Instructors have their own screen.</p>'
+      + '<div class="panel">' + tfield('story') + '</div>' + sec('Mission words', '', cList('mission')),
+    shop: () => '<h1>Gift cards &amp; shop</h1><p class="lede">The Gift Cards &amp; Shop page.</p>'
+      + '<div class="panel">' + tfield('giftNote') + tfield('giftUrl') + tfield('merchNote') + '</div>' + sec('Merch', '', cList('merch')),
+    contact: () => '<h1>Contact info &amp; hours</h1><p class="lede">Used in the Visit section on the About page and Need help on Current Families.</p>'
+      + '<div class="panel">' + tfield('address') + tfield('phone') + tfield('email') + tfield('hours') + '</div>'
+  };
+  const bindTexts = () => Object.keys(TXT).forEach(k => bind('tx-' + k, TXT[k][1], v => draft.texts[k] = v));
+
   // Homepage
   function stepPreview(x) { return '<div class="lbl">How the step looks</div><div class="pv-card" style="background: #FFFFFF; border: 1px solid var(--line);"><div class="bd"><div style="font-family: Georgia, serif; font-style: italic; font-size: 40px;">' + esc(x.num) + '</div><h3>' + esc(x.title || 'Step') + '</h3><p>' + esc(x.sub) + '</p><div class="acts">' + (x.btn && x.link ? '<span class="lnk">' + esc(x.btn) + ' →</span>' : '') + '<span class="more">More details →</span></div></div></div>'
     + '<div class="pv-slide"><div class="tg">Step ' + esc(x.num) + '</div><h3>' + esc(x.title) + '</h3><p>' + esc(x.sub) + '</p>' + moreHtml(x.more) + (x.embed ? '<p style="color: var(--teal-dark); font-weight: 700; margin-top: 10px;">+ Free trial form</p>' : '') + '</div>'; }
@@ -589,10 +690,13 @@
       + listEditor({ key: 'prog', noun: 'a card', get: () => h.programs, thumb: p => p.photo, title: p => p.title || 'New card', sub: p => p.sub, flag: p => /placeholder/i.test(p.more) ? 'Placeholder' : '', preview: progPreview,
           newItem: (n) => ({ num: String(n + 1).padStart(2, '0') + ' / ', title: '', sub: '', cta: 'Learn more', link: 'classes', photo: '', more: '' }),
           fields: [{ k: 'photo', label: 'Photo', type: 'photo' }, { k: 'num', label: 'Small label', max: 24, hint: 'e.g. 01 / Foundations' }, { k: 'title', label: 'Title', max: 24 }, { k: 'sub', label: 'Short line', max: 70 }, { k: 'cta', label: 'Button text', max: 20 }, { k: 'link', label: 'The button goes to', type: 'link' }, { k: 'more', label: 'More details', max: 600, area: true, opt: true, hint: 'Opens in a slide-out panel. Start a line with “- ” for a bullet.' }] })
+      + sec('Intro', '', '<div class="panel">' + tfield('introBody') + '</div>')
       + '<h2 style="margin-top: 30px;">Getting started steps</h2><p class="lede" style="margin-bottom: 14px;">The “Getting started is easy” steps for new families.</p>'
       + listEditor({ key: 'steps', noun: 'a step', get: () => h.steps, title: x => (x.num ? x.num + ' · ' : '') + (x.title || 'New step'), sub: x => x.sub, preview: stepPreview,
           newItem: (n) => ({ num: String(n + 1).padStart(2, '0'), title: '', sub: '', btn: '', link: '', embed: false, more: '' }),
-          fields: [{ k: 'num', label: 'Number', max: 4 }, { k: 'title', label: 'Title', max: 30 }, { k: 'sub', label: 'Short line', max: 90, area: true }, { k: 'btn', label: 'Button text', max: 20, opt: true }, { k: 'link', label: 'The button goes to', type: 'link' }, { k: 'more', label: 'More details', max: 800, area: true, hint: 'Start a line with “- ” for a bullet.' }, { k: 'embed', label: 'Show the free trial form under the details', type: 'check' }] });
+          fields: [{ k: 'num', label: 'Number', max: 4 }, { k: 'title', label: 'Title', max: 30 }, { k: 'sub', label: 'Short line', max: 90, area: true }, { k: 'btn', label: 'Button text', max: 20, opt: true }, { k: 'link', label: 'The button goes to', type: 'link' }, { k: 'more', label: 'More details', max: 800, area: true, hint: 'Start a line with “- ” for a bullet.' }, { k: 'embed', label: 'Show the free trial form under the details', type: 'check' }] })
+      + sec('Tuition bullets', 'The short list next to the tuition box.', cList('tuitionBullets'))
+      + sec('Current Families quick links', 'The tiles in “Everything you need, one tap away.”', cList('familyLinks'));
   }
   function heroPreview() { const h = draft.home;
     return '<div style="font-size: 34px; font-weight: 800; letter-spacing: -0.05em; line-height: 0.95;">Move<br>with <span class="serif" style="color: #00ADB5;">purpose.</span></div><p style="color: #E2E7E4; font-size: 14px; margin: 12px 0 16px;">' + esc(h.tagline) + '</p>'
@@ -675,13 +779,13 @@
   // ---------- render + events ----------
   function render() {
     navs(); status();
-    $('main').innerHTML = page === 'banner' ? vBanner() : page === 'recital' ? vRecital() : page === 'staff' ? vStaff() : page === 'homepage' ? vHomepage() : page === 'prices' ? vPrices() : page === 'nav' ? vNav() : page === 'photos' ? vPhotos() : page === 'featured' ? vFeatured() : page === 'calendar' ? vCalendar() : page === 'policies' ? vPolicies() : vHome();
+    $('main').innerHTML = CPAGES[page] ? CPAGES[page]() : page === 'banner' ? vBanner() : page === 'recital' ? vRecital() : page === 'staff' ? vStaff() : page === 'homepage' ? vHomepage() : page === 'prices' ? vPrices() : page === 'nav' ? vNav() : page === 'photos' ? vPhotos() : page === 'featured' ? vFeatured() : page === 'calendar' ? vCalendar() : page === 'policies' ? vPolicies() : vHome();
     const pv = () => $('pv');
     if (page === 'banner') { bind('bText', 60, v => draft.banner.text = v, () => pv().innerHTML = bannerPreview()); bindPicker('bLink', v => draft.banner.href = v, () => pv().innerHTML = bannerPreview()); }
     if (page === 'homepage') { const h = draft.home, uh = () => $('pvHero').innerHTML = heroPreview();
       bind('hTag', 80, v => h.tagline = v, uh); h.facts.forEach((f, i) => { bind('fL' + i, 14, v => f.label = v, uh); bind('fT' + i, 40, v => f.text = v, uh); });
     }
-    bindList();
+    bindList(); bindTexts();
     if (page === 'prices') { const P = draft.prices;
       const on = (sel, fn) => document.querySelectorAll(sel).forEach(el => el.addEventListener('change', () => { fn(el); saveDraft(); render(); }));
       on('[data-sl]', el => P.sessions[+el.dataset.sl].liveFrom = el.value);
@@ -712,7 +816,10 @@
   document.addEventListener('click', (e) => {
     const t = e.target.closest('button, [data-go]'); if (!t) return;
     const d = t.dataset;
+    if (d.menu) { menuOpen = !menuOpen; navs(); return; }
+    if (d.menux) { menuOpen = false; navs(); return; }
     if (d.go) return go(d.go);
+    if (t.id === 'sumSw') { draft.texts.summerShow = draft.texts.summerShow === 'off' ? 'on' : 'off'; saveDraft(); render(); return; }
     if (listClick(d)) return;
     if (t.id === 'publishTop' || t.id === 'publishBar') return publish();
     if (t.id === 'discardTop' || t.id === 'discardBar') return discard();
@@ -734,6 +841,8 @@
     if (t.id === 'sAdd') { draft.staff.push({ name: '', role: '', tag: 'Instructor', bio: '', photo: '' }); roleOther = false; openItem = draft.staff.length - 1; saveDraft(); render(); const n = $('sN'); if (n) n.focus(); return; }
   });
 
+  $('sheet').addEventListener('click', (e) => { if (e.target.id === 'sheet') { menuOpen = false; navs(); } });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && menuOpen) { menuOpen = false; navs(); } });
   render();
 })();
 </script>
