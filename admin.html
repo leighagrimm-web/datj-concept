@@ -747,17 +747,37 @@
   function readSheet(ws, minCols) { const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '', raw: false }); const hi = rows.findIndex(r => r.filter(Boolean).length >= (minCols || 3)); if (hi < 0) return []; const H = rows[hi].map(x => String(x).trim().toLowerCase());
     return rows.slice(hi + 1).filter(r => r.some(x => String(x).trim())).map(r => { const o = {}; H.forEach((h, i) => o[h] = String(r[i] == null ? '' : r[i]).trim()); return o; }); }
   const col = (o, ...names) => { for (const n of names) { const k = Object.keys(o).find(x => x.startsWith(n)); if (k && o[k]) return o[k]; } return ''; };
+  const normN = (x) => String(x || '').toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]/g, '');
+  const wbSheet = (wb, name) => wb.SheetNames.find(n => n === name) || wb.SheetNames.find(n => normN(n) === normN(name)) || name;
+  function findCompRow(rows, c) { const want = [((draft.coEdit || {}).wbRows || {})[c.id], c.wbRow, c.name, String(c.title || '').replace(/^Competition:\s*/, '').replace(/\s*\(.*\)$/, '')].filter(Boolean).map(normN);
+    const exact = rows.find(r => want.includes(normN(col(r, 'tab'))) || want.includes(normN(col(r, 'competition')))); if (exact) return exact;
+    const near = rows.filter(r => want.some(w => w.length > 2 && [col(r, 'tab'), col(r, 'competition')].map(normN).some(v => v && (v.startsWith(w) || w.startsWith(v))))); return near.length === 1 ? near[0] : null; }
+  // Reads one competition out of the season workbook (names match loosely: case, spaces and punctuation don't matter)
+  let compWb = null;
+  function useWorkbook(wb) { const L = compsList(); const c = L.find(x => x.id === compSel) || L[0];
+            const rows = readSheet(wb.Sheets[wbSheet(wb, 'Competitions')] || {}).filter(r => col(r, 'tab') || col(r, 'competition')); const crow = findCompRow(rows, c);
+            if (!crow) { compMsg = 'Couldn’t match <b>' + esc(c.name) + '</b> to a row on the Competitions tab. Which row is it?'
+              + '<div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px;"><select id="compPick" style="padding: 10px; font: inherit; border: 1px solid var(--line); background: #FFFFFF;">' + rows.map(r => '<option value="' + esc(col(r, 'tab') || col(r, 'competition')) + '">' + esc((col(r, 'competition') || col(r, 'tab')) + (col(r, 'tab') ? ' (tab: ' + col(r, 'tab') + ')' : '')) + '</option>').join('') + '</select><button type="button" class="btn dark" id="compPickGo">Use this row</button></div><p class="hint">The admin remembers this, so next time it matches by itself.</p>';
+              return render(); }
+            draft.coEdit.wbRows = draft.coEdit.wbRows || {}; draft.coEdit.wbRows[c.id] = col(crow, 'tab') || col(crow, 'competition');
+            const out = parseWorkbook(wb, crow); if (out.error) { compMsg = out.error; return render(); }
+            Object.assign(c, { lipstick: col(crow, 'lipstick') || c.lipstick || '', venue: col(crow, 'venue') || c.venue, address: col(crow, 'address') || c.address, dates: col(crow, 'dates') || c.dates, status: col(crow, 'status') || c.status || 'Preliminary', days: out.days, groups: out.groups, sample: '', notes: col(crow, 'notes') ? [col(crow, 'notes')] : [], arrival: out.arrival.length ? out.arrival : c.arrival,
+              links: [['Prop transportation sign-up', col(crow, 'prop')], ['Competition rules', col(crow, 'rules')], ['Livestream', col(crow, 'livestream')], ['Hair video (newbies)', col(crow, 'hair video')], ['Makeup pictures', col(crow, 'makeup')]].map(x => ({ label: x[0], url: x[1] })) });
+            if (!draft.coEdit.comps.includes(c)) draft.coEdit.comps.push(c);
+            const n = out.days.reduce((k, d) => k + d.rows.filter(r => !r.awards).length, 0);
+            const gN = Object.keys(out.groups); compMsg = '✓ Read ' + n + ' routines for ' + esc(c.name) + ' from the “' + esc(wbSheet(compWb || { SheetNames: [] }, col(crow, 'tab') || col(crow, 'competition'))) + '” tab' + (gN.length ? ' and ' + gN.length + ' groups from the Groups tab (' + esc(gN.join(', ')) + ')' : '') + '.' + (out.missing.length ? ' <b>Not on the Routines tab:</b> ' + esc([...new Set(out.missing)].join(', ')) + ' (they’ll show without dancers or costume pieces).' : '');
+            saveDraft(); render(); }
   function parseWorkbook(wb, compRow) {
-    const R = {}; readSheet(wb.Sheets['Routines'] || {}).forEach(r => { const song = col(r, 'song'); if (song) R[song.toLowerCase()] = r; });
-    const tab = col(compRow, 'tab'); const ws = wb.Sheets[tab]; if (!ws) return { error: 'No tab named “' + tab + '” in the workbook.' };
+    const R = {}; readSheet(wb.Sheets[wbSheet(wb, 'Routines')] || {}).forEach(r => { const song = col(r, 'song'); if (song) R[song.toLowerCase()] = r; });
+    const tab = col(compRow, 'tab') || col(compRow, 'competition'); const ws = wb.Sheets[wbSheet(wb, tab)]; if (!ws) return { error: 'No tab named “' + tab + '” in the workbook.' };
     const days = [], missing = [];
     readSheet(ws).forEach(r => { const d = col(r, 'day'); if (!d) return; if (!days.length || days[days.length - 1].day !== d) { const m = /^(\w{3})\w*\s+(\d+)\/(\d+)/.exec(d); days.push({ day: d, label: m ? (DOWN[m[1]] || m[1]) + ', ' + MONS[+m[2] - 1] + ' ' + m[3] : d, rows: [] }); }
       const song = col(r, 'song'), D = days[days.length - 1];
       if (/^awards?$/i.test(song)) { D.rows.push({ awards: true, perf: col(r, 'est'), note: col(r, 'note'), stage: col(r, 'stage') }); return; }
       const x = R[song.toLowerCase()] || {}; if (!R[song.toLowerCase()]) missing.push(song);
       D.rows.push({ num: col(r, 'entry'), song: song, dancers: col(x, 'dancers'), choreo: col(x, 'choreo'), arrive: col(r, 'arrival'), perf: col(r, 'est'), note: col(r, 'note'), stage: col(r, 'stage'), tights: col(x, 'tights'), hair: col(x, 'hair'), hairpiece: col(x, 'hairpiece'), shoes: col(x, 'shoes'), acc: col(x, 'access'), props: col(x, 'props') }); });
-    const arr = {}; readSheet(wb.Sheets['Arrival reminders'] || {}, 2).forEach(r => { const h = col(r, 'heading'), it = col(r, 'point'); if (h && it) (arr[h] = arr[h] || []).push(it); });
-    const groups = {}; readSheet(wb.Sheets['Groups'] || {}, 2).forEach(r => { const g = col(r, 'group'), n = col(r, 'dancers'); if (g && n && !/^e\.g\./i.test(g)) groups[g] = n.split(/\s*(?:,|&|\band\b|\n)\s*/i).map(x => x.trim()).filter(Boolean); });
+    const arr = {}; readSheet(wb.Sheets[wbSheet(wb, 'Arrival reminders')] || {}, 2).forEach(r => { const h = col(r, 'heading'), it = col(r, 'point'); if (h && it) (arr[h] = arr[h] || []).push(it); });
+    const groups = {}; readSheet(wb.Sheets[wbSheet(wb, 'Groups')] || {}, 2).forEach(r => { const g = col(r, 'group'), n = col(r, 'dancers'); if (g && n && !/^e\.g\./i.test(g)) groups[g] = n.split(/\s*(?:,|&|\band\b|\n)\s*/i).map(x => x.trim()).filter(Boolean); });
     return { days: days, missing: missing, groups: groups, arrival: Object.keys(arr).map(h => ({ h: h, items: arr[h] })) };
   }
   // Competition & convention dates: the same calendar dates, edited from Company Central
@@ -1040,16 +1060,8 @@
         const pv = $('compPrev'); if (pv) pv.addEventListener('toggle', () => { compOpenPrev = pv.open; });
 
         const f = $('compFile'); if (f) f.addEventListener('change', () => { const file = f.files[0]; if (!file) return; if (!window.XLSX) { compMsg = 'The spreadsheet reader is still loading. Try again in a second.'; return render(); }
-          file.arrayBuffer().then(buf => { const wb = XLSX.read(buf); const L = compsList(); const c = L.find(x => x.id === compSel) || L[0];
-            const crow = readSheet(wb.Sheets['Competitions'] || {}).find(r => col(r, 'tab').toLowerCase() === String(c.name).toLowerCase() || col(r, 'competition').toLowerCase() === String(c.name).toLowerCase());
-            if (!crow) { compMsg = 'Couldn’t find ' + esc(c.name) + ' on the Competitions tab.'; return render(); }
-            const out = parseWorkbook(wb, crow); if (out.error) { compMsg = out.error; return render(); }
-            Object.assign(c, { lipstick: col(crow, 'lipstick') || c.lipstick || '', venue: col(crow, 'venue') || c.venue, address: col(crow, 'address') || c.address, dates: col(crow, 'dates') || c.dates, status: col(crow, 'status') || c.status || 'Preliminary', days: out.days, groups: out.groups, sample: '', notes: col(crow, 'notes') ? [col(crow, 'notes')] : [], arrival: out.arrival.length ? out.arrival : c.arrival,
-              links: [['Prop transportation sign-up', col(crow, 'prop')], ['Competition rules', col(crow, 'rules')], ['Livestream', col(crow, 'livestream')], ['Hair video (newbies)', col(crow, 'hair video')], ['Makeup pictures', col(crow, 'makeup')]].map(x => ({ label: x[0], url: x[1] })) });
-            if (!draft.coEdit.comps.includes(c)) draft.coEdit.comps.push(c);
-            const n = out.days.reduce((k, d) => k + d.rows.filter(r => !r.awards).length, 0);
-            const gN = Object.keys(out.groups); compMsg = '✓ Read ' + n + ' routines from the ' + esc(c.name) + ' tab' + (gN.length ? ' and ' + gN.length + ' groups from the Groups tab (' + esc(gN.join(', ')) + ')' : '') + '.' + (out.missing.length ? ' <b>Not on the Routines tab:</b> ' + esc([...new Set(out.missing)].join(', ')) + ' (they’ll show without dancers or costume pieces).' : '');
-            saveDraft(); render(); }).catch(() => { compMsg = 'Couldn’t read that file. Save it as .xlsx and try again.'; render(); }); }); } }
+          file.arrayBuffer().then(buf => { compWb = XLSX.read(buf); useWorkbook(compWb); }).catch(() => { compMsg = 'Couldn’t read that file. Save it as .xlsx and try again.'; render(); }); });
+        const pg = $('compPickGo'); if (pg) pg.addEventListener('click', () => { const L = compsList(); const c = L.find(x => x.id === compSel) || L[0]; draft.coEdit.wbRows = draft.coEdit.wbRows || {}; draft.coEdit.wbRows[c.id] = $('compPick').value; saveDraft(); if (compWb) useWorkbook(compWb); }); } }
     bindList(); bindTexts();
     if (page === 'prices') { const P = draft.prices;
       const on = (sel, fn) => document.querySelectorAll(sel).forEach(el => el.addEventListener('change', () => { fn(el); saveDraft(); render(); }));
