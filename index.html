@@ -813,7 +813,7 @@ a{color:inherit;text-decoration:none}
         const by = {}; R.forEach(r => { (by[r.date] = by[r.date] || []).push(r); });
         const offBy = {}; (co.off || []).forEach(o => offBy[o.date] = o.who);
         let dates = Object.keys(by).sort(); const total = dates.length; const limit = this.state.coAll || qs.length ? dates.length : 6; dates = dates.slice(0, limit);
-        const row = (r) => ({ time: r.time, what: r.what, where: [r.room || 'Studio TBA', r.teacher].filter(Boolean).join(' · '), dot: 'display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; vertical-align: 1px; background: ' + (TC[r.teacher] || '#BBBBBB') + ';', mine: qs.length && nameHit(r) ? 'background: #EAF7F7;' : '', isGroup: groupHit(r) && !nameHit(r) });
+        const row = (r) => ({ time: String(r.time || '').replace(/\s*[–-]\s*/g, '\u2060–\u2060'), what: r.what, where: [r.room || 'Studio TBA', r.teacher].filter(Boolean).join(' · '), whereA: r.room || 'Studio TBA', whereB: r.teacher || '', hasWhereB: !!r.teacher, dot: 'display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; vertical-align: 1px; background: ' + (TC[r.teacher] || '#BBBBBB') + ';', mine: qs.length && nameHit(r) ? 'background: #EAF7F7;' : '', isGroup: groupHit(r) && !nameHit(r) });
         const SEASON_END = co.seasonEnd || '2027-07-31';
         const evs = CALSRC.filter(e => e.type === 'Company' || e.lock || e.type === 'Recital');
         const next7 = plus(7), next14 = plus(14);
