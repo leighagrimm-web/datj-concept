@@ -715,7 +715,7 @@
     .catch(() => { coBusy = false; coErr = 'That password didn’t work.'; render(); }); }
   function vCompany() {
     if (!co) return '<h1>Company Central</h1><p class="lede">The password-protected page for Company families: rehearsal calendar, what’s due, the handbook and forms. Enter the Company password to edit it.</p>'
-      + '<div class="panel"><div class="field"><label for="coPw">Company password</label><input id="coPw" type="password" autocomplete="current-password"></div><button type="button" class="btn primary" id="coGo">' + (coBusy ? 'Unlocking…' : 'Unlock') + '</button>' + (coErr ? '<p style="color: #B00020;">' + esc(coErr) + '</p>' : '') + '<p class="hint" style="margin-top: 10px;">Prototype password: <b>jazzhands2027</b></p></div>';
+      + '<div class="panel"><div class="field"><label for="coPw">Company password</label><input id="coPw" type="password" autocomplete="current-password"></div><button type="button" class="btn primary" id="coGo">' + (coBusy ? 'Unlocking…' : 'Unlock') + '</button>' + (coErr ? '<p style="color: #B00020;">' + esc(coErr) + '</p>' : '') + '<p class="hint" style="margin-top: 10px;">The same password Company families use.</p></div>';
     const R = co.rehearsals || [], up = R.filter(r => r.date >= todayISO);
     return '<h1>Company Central</h1><p class="lede">Only Company families with the password can open this page. Everything on it is locked with that password.</p>'
       + sec('Rehearsal calendar', 'Comes straight from your Company Rehearsal Calendar spreadsheet. Keep editing the spreadsheet the way you do now; the site picks up changes every night.',
@@ -726,7 +726,7 @@
           preview: x => '<div class="lbl">When families open it</div><div class="pv-slide" style="margin-top: 0;"><div class="tg">Company families</div><h3>' + esc(x.t) + '</h3><p style="color: var(--mut);">' + esc(x.d) + '</p>' + bodyHtml(x.body || '') + '</div>',
           newItem: () => ({ id: 't' + Date.now(), icon: '★', t: '', d: '', body: '' }), fields: [{ k: 'icon', label: 'Icon', max: 2 }, { k: 't', label: 'Topic', max: 28 }, { k: 'd', label: 'One line', max: 80 }, { k: 'body', label: 'What it says', max: 4000, area: true, hint: '“## Heading”, then “- ” for each point. [Form name](https://…) for a button.' }] }))
       + sec('Company-only calendar details', 'Revel, competitions, the Soirée and other dates marked “Company families only” are edited on the Studio calendar screen. Their details stay behind the password.', '<button type="button" class="btn" data-go="calendar">Open the Studio calendar</button>')
-      + sec('Password', '', '<div class="panel"><p style="margin: 0 0 8px;">Share it in the Company welcome email. Change it at the start of each season.</p>' + field('coNewPw', 'New password (in the real site)', draft.coEdit.pwNote || '', 60, { hint: 'In the prototype the password stays jazzhands2027. In the real site, changing it here re-locks everything with the new password.' }) + '</div>');
+      + sec('Password', '', '<div class="panel"><p style="margin: 0 0 8px;">Share it in the Company welcome email. Change it at the start of each season.</p>' + field('coNewPw', 'New password (in the real site)', draft.coEdit.pwNote || '', 60, { hint: 'In the prototype the password can’t be changed. In the real site, changing it here re-locks everything with the new password.' }) + '</div>');
   }
   const bindTexts = () => Object.keys(TXT).forEach(k => bind('tx-' + k, TXT[k][1], v => draft.texts[k] = v));
 
