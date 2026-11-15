@@ -788,7 +788,7 @@ a{color:inherit;text-decoration:none}
         .map(r => ({ label: r.label, ex: r.ex, cells: SESS.filter(x => +x.weeks).map(x => ({ v: '$' + forWeeks(r.rate, x.weeks), cls: x === curS ? '' : 'p-hideM' })) })),
       sessTimeline: SESS.map((x, i) => ({ num: '0' + (i + 1), name: x.name, dates: x.dates || 'Dates TBD', weeks: +x.weeks ? x.weeks + ' weeks of classes' : '', now: x === curS })),
       headerLinks: navList.filter(n => n.header).slice(0, 5).map((n, i) => ({ label: NAMES[n.id], href: PAGEF[n.id], cls: i >= 3 ? 'h-navlink h-hide-md' : 'h-navlink' })),
-      menuLinks: navList.map(n => ({ label: NAMES[n.id], href: PAGEF[n.id] })),
+      menuLinks: navList.filter(n => n.id !== 'shop').map(n => ({ label: NAMES[n.id], href: PAGEF[n.id] })),
       heroTagline: HOME.tagline || 'Technique, artistry and confidence for every dancer.',
       heroFacts: FACTS0.map((f, i) => { const e = (HOME.facts || [])[i] || {}; return { label: e.label || f[0], text: e.text || f[1] }; }),
       photoStudio: PH.studio || 'Photo: the studio', photoStudioImg: isPic(PH.studio), photoStudioPh: !isPic(PH.studio),
