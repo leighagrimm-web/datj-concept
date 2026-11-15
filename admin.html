@@ -468,7 +468,7 @@
   // ---------- card lists: every list can add, remove and reorder ----------
   let openCard = '', delCard = '';
   const LISTS = {};
-  const TYPES = ['Event', 'Closure', 'Session', 'Recital'];
+  const TYPES = ['Event', 'Closure', 'Session', 'Recital', 'Company'];
   function fieldFor(f, it) { const id = 'lf-' + f.k;
     if (f.type === 'link') return linkPicker(id, f.label, it[f.k], f.hint);
     if (f.type === 'date') return '<label class="field" for="' + id + '"><span class="row"><span>' + esc(f.label) + (f.opt ? ' <span class="count">(optional)</span>' : '') + '</span></span><input type="date" id="' + id + '" value="' + esc(it[f.k]) + '" style="display: block; width: 100%; max-width: 240px; padding: 11px; border: 1px solid #C9CDCB; font-size: 15px; background: #FFFFFF;">' + (f.hint ? '<div class="hint">' + f.hint + '</div>' : '') + '</label>';

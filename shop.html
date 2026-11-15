@@ -458,7 +458,10 @@ a{color:inherit;text-decoration:none}
     const fmtRange = (a, b) => { const A = dOf(a), B = dOf(b); if (!A) return ''; const s1 = MON[A.m] + ' ' + A.d; if (!B || b === a) return s1; return s1 + ' – ' + (B.m === A.m && B.y === A.y ? B.d : MON[B.m] + ' ' + B.d); };
     const todayISO = (() => { const t = new Date(); return t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0'); })();
     const CAL = (this.state.calendar || CAL0).filter(e => dOf(e.start) && (e.end || e.start) >= todayISO).sort((x, y) => x.start < y.start ? -1 : x.start > y.start ? 1 : 0);
-    const TAGC = { Event: '#00ADB5', Closure: '#111111', Session: '#E5E5E5', Recital: '#00ADB5' };
+    const TAGC = { Event: '#00ADB5', Closure: '#111111', Session: '#E5E5E5', Recital: '#00ADB5', Company: '#B8E8EA' };
+    const CALF = [['all', 'Everything'], ['Closure', 'Closures'], ['Event', 'Events'], ['Session', 'Session dates'], ['Recital', 'Recital'], ['Company', 'Company']];
+    const calF = CALF.some(f => f[0] === this.state.calF) ? this.state.calF : 'all';
+    const CALV = calF === 'all' ? CAL : CAL.filter(e => (e.type || 'Event') === calF);
     const isPic = (x) => /^(data:image|https?:)/.test(x || '');
     // Instructors (About page). Brittany edits these in the admin; styles come from the Studio Pro schedule.
     // Instructor bios and photos from her current site's Our Staff page (photos still load from Wix)
@@ -530,8 +533,10 @@ a{color:inherit;text-decoration:none}
         hasBtn: !!(x.btn && x.link), btn: x.btn, href: linkTo(x.link), arrow: /^https?:/.test(x.link || '') ? '↗︎' : '→︎', more: lines(x.more), embed: x.embed ? 'trial' : '' })),
       policies: (this.state.policies || POL0).map(x => ({ t: x.t, d: x.d, more: lines(x.more), hasMore: !!String(x.more || '').trim(), hasLink: !!(x.label && x.url), label: x.label, url: linkTo(x.url), arrow: /^https?:/.test(x.url || '') ? '↗︎' : '→︎' })),
       calUpcoming: CAL.slice(0, 3).map(e => { const A = dOf(e.start); return { mon: MON[A.m], day: A.d, title: e.title, where: e.where || '' }; }),
-      calAll: CAL.map(e => ({ when: fmtRange(e.start, e.end), title: e.title, where: e.where || '', type: e.type || 'Event', tagStyle: 'display: inline-block; padding: 5px 8px; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700; background: ' + (TAGC[e.type] || '#00ADB5') + '; color: ' + (e.type === 'Closure' ? '#FFFFFF' : '#000000') + ';' })),
-      calEmpty: CAL.length === 0,
+      calChips: CALF.filter(f => f[0] === 'all' || CAL.some(e => (e.type || 'Event') === f[0])).map(f => { const on = calF === f[0]; return { label: f[1], pressed: on ? 'true' : 'false', pick: () => this.setState({ calF: f[0] }),
+        style: 'padding: 11px 14px; min-height: 40px; border: 1px solid ' + (on ? '#111111' : '#CCCCCC') + '; background: ' + (on ? '#111111' : '#FFFFFF') + '; color: ' + (on ? '#FFFFFF' : '#111111') + '; font-family: inherit; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700; cursor: pointer;' }; }),
+      calAll: CALV.map(e => ({ when: fmtRange(e.start, e.end), title: e.title, where: e.where || '', type: e.type || 'Event', tagStyle: 'display: inline-block; padding: 5px 8px; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700; background: ' + (TAGC[e.type] || '#00ADB5') + '; color: ' + (e.type === 'Closure' ? '#FFFFFF' : '#000000') + ';' })),
+      calEmpty: CALV.length === 0,
       sessName: curS.name, sessNote: curS.name + (curS.dates ? ' · ' + curS.dates : '') + (curS.weeks ? ' · ' + curS.weeks + ' weeks' : '') + '. Tuition is priced by the week, so it changes a little when a session has more or fewer weeks.',
       sessCols: SESS.filter(x => +x.weeks).map(x => ({ name: x.name + ' · ' + x.weeks + ' wks', cls: x === curS ? '' : 'p-hideM' })),
       tuitionCols: 'grid-template-columns: 1.3fr 1.2fr' + ' 120px'.repeat(SESS.filter(x => +x.weeks).length) + ';',
