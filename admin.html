@@ -729,9 +729,9 @@
     const days = [], missing = [];
     readSheet(ws).forEach(r => { const d = col(r, 'day'); if (!d) return; if (!days.length || days[days.length - 1].day !== d) { const m = /^(\w{3})\w*\s+(\d+)\/(\d+)/.exec(d); days.push({ day: d, label: m ? (DOWN[m[1]] || m[1]) + ', ' + MONS[+m[2] - 1] + ' ' + m[3] : d, rows: [] }); }
       const song = col(r, 'song'), D = days[days.length - 1];
-      if (/^awards?$/i.test(song)) { D.rows.push({ awards: true, perf: col(r, 'est'), note: col(r, 'note') }); return; }
+      if (/^awards?$/i.test(song)) { D.rows.push({ awards: true, perf: col(r, 'est'), note: col(r, 'note'), stage: col(r, 'stage') }); return; }
       const x = R[song.toLowerCase()] || {}; if (!R[song.toLowerCase()]) missing.push(song);
-      D.rows.push({ num: col(r, 'entry'), song: song, dancers: col(x, 'dancers'), choreo: col(x, 'choreo'), arrive: col(r, 'arrival'), perf: col(r, 'est'), note: col(r, 'note'), tights: col(x, 'tights'), hair: col(x, 'hair'), hairpiece: col(x, 'hairpiece'), shoes: col(x, 'shoes'), acc: col(x, 'access'), props: col(x, 'props') }); });
+      D.rows.push({ num: col(r, 'entry'), song: song, dancers: col(x, 'dancers'), choreo: col(x, 'choreo'), arrive: col(r, 'arrival'), perf: col(r, 'est'), note: col(r, 'note'), stage: col(r, 'stage'), tights: col(x, 'tights'), hair: col(x, 'hair'), hairpiece: col(x, 'hairpiece'), shoes: col(x, 'shoes'), acc: col(x, 'access'), props: col(x, 'props') }); });
     const arr = {}; readSheet(wb.Sheets['Arrival reminders'] || {}).forEach(r => { const h = col(r, 'heading'), it = col(r, 'point'); if (h && it) (arr[h] = arr[h] || []).push(it); });
     return { days: days, missing: missing, arrival: Object.keys(arr).map(h => ({ h: h, items: arr[h] })) };
   }
