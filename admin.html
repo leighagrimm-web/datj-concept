@@ -9,6 +9,7 @@
 <style>
   :root { --teal: #00ADB5; --teal-dark: #007A80; --ink: #111111; --mut: #5C6360; --line: #E2E4E3; --bg: #F5F6F5; }
   * { box-sizing: border-box; }
+  html, body { overflow-x: clip; }
   body { margin: 0; font-family: Arial, Helvetica, sans-serif; color: var(--ink); background: var(--bg); font-size: 15px; line-height: 1.5; }
   button, input, textarea { font: inherit; color: inherit; }
   a { color: inherit; }
@@ -99,6 +100,7 @@
 
   /* previews (look like the site) */
   .pv-note { font-size: 12px; color: var(--mut); margin-top: 10px; }
+  .pv-banner span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
   .pv-banner { height: 34px; padding: 0 16px; display: flex; align-items: center; justify-content: space-between; background: var(--teal); color: #000000; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; gap: 12px; }
   .pv-banner b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .pv-head { background: #000000; color: #FFFFFF; height: 56px; display: flex; align-items: center; padding: 0 16px; gap: 10px; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; }
@@ -130,23 +132,27 @@
   .tabs { display: none; }
   @media (max-width: 860px) {
     .wrap { grid-template-columns: minmax(0, 1fr); }
-    .top #publishTop, .top #discardTop { display: none; }
+    .top .btn { min-height: 38px; padding: 0 12px; font-size: 11px; }
+    .top .ttl { font-size: 15px; }
+    .status { display: none; }
     .item { flex-wrap: wrap; }
     .item .main { flex-basis: 60%; }
     .editor { padding: 16px; }
+    .item .mini[data-open] { display: none; }
     nav.side { display: none; }
-    main { padding: 22px 18px 120px; }
+    main { padding: 22px 18px 60px; }
     h1 { font-size: 32px; }
     .tiles { grid-template-columns: 1fr; }
     .tile { min-height: 0; }
-    .two { grid-template-columns: 1fr; }
+    .two { grid-template-columns: minmax(0, 1fr); }
     .previewbox { position: static; }
     .top { padding: 8px 14px; gap: 10px; }
     .top .ttl small, .top .viewsite, .status .txt { display: none; }
-    .tabs { display: grid; grid-template-columns: repeat(4, 1fr); position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: #FFFFFF; border-top: 1px solid var(--line); }
-    .tabs button { border: 0; background: none; padding: 10px 4px 14px; font-size: 11px; cursor: pointer; border-top: 3px solid transparent; }
-    .tabs button[aria-current="page"] { border-top-color: var(--teal); font-weight: 700; }
-    .pubbar { position: fixed; left: 0; right: 0; bottom: 58px; z-index: 11; }
+    .top { position: static; }
+    .tabs { display: grid; grid-template-columns: repeat(4, 1fr); position: sticky; top: 0; z-index: 10; background: #FFFFFF; border-bottom: 1px solid var(--line); }
+    .tabs button { border: 0; background: none; padding: 14px 4px 12px; font-size: 12px; cursor: pointer; border-bottom: 3px solid transparent; }
+    .tabs button[aria-current="page"] { border-bottom-color: var(--teal); font-weight: 700; }
+    main { padding-bottom: 60px; }
   }
   .pubbar { display: none; }
   .pubbar.show { display: flex; gap: 10px; align-items: center; justify-content: space-between; background: #FFF8E1; border-top: 1px solid #F2D27A; padding: 10px 16px; }
@@ -163,12 +169,11 @@
   <button class="btn primary" id="publishTop" type="button">Publish</button>
   <a class="viewsite" href="index.html" target="_blank" rel="noopener">View site ↗</a>
 </header>
+<nav class="tabs" id="tabs" aria-label="Admin sections"></nav>
 <div class="wrap">
   <nav class="side" id="side" aria-label="Admin sections"></nav>
   <main id="main"></main>
 </div>
-<div class="pubbar" id="pubbar"><span>Changes aren’t live yet.</span><span style="display: flex; gap: 4px;"><button class="btn ghost" id="discardBar" type="button">Discard</button><button class="btn primary" id="publishBar" type="button">Publish</button></span></div>
-<nav class="tabs" id="tabs" aria-label="Admin sections"></nav>
 <div class="toast" id="toast" role="status"></div>
 
 <script>
@@ -246,7 +251,6 @@
     const d = dirty();
     $('status').innerHTML = d ? '<span class="dot on"></span><span class="txt">Changes not live yet</span>' : '<span class="dot ok"></span><span class="txt">Everything is live</span>';
     $('publishTop').disabled = !d; $('discardTop').style.visibility = d ? 'visible' : 'hidden';
-    $('pubbar').classList.toggle('show', d);
   }
   function publish() {
     const cur = read(LIVE) || {};
