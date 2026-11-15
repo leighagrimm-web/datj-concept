@@ -213,6 +213,24 @@ a{color:inherit;text-decoration:none}
       <sc-if value="{{rcCur.hasLink}}" hint-placeholder-val="{{ false }}"><a href="{{rcCur.url}}" target="_blank" rel="noopener" style="display: inline-block; margin-top: 24px; padding: 14px 18px; background: #111111; color: #FFFFFF; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 700;">{{rcCur.label}} {{rcCur.arrow}}</a></sc-if>
     </div>
   </sc-if>
+  <sc-if value="{{suOpen}}" hint-placeholder-val="{{ false }}">
+    <button type="button" class="h-menu-scrim" tabindex="-1" aria-label="Close sign up" onClick="{{suClose}}"></button>
+    <div role="dialog" aria-modal="true" aria-label="Sign up" class="h-team-panel" data-keep-scroll="su" style="position: fixed; z-index: 20; top: 0; right: 0; bottom: 0; width: 100%; max-width: 560px; background: #FFFFFF; color: #111111; overflow-y: auto; box-sizing: border-box; padding: 26px 32px 40px; border-left: 6px solid #00ADB5;">
+      <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;"><button type="button" onClick="{{suClose}}" aria-label="Close" style="width: 44px; height: 44px; border: 1px solid #111111; background: transparent; color: #111111; cursor: pointer; font-size: 22px;">×</button></div>
+      <div style="font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #007A80; margin-bottom: 8px; font-weight: 700;">Sign up · {{suCur.when}}</div>
+      <h2 style="font-size: 40px; letter-spacing: -0.05em; line-height: 1; margin: 0 0 12px; font-weight: 800;">{{suCur.title}}</h2>
+      <p style="font-size: 15px; line-height: 1.6; margin: 0 0 22px; color: #333333;">{{suCur.desc}}</p>
+      <sc-if value="{{suCur.portal}}" hint-placeholder-val="{{ true }}"><div style="background: #F2F2F2; padding: 18px 20px; margin: 0 0 26px;"><b style="display: block; font-size: 16px; margin-bottom: 4px;">Already a D&amp;ATJ family?</b><p style="font-size: 13px; color: #555555; margin: 0 0 12px; line-height: 1.5;">Sign up in the Parent Portal so it goes right on your account.</p><a href="{{suCur.portalUrl}}" target="_blank" rel="noopener" style="display: inline-block; padding: 12px 16px; background: #111111; color: #FFFFFF; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 700;">Parent Portal →︎</a></div></sc-if>
+      <h3 style="font-size: 22px; letter-spacing: -0.03em; margin: 0 0 4px;">{{suCur.guestHead}}</h3>
+      <p style="font-size: 13px; color: #555555; margin: 0 0 16px; line-height: 1.5;">No account needed. Two quick steps.</p>
+      <div style="display: flex; gap: 12px; align-items: baseline;"><span style="font-family: Georgia, serif; font-style: italic; font-size: 30px; line-height: 1; color: #00ADB5;">1</span><b style="font-size: 16px;">Sign your dancer up</b></div><p style="font-size: 12px; color: #555555; margin: 4px 0 0 30px;">Then pay in step 2 below to save the spot.</p>
+      <sc-if value="{{suCur.hasForm}}" hint-placeholder-val="{{ false }}"><div class="h-dpembed" style="margin: 12px -32px 0; border-top: 1px solid #E5E5E5;"><iframe src="{{suCur.formUrl}}" title="Sign-up form" style="display: block; width: 100%; height: 900px; border: 0; background: #FFFFFF;"></iframe><div style="padding: 10px 32px 0; font-size: 11px; color: #555555;">Form not loading? <a href="{{suCur.formUrl}}" target="_blank" rel="noopener" style="color: #111111; font-weight: 700; text-decoration: underline;">Open it in a new tab →︎</a></div></div></sc-if>
+      <sc-if value="{{suCur.noForm}}" hint-placeholder-val="{{ true }}"><p style="margin: 10px 0 0; padding: 14px 16px; border: 1px dashed #CCCCCC; font-size: 13px; color: #555555;">Sign-up form coming soon.</p></sc-if>
+      <div style="display: flex; gap: 12px; align-items: baseline; margin-top: 28px;"><span style="font-family: Georgia, serif; font-style: italic; font-size: 30px; line-height: 1; color: #00ADB5;">2</span><b style="font-size: 16px;">Pay</b><sc-if value="{{suCur.hasPrice}}" hint-placeholder-val="{{ true }}"><span style="font-size: 14px; color: #555555;">{{suCur.price}}</span></sc-if></div>
+      <sc-if value="{{suCur.hasPay}}" hint-placeholder-val="{{ false }}"><a href="{{suCur.payUrl}}" target="_blank" rel="noopener" style="display: inline-block; margin-top: 12px; padding: 15px 20px; background: #00ADB5; color: #000000; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 700;">Pay with Square →︎</a><p style="font-size: 12px; color: #555555; margin: 10px 0 0;">Secure checkout by Square. Your spot is saved once you’ve signed up and paid.</p></sc-if>
+      <sc-if value="{{suCur.noPay}}" hint-placeholder-val="{{ true }}"><p style="margin: 10px 0 0; padding: 14px 16px; border: 1px dashed #CCCCCC; font-size: 13px; color: #555555;">Payment link coming soon.</p></sc-if>
+    </div>
+  </sc-if>
   <sc-if value="{{dpOpen}}" hint-placeholder-val="{{ false }}">
     <button type="button" class="h-menu-scrim" tabindex="-1" aria-label="Close details" onClick="{{dpClose}}"></button>
     <div role="dialog" aria-modal="true" aria-label="Details" class="h-team-panel" data-keep-scroll="dp" style="position: fixed; z-index: 20; top: 0; right: 0; bottom: 0; width: 100%; max-width: 520px; background: #FFFFFF; color: #111111; overflow-y: auto; box-sizing: border-box; padding: 26px 32px 40px; border-left: 6px solid #00ADB5;">
@@ -308,7 +326,7 @@ a{color:inherit;text-decoration:none}
     if (this._spInit || typeof window === 'undefined' || typeof fetch === 'undefined') return;
     this._spInit = true;
     // Any link to "#trial" (banner, cards) opens the free trial form
-    const trialHash = () => { if (location.hash === '#trial') { try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {} this.setState({ trial: true, ownForm: false, sent: false, tTried: false }); } };
+    const trialHash = () => { const sm = /^#signup-(\d+)$/.exec(location.hash); if (sm) { try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {} this.setState({ su: +sm[1], trial: false }); return; } if (location.hash === '#trial') { try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {} this.setState({ trial: true, ownForm: false, sent: false, tTried: false }); } };
     window.addEventListener('hashchange', trialHash); setTimeout(trialHash, 0);
     const saved = () => this.state.savedClasses || (window.DATJ_CLASSES && window.DATJ_CLASSES.classes) || [];
     fetch('classes.json', { cache: 'no-cache' }).then(r => r.ok ? r.json() : null).then(j => { if (j && j.classes && j.classes.length) this.setState({ savedClasses: j.classes, classesAt: j.updated }); }).catch(() => {})
@@ -494,8 +512,10 @@ a{color:inherit;text-decoration:none}
     // Featured events (Halloween party, recital...): show between their dates as a corner pill and a homepage strip
     const FEAT0 = [
       { title: 'The annual recital', emoji: '✨', pill: 'Recital · May 22–23 · Info & tickets', when: 'May 22–23 · Dress rehearsals May 19–21', desc: 'Every dancer takes the stage. Tickets, costumes, picture day and the show-day checklist, all in one place.', photo: 'hero_poster.jpg', btn: 'Recital info', link: 'families#recital', showFrom: '2026-11-14', hideAfter: '2027-05-23', showPill: true, showStrip: true },
-      { title: 'Halloween Party', emoji: '🎃', pill: 'Halloween Party · Sign up', when: 'Late October · details coming soon', desc: 'Costumes, dancing and treats. Students can bring a friend. Families sign up in the Parent Portal; friends can sign up and pay without an account.', photo: '', btn: 'Sign up', link: '', showFrom: '2027-10-01', hideAfter: '2027-10-31', showPill: true, showStrip: true }];
-    const FEAT = (this.state.featured || FEAT0).filter(f => f.title && (!f.showFrom || f.showFrom <= todayISO) && (!f.hideAfter || f.hideAfter >= todayISO));
+      { title: 'Halloween Party', emoji: '🎃', pill: 'Halloween Party · Sign up', when: 'Late October · details coming soon', desc: 'Costumes, dancing and treats. Students can bring a friend. Families sign up in the Parent Portal; friends can sign up and pay without an account.', photo: '', btn: 'Sign up', link: '', showFrom: '2027-10-01', hideAfter: '2027-10-31', showPill: true, showStrip: true, signup: true, portal: true, signupUrl: '', payUrl: '', price: 'Price coming soon' }];
+    const FEATALL = this.state.featured || FEAT0;
+    const fHref = (f) => f.signup ? '#signup-' + FEATALL.indexOf(f) : linkTo(f.link);
+    const FEAT = FEATALL.filter(f => f.title && (!f.showFrom || f.showFrom <= todayISO) && (!f.hideAfter || f.hideAfter >= todayISO));
     const fKey = (f) => f.title + '|' + (f.showFrom || '');
     const pillF = FEAT.find(f => f.showPill && !(this.state.pillX || []).includes(fKey(f)));
     const TAGC = { Event: '#00ADB5', Closure: '#111111', Session: '#E5E5E5', Recital: '#00ADB5', Company: '#B8E8EA' };
@@ -577,10 +597,13 @@ a{color:inherit;text-decoration:none}
         style: 'padding: 11px 14px; min-height: 40px; border: 1px solid ' + (on ? '#111111' : '#CCCCCC') + '; background: ' + (on ? '#111111' : '#FFFFFF') + '; color: ' + (on ? '#FFFFFF' : '#111111') + '; font-family: inherit; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700; cursor: pointer;' }; }),
       calAll: CALV.map(e => ({ when: fmtRange(e.start, e.end), title: e.title, where: e.where || '', type: (CALF.find(f => f[0] === (e.type || 'Event')) || [0, 'Events'])[1], tagStyle: 'display: inline-block; padding: 5px 8px; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700; background: ' + (TAGC[e.type] || '#00ADB5') + '; color: ' + (e.type === 'Closure' ? '#FFFFFF' : '#000000') + ';' })),
       calEmpty: CALV.length === 0,
-      hasPill: !!pillF, pillText: pillF ? pillF.pill || pillF.title : '', pillEmoji: pillF ? pillF.emoji || '' : '', pillHref: pillF ? linkTo(pillF.link) : '#',
+      hasPill: !!pillF, pillText: pillF ? pillF.pill || pillF.title : '', pillEmoji: pillF ? pillF.emoji || '' : '', pillHref: pillF ? fHref(pillF) : '#',
       closePill: (e) => { if (e && e.preventDefault) e.preventDefault(); if (!pillF) return; const x = (this.state.pillX || []).concat([fKey(pillF)]); try { window.localStorage.setItem('datj-pill-closed', JSON.stringify(x)); } catch (er) {} this.setState({ pillX: x }); },
-      featStrip: FEAT.filter(f => f.showStrip).slice(0, 2).map(f => ({ title: f.title, emoji: f.emoji || '', when: f.when || '', desc: f.desc || '', btn: f.btn || 'Learn more', href: linkTo(f.link), hasBtn: !!f.link, photo: f.photo || '', hasPhoto: !!f.photo })),
+      featStrip: FEAT.filter(f => f.showStrip).slice(0, 2).map(f => ({ title: f.title, emoji: f.emoji || '', when: f.when || '', desc: f.desc || '', btn: f.btn || 'Learn more', href: fHref(f), hasBtn: !!(f.link || f.signup), photo: f.photo || '', hasPhoto: !!f.photo })),
       hasFeat: FEAT.some(f => f.showStrip),
+      suOpen: this.state.su != null && !!FEATALL[this.state.su], suClose: () => this.setState({ su: null }),
+      suCur: (() => { const f = FEATALL[this.state.su] || {}; return { title: (f.emoji ? f.emoji + ' ' : '') + (f.title || ''), when: f.when || '', desc: f.desc || '', price: f.price || '', hasPrice: !!f.price, portal: !!f.portal, portalUrl: PORTAL,
+        hasForm: !!f.signupUrl, formUrl: f.signupUrl || '', noForm: !f.signupUrl, hasPay: !!f.payUrl, payUrl: f.payUrl || '', noPay: !f.payUrl, guestHead: f.portal ? 'Bringing a friend?' : 'Sign up' }; })(),
       sessName: curS.name, sessNote: curS.name + (curS.dates ? ': ' + curS.dates : '') + ' · No refunds once enrolled',
       sessCols: SESS.filter(x => +x.weeks).map(x => ({ name: x.name + ' · ' + x.weeks + ' wks', cls: x === curS ? '' : 'p-hideM' })),
       tuitionCols: 'grid-template-columns: 1.3fr 1.2fr' + ' 120px'.repeat(SESS.filter(x => +x.weeks).length) + ';',
