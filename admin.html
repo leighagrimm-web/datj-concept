@@ -225,7 +225,7 @@
   const write = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { toast('Couldn’t save — the photo may be too big.'); return false; } };
 
   const RC0 = [
-    ['Date & venue', 'May 22–23. Venue and show times coming soon.', '', '', 'The annual recital is May 22–23.\n- Venue: placeholder\n- Doors open: time\n- Show starts: time\n- Parking: where to park and drop off'],
+    ['Date & venue', 'May 22–23. Venue and show times coming soon.', '', '', 'The 14th Annual Performance is May 22–23.\n- Venue: placeholder\n- Doors open: time\n- Show starts: time\n- Parking: where to park and drop off'],
     ['Tickets', 'Placeholder: on-sale date and price.', 'Buy tickets', 'https://example.com/tickets', ''],
     ['Costumes', 'Placeholder: fee, sizing and pickup.', '', '', 'Placeholder: costume fee and when it is due\n- Sizing night: date\n- Pickup: date and place\n- Label every piece with your dancer’s name'],
     ['Dress rehearsal', 'May 19–21. Times by class coming soon.', '', '', 'Dress rehearsals are May 19–21.\n- Location: placeholder\n- Arrival times by class\n- Bring: costumes, shoes, tights, hair supplies\n- Parents: where to wait'],
@@ -269,7 +269,7 @@
     { title: 'Session 4 begins', start: '2027-03-09', end: '', where: 'All classes', type: 'Session' },
     { title: 'Spring break, no classes', start: '2027-03-21', end: '2027-03-28', where: 'Studio closed', type: 'Closure' },
     { title: 'Recital dress rehearsals', start: '2027-05-19', end: '2027-05-21', where: 'Times by class coming soon', type: 'Recital' },
-    { title: 'Annual recital', start: '2027-05-22', end: '2027-05-23', where: 'Venue coming soon', type: 'Recital' }];
+    { title: '14th Annual Performance', start: '2027-05-22', end: '2027-05-23', where: 'Venue coming soon', type: 'Recital' }];
   const FACTS0 = [['Ages', '18 months to adult'], ['Styles', 'Ballet, jazz, tap, hip hop & more'], ['Where', 'Prospect Heights, IL'], ['Try it', 'Your first class is free']];
   const HOME0 = { tagline: 'Technique, artistry and confidence for every dancer.', facts: FACTS0.map(f => ({ label: f[0], text: f[1] })), programs: P0, steps: STEPS0 };
   const NAMES = { classes: 'Classes', pricing: 'Pricing', company: 'Company', about: 'About', families: 'Current Families', shop: 'Gift Cards & Shop' };
@@ -279,7 +279,7 @@
   const SPECIAL0 = [{ label: 'Intro to Breaking', match: '^intro to break', rate: 20.88 }, { label: 'Breaking I or II (2 classes a week)', match: '^breaking i+$', rate: 41.88 }, { label: 'Breaking I & II combined class', match: 'combined', rate: 0 }];
   const SESS0 = [{ name: 'Session 1', dates: '', weeks: 8 }, { name: 'Session 2', dates: 'Oct 14 – Jan 5', weeks: 9 }, { name: 'Session 3', dates: 'Jan 6 – Mar 9', weeks: 9 }, { name: 'Session 4', dates: 'Mar 9 – May 18 · no classes Mar 21–28', weeks: 9 }];
   const FEAT0 = [
-    { title: 'The annual recital', emoji: '✨', pill: 'Recital · May 22–23 · Info & tickets', when: 'May 22–23 · Dress rehearsals May 19–21', desc: 'Every dancer takes the stage. Tickets, costumes, picture day and the show-day checklist, all in one place.', photo: 'hero_poster.jpg', btn: 'Recital info', link: 'families#recital', showFrom: '2026-11-14', hideAfter: '2027-05-23', showPill: true, showStrip: true },
+    { title: '14th Annual Performance', emoji: '✨', pill: '14th Annual Performance · May 22–23', when: 'May 22–23 · Dress rehearsals May 19–21', desc: 'Every dancer takes the stage. Tickets, costumes, picture day and the show-day checklist, all in one place.', photo: 'hero_poster.jpg', btn: 'Recital info', link: 'families#recital', showFrom: '2026-11-14', hideAfter: '2027-05-23', showPill: true, showStrip: true },
     { title: 'Halloween Party', emoji: '🎃', pill: 'Halloween Party · Sign up', when: 'Late October · details coming soon', desc: 'Costumes, dancing and treats. Students can bring a friend. Families sign up in the Parent Portal; friends can sign up and pay without an account.', photo: '', btn: 'Sign up', link: '', showFrom: '2027-10-01', hideAfter: '2027-10-31', showPill: true, showStrip: true, signup: true, portal: true, signupUrl: '', payUrl: '', price: 'Price coming soon' }];
   const DEFAULTS = { recital: false, banner: { text: 'Holiday gift cards & merch are here', href: 'shop' }, rc: RC0, staff: STAFF0, home: HOME0, nav: NAV0, prices: { rates: RATES0, specials: SPECIAL0, sessions: SESS0, current: 1, byKey: {} }, photos: {}, calendar: CAL0, policies: POL0 };
   // Saved links are page ids like "families#recital"; older saves used file names
