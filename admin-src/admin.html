@@ -728,13 +728,13 @@
     const key = await crypto.subtle.deriveKey({ name: 'PBKDF2', salt: b(j.s), iterations: j.it, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
     return JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b(j.i) }, key, b(j.c))));
   }
-  function coUnlock(pw) { coBusy = true; coErr = ''; render();
+  function coUnlock(pw, auto) { coBusy = true; coErr = ''; render();
     coDecrypt(pw).then(d => { co = d; coBusy = false; try { localStorage.setItem('datj-co-pw', pw); } catch (e) {}
       if (draft.coEdit && !draft.coEdit.comps) draft.coEdit.comps = JSON.parse(JSON.stringify(d.comps || []));
       if (!draft.coEdit) draft.coEdit = { comps: JSON.parse(JSON.stringify(d.comps || [])), topics: d.topics.map(t => ({ id: t.id, icon: t.icon, t: t.t, d: t.d, body: infoToText({ sections: t.sections, links: t.links }) })), due: (d.due || []).map(x => Object.assign({}, x)), sheet: 'https://docs.google.com/spreadsheets/d/1a9fwbWr6gM7gwWyXFFpK4UKVbqalJyhi/edit', pwNote: '' };
       draft.calendar.forEach(e => { const L = e.lock && d.locked && d.locked[e.id]; if (L && !e.iBody && !e.iWhen) { e.iWhen = L.when || ''; e.iWhere = L.where || ''; e.iBody = infoToText(L); } });
       render(); })
-    .catch(() => { coBusy = false; coErr = 'That isn’t the password the site uses right now. (Prototype: the site is locked with “turners”; the real admin re-locks it with whatever you save.)'; render(); }); }
+    .catch(() => { coBusy = false; if (auto) { try { localStorage.removeItem('datj-co-pw'); sessionStorage.removeItem('datj-co-pw'); } catch (e) {} coErr = 'This browser had an old Company password saved, so the Company content couldn’t load. Type the current one below once (prototype only: “turners”).'; } else coErr = 'That isn’t the password the site uses right now. In the prototype it’s “turners”.'; render(); }); }
   // ---- competition workbook (Brittany's simple Excel format) ----
   const DOWN = { Thu: 'Thursday', Fri: 'Friday', Sat: 'Saturday', Sun: 'Sunday', Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday' };
   const MONS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -810,7 +810,7 @@
       + '<div style="flex: 1; min-width: 220px;"><div class="field" style="margin: 0;"><label for="coPw">' + (known ? 'Change it to' : 'Set the Company password') + '</label><input id="coPw" type="text" autocomplete="off" placeholder="e.g. turners-and-tap-shoes"></div></div><button type="button" class="btn primary" id="coGo">' + (coBusy ? 'Saving…' : 'Save password') + '</button></div>'
       + '<p class="hint" style="margin-top: 10px;">Families type this to open Company Central. Share it in the Company welcome email and change it each season. Two or three words together are hard to guess and easy to remember.</p>' + (coErr ? '<p style="color: #B00020;">' + esc(coErr) + '</p>' : '') + '</div>';
     const head = '<h1>🔒 Company Central</h1><p class="lede">The page Company families open with the password: what’s next, competition schedules and costume checklists, the rehearsal calendar and the handbook.</p>';
-    if (!co) return head + pwBox + (coBusy ? '<p class="lede">Loading the Company content…</p>' : '');
+    if (!co) return head + pwBox + (coBusy ? '<p class="lede">Loading the Company content…</p>' : '<div class="note" style="margin-top: 14px;"><b>Prototype only:</b> this browser doesn’t know the Company password yet, so it can’t open the competition schedules, rehearsal calendar and handbook to edit. Enter it above once and they appear below; after that this browser remembers it. In the real admin (behind your login) everything shows right away.</div>');
     const R = co.rehearsals || [], up = R.filter(r => r.date >= todayISO);
     return head + pwBox
       + sec('Competition schedules', 'Post the preliminary schedule, then the final one. Families can search for their dancer, check off costume pieces and print.', compEditor())
@@ -984,7 +984,7 @@
           let added = 0, updated = 0; out.items.forEach(it => { const ex = draft.calendar.find(e => e.title.trim().toLowerCase() === it.title.toLowerCase() && e.start === it.start); if (ex) { const id = ex.id; Object.assign(ex, it, { id: id || it.id }); updated++; } else { draft.calendar.push(it); added++; } });
           sortCal(); saveDraft(); calMsg = '✓ ' + added + ' new date' + (added === 1 ? '' : 's') + ' added, ' + updated + ' updated.' + (out.bad.length ? ' <b>Skipped (no start date):</b> ' + esc(out.bad.join(', ')) : '') + (warn.length ? '<ul style="margin: 6px 0 0; padding-left: 18px;">' + warn.slice(0, 10).map(x => '<li>⚠ ' + esc(x) + '</li>').join('') + '</ul>' : ' Format check passed.') + ' Tap any date below to see how families will see it, then Publish.'; render(); })
         .catch(() => { calMsg = 'Couldn’t read that file. Save it as .xlsx and try again.'; render(); }); }); }
-    if (page === 'company2' && !co && !coBusy && !coErr) { const pw = coPwKnown(); if (pw) setTimeout(() => coUnlock(pw), 0); }
+    if (page === 'company2' && !co && !coBusy && !coErr) { const pw = coPwKnown(); if (pw) setTimeout(() => coUnlock(pw, true), 0); }
     if (page === 'company2') { const g = $('coGo'); if (g) { const save = () => { const v = $('coPw').value.trim(); if (!v) return toast('Type the password first.'); if (!co) return coUnlock(v); if (v === coPwKnown()) return toast('That’s already the password.'); toast('Saved for the real site: Publish re-locks Company Central with “' + v + '”. The prototype stays on “turners”.'); }; g.addEventListener('click', save); $('coPw').addEventListener('keydown', (e) => { if (e.key === 'Enter') save(); }); }
       if (co) { bind('coSheet', 400, v => draft.coEdit.sheet = v);
         const ch = $('compHide'); if (ch) ch.addEventListener('change', () => { const c = compsList().find(x => x.id === compSel) || compsList()[0]; c.hideAfter = ch.value; if (!draft.coEdit.comps.includes(c)) draft.coEdit.comps.push(c); saveDraft(); render(); });
