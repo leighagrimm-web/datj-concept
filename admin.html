@@ -851,7 +851,8 @@
       + '<div style="background: #F2F2F2; padding: 14px 24px; font-size: 11px; color: #555555; line-height: 1.6;">Questions? Reply to this email or call (847) 947-8464.<br>Dance & All That Jazz · 844 N Elmhurst Rd, Prospect Heights, IL</div></div>'; }
   function vEmails() {
     if (mailPreset.startsWith('comp:')) { const c = (draft.coEdit && compsList().find(x => x.id === mailPreset.slice(5))); if (c) { mailOut = compMail(c); mailWho = 'company'; } mailPreset = ''; }
-    const WHO = [['all', 'All families'], ['company', 'Company families'], ['team', 'One team']];
+    const WHO = [['all', 'All studio families'], ['company', 'Company families'], ['team', 'One Company team']];
+    const VIA = { all: 'Studio Pro (your studio families list)', company: 'Mailchimp (Company audience)', team: 'Mailchimp (Company audience, team tag)' };
     const words = (t) => String(t || '').trim().split(/\s+/).filter(Boolean).length;
     const before = words($('mailDraft') ? $('mailDraft').value : ''), after = mailOut ? words([mailOut.intro].concat(...mailOut.sections.map(x => x.items)).join(' ').replace(/<[^>]+>/g, '')) : 0;
     return '<h1>Emails</h1><p class="lede">Write it the way you always do. The assistant trims it to a quick read in the site’s design, links to the website for the details, and turns things people keep (looks, checklists) into printable pages.</p>'
@@ -861,7 +862,7 @@
       + '<p class="hint" style="margin-top: 10px;"><b>How it works in the real admin:</b> your draft goes to Claude with the studio’s rules: lead with dates and what’s due, a few bullets, plain words, details live on the website, nothing important left out. You always review it before it sends. Prototype: only the sample email and competition emails are rewritten.</p></div></div>'
       + '<div>' + (mailOut ? '<div class="lbl">The email families get' + (before ? ' · ' + before + ' words → ' + after : '') + '</div>' + emailHtml(mailOut)
           + '<div class="panel" style="margin-top: 14px;"><b>Moved to the website</b><ul style="margin: 6px 0 0;">' + mailOut.moved.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul><b style="display: block; margin-top: 10px;">Printable pages it made</b><ul style="margin: 6px 0 0;">' + mailOut.saved.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul></div>'
-          + '<div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px;"><button type="button" class="btn" data-msend="test">Send me a test</button><button type="button" class="btn primary" data-msend="all">Send to ' + esc(WHO.find(w => w[0] === mailWho)[1]) + '</button></div>'
+          + '<p class="hint" style="margin-top: 14px;"><b>Sends through:</b> ' + VIA[mailWho] + '. <b>Prototype: nothing is actually sent.</b></p><div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px;"><button type="button" class="btn" data-msend="test">Send me a test</button><button type="button" class="btn primary" data-msend="all">Send to ' + esc(WHO.find(w => w[0] === mailWho)[1]) + '</button></div>'
         : '<div class="panel" style="color: var(--mut);">The short version shows here, exactly how families will see it.</div>') + '</div></div>';
   }
   const bindTexts = () => Object.keys(TXT).forEach(k => bind('tx-' + k, TXT[k][1], v => draft.texts[k] = v));
@@ -1039,7 +1040,7 @@
     if (d.who) { mailWho = d.who; const v = $('mailDraft') ? $('mailDraft').value : ''; render(); if ($('mailDraft')) $('mailDraft').value = v; return; }
     if (d.msample) { $('mailDraft').value = SAMPLE_EMAIL; return; }
     if (d.mslim) { const v = $('mailDraft').value.trim(); if (!v) return toast('Paste your email first.'); if (v.slice(0, 60) !== SAMPLE_EMAIL.slice(0, 60)) return toast('Prototype: try the sample email. The real admin rewrites any draft.'); mailOut = SAMPLE_SLIM; render(); $('mailDraft').value = v; return; }
-    if (d.msend) { toast(d.msend === 'test' ? 'Prototype: in the real admin a test goes to your inbox.' : 'Prototype: in the real admin this sends from team@danceandallthatjazz.com.'); return; }
+    if (d.msend) { toast(d.msend === 'test' ? 'Prototype: nothing was sent. In the real admin a test goes to your inbox first.' : 'Prototype: nothing was sent. In the real admin this goes out through ' + (mailWho === 'all' ? 'Studio Pro' : 'Mailchimp') + ' after you confirm.'); return; }
     if (d.calpast) { if (d.calpast === 'ask') calConfirm = true; else if (d.calpast === 'no') calConfirm = false; else { const n = draft.calendar.filter(isPast).length; draft.calendar = draft.calendar.filter(e => !isPast(e)); calConfirm = false; calMsg = '✓ Removed ' + n + ' past date' + (n === 1 ? '' : 's') + '. Publish to update the site.'; saveDraft(); } render(); return; }
     if (d.newseason) { if (d.newseason === 'ask') newSeasonAsk = true; else if (d.newseason === 'no') newSeasonAsk = false; else { draft.coEdit.archive = (draft.coEdit.archive || []).concat((draft.coEdit.comps || []).filter(c => (c.days || []).length).map(c => Object.assign({}, c, { archivedOn: todayISO }))); draft.coEdit.comps = []; const n = draft.calendar.filter(isPast).length; draft.calendar = draft.calendar.filter(e => !isPast(e)); newSeasonAsk = false; compMsg = ''; toast('New season started: competition schedules archived, ' + n + ' past dates removed. Publish when ready.'); saveDraft(); } render(); return; }
     if (d.comp) { compSel = d.comp; compMsg = ''; render(); return; }
