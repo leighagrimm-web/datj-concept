@@ -756,16 +756,49 @@
   }
   let compSel = 'vip', compMsg = '';
   function compsList() { const base = (draft.coEdit.comps || co.comps || []); const ids = base.map(c => c.calId || c.id);
-    const fromCal = draft.calendar.filter(e => /^Competition:/.test(e.title) && !ids.includes(e.id)).map(e => ({ id: e.id, calId: e.id, name: e.title.replace(/^Competition: /, '').replace(/\s*\(.*\)$/, ''), title: e.title, venue: '', address: e.where || '', dates: fmtRange(e.start, e.end), status: '', days: [], arrival: (base[0] || {}).arrival || [], links: [], notes: [] }));
+    const fromCal = draft.calendar.filter(e => /^Competition:/.test(e.title) && !ids.includes(e.id)).map(e => ({ id: e.id, calId: e.id, hideAfter: e.end || e.start, name: e.title.replace(/^Competition: /, '').replace(/\s*\(.*\)$/, ''), title: e.title, venue: '', address: e.where || '', dates: fmtRange(e.start, e.end), status: '', days: [], arrival: (base[0] || {}).arrival || [], links: [], notes: [] }));
     return base.concat(fromCal); }
+  // Checks a competition before it goes up: problems that would look wrong to families
+  const TIME_RE = /^\d{1,2}:\d{2}\s?(AM|PM)$/i;
+  function checkComp(c) { const err = [], warn = [], days = c.days || [];
+    if (!days.length) err.push('No schedule rows yet. Upload the workbook first.');
+    const nums = {}; let n = 0;
+    days.forEach(d => { const rows = d.rows.filter(r => !r.awards); if (!rows.length) warn.push(d.label + ' has no routines.');
+      if (!/day,/.test(d.label)) warn.push('“' + d.day + '” isn’t a day the site understands. Use e.g. “Fri 3/12”.');
+      rows.forEach(r => { n++; const nm = '#' + (r.num || '?') + ' ' + r.song;
+        if (!r.num) warn.push(nm + ': no entry number.'); else if (nums[r.num]) err.push('Entry #' + r.num + ' is listed twice.'); nums[r.num] = 1;
+        if (!r.dancers) err.push(nm + ': no dancers (is the song on the Routines tab, spelled the same?).');
+        if (!r.arrive) warn.push(nm + ': no arrival time.'); else if (!TIME_RE.test(r.arrive)) warn.push(nm + ': arrival “' + r.arrive + '” doesn’t look like a time (e.g. 7:45 AM).');
+        if (!r.perf) warn.push(nm + ': no performance time.'); else if (!TIME_RE.test(r.perf)) warn.push(nm + ': performance “' + r.perf + '” doesn’t look like a time.');
+        if (!r.hair && !r.shoes) warn.push(nm + ': no costume pieces, so it’s blank on the checklist.'); });
+      d.rows.filter(r => r.awards && !TIME_RE.test(r.perf || '')).forEach(() => warn.push(d.label + ': an awards row has no time.')); });
+    const stages = days.some(d => d.rows.some(r => r.stage)); if (stages && days.some(d => d.rows.some(r => !r.awards && !r.stage))) warn.push('Some routines have a stage and some don’t. Fill in Stage for every routine on stage days, or leave it all empty.');
+    if (!c.status) warn.push('Pick Preliminary or Final.');
+    if (!c.venue) warn.push('No venue (Competitions tab).');
+    return { err: err, warn: warn, n: n }; }
+  function compPreview(c) { const days = c.days || []; if (!days.length) return '';
+    const t = (x) => '<td style="padding: 5px 6px; border-bottom: 1px solid #E5E5E5; vertical-align: top;">' + x + '</td>';
+    return '<details style="margin-top: 14px;"' + (compOpenPrev ? ' open' : '') + ' id="compPrev"><summary style="cursor: pointer; font-weight: 700;">Preview what families will see</summary><div style="max-height: 460px; overflow: auto; margin-top: 10px; border: 1px solid var(--line); background: #FFFFFF;">'
+      + days.map(d => '<div style="background: #00ADB5; padding: 6px 8px; font-weight: 700; position: sticky; top: 0;">' + esc(d.label) + '</div><table style="width: 100%; border-collapse: collapse; font-size: 12px;">'
+        + d.rows.map(r => r.awards ? '<tr><td colspan="5" style="padding: 5px 6px; background: #F2E5EC; font-style: italic;">🏆 Awards · ' + esc(r.perf) + (r.note ? ' (' + esc(r.note) + ')' : '') + '</td></tr>'
+          : '<tr>' + t('<b>#' + esc(r.num) + '</b>') + t('<b>' + esc(r.song) + '</b>' + (r.stage ? ' <span style="background: #111111; color: #FFFFFF; padding: 1px 4px; font-size: 10px;">STAGE ' + esc(r.stage) + '</span>' : '') + (r.note ? '<br><span style="color: #B26A00;">' + esc(r.note) + '</span>' : ''))
+            + t(r.dancers ? esc(r.dancers) + '<br><span style="color: var(--mut);">' + esc(r.choreo) + '</span>' : '<span style="color: #B00020;">missing</span>') + t('<span style="background: #FFE08A; padding: 1px 4px;">' + esc(r.arrive || '—') + '</span>') + t(esc(r.perf || '—'))
+            + '</tr><tr><td></td><td colspan="4" style="padding: 0 6px 6px; color: var(--mut); font-size: 11px; border-bottom: 1px solid #E5E5E5;">' + [['Tights', r.tights], ['Hair', r.hair], ['Hairpiece', r.hairpiece], ['Shoes', r.shoes], ['Accessories', r.acc], ['Props', r.props]].filter(x => x[1]).map(x => '<b>' + x[0] + ':</b> ' + esc(x[1])).join(' · ') + '</td></tr>').join('') + '</table>').join('')
+      + '</div></details>'; }
+  let compOpenPrev = false;
   function compEditor() { const L = compsList(); const c = L.find(x => x.id === compSel) || L[0]; if (!c) return '';
     const rows = (c.days || []).reduce((n, d) => n + d.rows.filter(r => !r.awards).length, 0);
-    return '<div class="chips" role="group" aria-label="Competition" style="margin-bottom: 12px;">' + L.map(x => '<button type="button" class="chip" data-comp="' + esc(x.id) + '" aria-pressed="' + (x === c) + '">' + esc(x.name) + (x.status ? ' · ' + esc(x.status) : x.days.length ? '' : ' · not posted') + '</button>').join('') + '</div>'
+    return '<div class="chips" role="group" aria-label="Competition" style="margin-bottom: 12px;">' + L.map(x => '<button type="button" class="chip" data-comp="' + esc(x.id) + '" aria-pressed="' + (x === c) + '">' + esc(x.name) + (!x.days.length ? ' · not posted' : (x.show === false || (x.hideAfter && x.hideAfter < todayISO)) ? ' · hidden' : ' · ' + esc(x.status || 'showing')) + '</button>').join('') + '</div>'
       + '<div class="panel"><p style="margin: 0 0 10px;"><b>' + esc(c.title || c.name) + '</b> · ' + esc(c.dates || '') + (c.venue ? ' · ' + esc(c.venue) : '') + '</p>'
       + '<div class="field"><label>Status</label><div class="chips">' + ['Preliminary', 'Final'].map(st => '<button type="button" class="chip" data-cstatus="' + st + '" aria-pressed="' + (c.status === st) + '">' + st + '</button>').join('') + '</div><p class="hint">Families see a yellow “Preliminary” or black “Final” tag on the schedule.</p></div>'
+      + '<div class="field"><label>On Company Central</label><div class="chips">' + [['show', 'Showing'], ['hide', 'Hidden']].map(o => '<button type="button" class="chip" data-cshow="' + o[0] + '" aria-pressed="' + ((c.show !== false) === (o[0] === 'show')) + '">' + o[1] + '</button>').join('') + '</div>'
+      + '<div class="field" style="margin-top: 10px;"><label for="compHide">Take it down automatically after</label><input id="compHide" type="date" value="' + esc(c.hideAfter || '') + '"><p class="hint">Usually the last day of the competition. Two can show at once on back-to-back weekends; families pick between them.</p></div></div>'
       + '<div class="field"><label for="compFile">Upload the schedule (your Excel workbook)</label><input id="compFile" type="file" accept=".xlsx,.xls,.csv"><p class="hint">Uses the <b>' + esc(c.name) + '</b> tab plus the Routines tab (dancers, choreographer and costume pieces). <a href="Competition_Workbook_TEMPLATE.xlsx" download style="text-decoration: underline;">Download the template</a></p></div>'
       + (compMsg ? '<div class="note">' + compMsg + '</div>' : '')
-      + (rows ? '<p style="margin: 6px 0 0;"><b>' + rows + ' routines</b> over ' + c.days.length + ' days. The costume checklist builds itself from the Routines tab.</p>' + (c.sample ? '<p class="hint">Showing last season’s VIP as the sample. Uploading the 2027 schedule replaces it.</p>' : '') : '<p style="color: var(--mut);">No schedule yet. Upload it when the competition sends it.</p>')
+      + (() => { const k = checkComp(c); if (!c.days.length) return ''; return '<div style="margin-top: 10px; padding: 12px 14px; background: ' + (k.err.length ? '#FDECEC' : k.warn.length ? '#FFF6D6' : '#E8F7EE') + ';"><b>' + (k.err.length ? '✗ Fix before posting' : k.warn.length ? '⚠ Looks mostly good' : '✓ Format check passed') + '</b> · ' + k.n + ' routines checked'
+          + (k.err.length || k.warn.length ? '<ul style="margin: 6px 0 0; padding-left: 18px; font-size: 13px;">' + k.err.map(x => '<li style="color: #B00020;">' + esc(x) + '</li>').join('') + k.warn.slice(0, 12).map(x => '<li>' + esc(x) + '</li>').join('') + (k.warn.length > 12 ? '<li>…and ' + (k.warn.length - 12) + ' more</li>' : '') + '</ul>' : '') + '</div>'; })()
+      + compPreview(c)
+      + (rows ? '<p style="margin: 10px 0 0;"><b>' + rows + ' routines</b> over ' + c.days.length + ' days. The costume checklist builds itself from the Routines tab.</p>' + (c.sample ? '<p class="hint">Showing last season’s VIP as the sample. Uploading the 2027 schedule replaces it.</p>' : '') : '<p style="color: var(--mut);">No schedule yet. Upload it when the competition sends it.</p>')
       + '<div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px;"><button type="button" class="btn" data-cpost="1">Post on Company Central</button><button type="button" class="btn" data-cemail="1">Email it to Company families</button><a class="btn ghost" href="company-families.html#competitions" target="_blank" rel="noopener">See it on the site ↗</a></div>'
       + '<p class="hint" style="margin-top: 8px;">“Post” saves it with Publish. “Email it” opens a short email with a button to the schedule and the printable costume checklist.</p></div>';
   }
@@ -948,12 +981,15 @@
     if (EXTRA[page]) $('main').insertAdjacentHTML('beforeend', EXTRA[page]());
     if (page === 'calendar') { const f = $('calFile'); if (f) f.addEventListener('change', () => { const file = f.files[0]; if (!file) return; if (!window.XLSX) { calMsg = 'The spreadsheet reader is still loading. Try again in a second.'; return render(); }
         file.arrayBuffer().then(buf => { const out = readEvents(XLSX.read(buf, { cellDates: true })); if (out.error) { calMsg = out.error; return render(); }
+          const warn = []; out.items.forEach(it => { if (it.end && it.end < it.start) warn.push(it.title + ': ends before it starts'); if (it.start < todayISO) warn.push(it.title + ': already in the past'); if (/^Competition/i.test(it.title) && !/^Competition:/.test(it.title)) warn.push(it.title + ': write “Competition:” (with the colon) so it shows in competition schedules'); });
           let added = 0, updated = 0; out.items.forEach(it => { const ex = draft.calendar.find(e => e.title.trim().toLowerCase() === it.title.toLowerCase() && e.start === it.start); if (ex) { const id = ex.id; Object.assign(ex, it, { id: id || it.id }); updated++; } else { draft.calendar.push(it); added++; } });
-          sortCal(); saveDraft(); calMsg = '✓ ' + added + ' new date' + (added === 1 ? '' : 's') + ' added, ' + updated + ' updated.' + (out.bad.length ? ' <b>Skipped (no start date):</b> ' + esc(out.bad.join(', ')) : '') + ' Check them below, then Publish.'; render(); })
+          sortCal(); saveDraft(); calMsg = '✓ ' + added + ' new date' + (added === 1 ? '' : 's') + ' added, ' + updated + ' updated.' + (out.bad.length ? ' <b>Skipped (no start date):</b> ' + esc(out.bad.join(', ')) : '') + (warn.length ? '<ul style="margin: 6px 0 0; padding-left: 18px;">' + warn.slice(0, 10).map(x => '<li>⚠ ' + esc(x) + '</li>').join('') + '</ul>' : ' Format check passed.') + ' Tap any date below to see how families will see it, then Publish.'; render(); })
         .catch(() => { calMsg = 'Couldn’t read that file. Save it as .xlsx and try again.'; render(); }); }); }
     if (page === 'company2' && !co && !coBusy && !coErr) { const pw = coPwKnown(); if (pw) setTimeout(() => coUnlock(pw), 0); }
     if (page === 'company2') { const g = $('coGo'); if (g) { const save = () => { const v = $('coPw').value.trim(); if (!v) return toast('Type the password first.'); if (!co) return coUnlock(v); if (v === coPwKnown()) return toast('That’s already the password.'); toast('Saved for the real site: Publish re-locks Company Central with “' + v + '”. The prototype stays on “turners”.'); }; g.addEventListener('click', save); $('coPw').addEventListener('keydown', (e) => { if (e.key === 'Enter') save(); }); }
       if (co) { bind('coSheet', 400, v => draft.coEdit.sheet = v);
+        const ch = $('compHide'); if (ch) ch.addEventListener('change', () => { const c = compsList().find(x => x.id === compSel) || compsList()[0]; c.hideAfter = ch.value; if (!draft.coEdit.comps.includes(c)) draft.coEdit.comps.push(c); saveDraft(); render(); });
+        const pv = $('compPrev'); if (pv) pv.addEventListener('toggle', () => { compOpenPrev = pv.open; });
 
         const f = $('compFile'); if (f) f.addEventListener('change', () => { const file = f.files[0]; if (!file) return; if (!window.XLSX) { compMsg = 'The spreadsheet reader is still loading. Try again in a second.'; return render(); }
           file.arrayBuffer().then(buf => { const wb = XLSX.read(buf); const L = compsList(); const c = L.find(x => x.id === compSel) || L[0];
@@ -1008,7 +1044,8 @@
     if (d.newseason) { if (d.newseason === 'ask') newSeasonAsk = true; else if (d.newseason === 'no') newSeasonAsk = false; else { draft.coEdit.archive = (draft.coEdit.archive || []).concat((draft.coEdit.comps || []).filter(c => (c.days || []).length).map(c => Object.assign({}, c, { archivedOn: todayISO }))); draft.coEdit.comps = []; const n = draft.calendar.filter(isPast).length; draft.calendar = draft.calendar.filter(e => !isPast(e)); newSeasonAsk = false; compMsg = ''; toast('New season started: competition schedules archived, ' + n + ' past dates removed. Publish when ready.'); saveDraft(); } render(); return; }
     if (d.comp) { compSel = d.comp; compMsg = ''; render(); return; }
     if (d.cstatus) { const c = compsList().find(x => x.id === compSel) || compsList()[0]; c.status = d.cstatus; if (!draft.coEdit.comps.includes(c)) draft.coEdit.comps.push(c); saveDraft(); render(); return; }
-    if (d.cpost) { toast('Ready. Press Publish to post it on Company Central.'); return; }
+    if (d.cpost) { const c = compsList().find(x => x.id === compSel) || compsList()[0]; const k = checkComp(c); if (k.err.length) return toast('Fix the red items first, then post.'); c.show = true; if (!draft.coEdit.comps.includes(c)) draft.coEdit.comps.push(c); saveDraft(); render(); toast('Ready. Press Publish to post it on Company Central.'); return; }
+    if (d.cshow) { const c = compsList().find(x => x.id === compSel) || compsList()[0]; c.show = d.cshow === 'show'; if (!draft.coEdit.comps.includes(c)) draft.coEdit.comps.push(c); saveDraft(); render(); return; }
     if (d.cemail) { const c = compsList().find(x => x.id === compSel) || compsList()[0]; mailPreset = 'comp:' + c.id; go('emails'); return; }
     if (d.rteam !== undefined) { rosterTeam = +d.rteam; openCard = ''; delCard = ''; render(); return; }
     if (t.id === 'sumSw') { draft.texts.summerShow = draft.texts.summerShow === 'off' ? 'on' : 'off'; saveDraft(); render(); return; }
