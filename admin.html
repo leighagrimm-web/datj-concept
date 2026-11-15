@@ -558,8 +558,8 @@
     if (d.lmove) { const q = pt(d.lmove), a = q.cfg.get(), j = q.i + q.dir; if (j < 0 || j >= a.length) return true; [a[q.i], a[j]] = [a[j], a[q.i]]; if (openCard === q.key + ':' + q.i) openCard = q.key + ':' + j; saveDraft(); render(); return true; }
     if (d.ldel) { delCard = d.ldel; render(); return true; }
     if (d.ldelno) { delCard = ''; render(); return true; }
-    if (d.ldelyes) { const q = pt(d.ldelyes), nm = q.cfg.title(q.cfg.get()[q.i], q.i); q.cfg.get().splice(q.i, 1); openCard = ''; delCard = ''; saveDraft(); render(); toast('“' + nm + '” removed. Press Publish to update the site.'); return true; }
-    if (d.ladd) { const cfg = LISTS[d.ladd], a = cfg.get(), it = cfg.newItem(a.length); a.push(it); if (cfg.sort) cfg.sort(); openCard = d.ladd + ':' + a.indexOf(it); saveDraft(); render(); const first = document.querySelector('.editor input[type=text], .editor textarea'); if (first) first.focus(); return true; }
+    if (d.ldelyes) { const q = pt(d.ldelyes), nm = q.cfg.title(q.cfg.get()[q.i], q.i); if (q.cfg.remove) q.cfg.remove(q.cfg.get()[q.i]); else q.cfg.get().splice(q.i, 1); openCard = ''; delCard = ''; saveDraft(); render(); toast('“' + nm + '” removed. Press Publish to update the site.'); return true; }
+    if (d.ladd) { const cfg = LISTS[d.ladd]; let a = cfg.get(); const it = cfg.newItem(a.length); if (cfg.add) cfg.add(it); else a.push(it); if (cfg.sort) cfg.sort(); openCard = d.ladd + ':' + cfg.get().indexOf(it); saveDraft(); render(); const first = document.querySelector('.editor input[type=text], .editor textarea'); if (first) first.focus(); return true; }
     if (d.lsel) { const [k, v] = d.lsel.split(':'), [key, si] = openCard.split(':'), it = LISTS[key].get()[+si]; it[k] = v; it.tbc = false; saveDraft(); render(); return true; }
     if (d.lphotox) { const [key, si] = openCard.split(':'); LISTS[key].get()[+si][d.lphotox] = ''; saveDraft(); render(); return true; }
     return false;
@@ -601,6 +601,7 @@
     return '<h1>Studio calendar</h1><p class="lede">Breaks, session dates, the Annual Performance and events. Past dates hide themselves, and the next three show on the homepage under “Mark your calendar.”</p>'
       + calTools()
       + (draft.calendar.some(e => e.tbc) ? '<div class="note">Dates marked <b>To confirm</b> came from the old sample calendar. Check them, then edit or remove them.</div>' : '')
+      + '<p class="hint">Competitions and conventions can also be edited in <a href="#company2" data-go="company2">Company Central</a>, next to their schedules.</p>'
       + listEditor({ key: 'cal', noun: 'a date', noMove: true, sort: sortCal, get: () => draft.calendar, title: e => e.title || 'New date', sub: e => fmtRange(e.start, e.end) + (e.where ? ' · ' + e.where : ''),
         flag: e => e.tbc ? 'To confirm' : isPast(e) ? 'Past' : '', preview: calPreview, newItem: () => ({ title: '', start: todayISO, end: '', where: '', type: 'Event' }),
         fields: [{ k: 'title', label: 'What', max: 40 }, { k: 'start', label: 'Date (or first day)', type: 'date' }, { k: 'end', label: 'Last day', type: 'date', opt: true, hint: 'Only for things that last more than a day, like a break.' }, { k: 'where', label: 'Where or note', max: 30, opt: true, ph: 'e.g. Studio closed' }, { k: 'type', label: 'Shows under', type: 'select', opts: TYPES, labels: TYPE_LABEL },
@@ -758,6 +759,15 @@
     const arr = {}; readSheet(wb.Sheets['Arrival reminders'] || {}).forEach(r => { const h = col(r, 'heading'), it = col(r, 'point'); if (h && it) (arr[h] = arr[h] || []).push(it); });
     return { days: days, missing: missing, arrival: Object.keys(arr).map(h => ({ h: h, items: arr[h] })) };
   }
+  // Competition & convention dates: the same calendar dates, edited from Company Central
+  const isCompDate = e => /^Competition:/.test(e.title || '') || /convention/i.test(e.title || '');
+  function compDates() { return draft.calendar.filter(isCompDate).map(e => {
+    if (!Object.getOwnPropertyDescriptor(e, 'cname')) {
+      Object.defineProperty(e, 'ckind', { configurable: true, enumerable: false, get() { return /^Competition:/.test(this.title) ? 'Competition' : 'Convention'; },
+        set(v) { const n = this.cname; this.title = v === 'Competition' ? 'Competition: ' + n.replace(/\s*convention$/i, '') : (/convention/i.test(n) ? n : (n + ' Convention').trim()); } });
+      Object.defineProperty(e, 'cname', { configurable: true, enumerable: false, get() { return this.title.replace(/^Competition:\s*/, ''); },
+        set(v) { this.title = this.ckind === 'Competition' ? 'Competition: ' + v : (/convention/i.test(v) ? v : v + ' Convention'); } });
+    } return e; }); }
   let compSel = 'vip', compMsg = '';
   function compsList() { const base = (draft.coEdit.comps || co.comps || []); const ids = base.map(c => c.calId || c.id);
     const fromCal = draft.calendar.filter(e => /^Competition:/.test(e.title) && !ids.includes(e.id)).map(e => ({ id: e.id, calId: e.id, hideAfter: e.end || e.start, name: e.title.replace(/^Competition: /, '').replace(/\s*\(.*\)$/, ''), title: e.title, venue: '', address: e.where || '', dates: fmtRange(e.start, e.end), status: '', days: [], arrival: (base[0] || {}).arrival || [], links: [], notes: [] }));
@@ -823,6 +833,15 @@
     if (!co) return head + pwBox + (coBusy ? '<p class="lede">Loading the Company content…</p>' : '<div class="note" style="margin-top: 14px;"><b>Prototype only:</b> this browser doesn’t know the Company password yet, so it can’t open the competition schedules, rehearsal calendar and handbook to edit. Enter it above once and they appear below; after that this browser remembers it. In the real admin (behind your login) everything shows right away.</div>');
     const R = co.rehearsals || [], up = R.filter(r => r.date >= todayISO);
     return head + pwBox
+      + sec('Competition &amp; convention dates', 'The dates families see in the teal “Competitions &amp; convention” box, on the calendar and in Coming up. Each competition here also gets a spot under Competition schedules below.',
+          listEditor({ key: 'cocal', noun: 'a competition or convention', noMove: true, sort: sortCal, get: compDates, add: it => draft.calendar.push(it), remove: it => { const i = draft.calendar.indexOf(it); if (i > -1) draft.calendar.splice(i, 1); },
+            title: e => e.cname || 'New competition', sub: e => e.ckind + ' · ' + fmtRange(e.start, e.end) + (e.where ? ' · ' + e.where : ''), flag: e => isPast(e) ? 'Past' : '', preview: calPreview,
+            newItem: () => ({ id: 'c' + Date.now(), title: 'Competition: ', start: todayISO, end: '', where: '', type: 'Company', lock: true }),
+            fields: [{ k: 'ckind', label: 'This is a', type: 'select', opts: ['Competition', 'Convention'] }, { k: 'cname', label: 'Name', max: 40, ph: 'e.g. VIP (Elgin)', hint: 'Put the city in parentheses, like “VIP (Elgin)”.' },
+              { k: 'start', label: 'First day', type: 'date' }, { k: 'end', label: 'Last day', type: 'date', opt: true }, { k: 'where', label: 'City', max: 30, opt: true },
+              { k: 'iWhen', label: 'Details: time', max: 120, opt: true, ph: 'e.g. Fri–Sat · schedule posts about a week before' }, { k: 'iWhere', label: 'Details: address', max: 120, opt: true },
+              { k: 'iBody', label: 'Details', max: 3000, area: true, opt: true, hint: 'Opens when families tap the date. “## Heading”, “- ” for points, [Button](https://…).' },
+              { k: 'lock', label: 'Details need the Company password', type: 'check', hint: 'The name and dates still show on the public calendar.' }] }))
       + sec('Competition schedules', 'Post the preliminary schedule, then the final one. Families can search for their dancer, check off costume pieces and print.', compEditor())
       + sec('Highlights', 'Big black banners under What’s next, like next season’s Disney trip. Put one up, change it, or take it down (or let it come down on its own date).',
           listEditor({ key: 'cohl', noun: 'a highlight', get: () => draft.coEdit.highlights, title: x => (x.t || 'New highlight'), sub: x => (x.show === false ? 'Hidden · ' : '') + (x.line || '') + (x.end ? ' · until ' + fmtRange(x.end) : ''), flag: x => x.show === false ? 'Hidden' : (x.end && x.end < todayISO) ? 'Ended' : (x.start && x.start > todayISO) ? 'Starts ' + fmtRange(x.start) : 'Showing',
@@ -838,11 +857,11 @@
       + sec('Handbook', 'The topic tiles. Write each like a cheat sheet: headings and short points.', listEditor({ key: 'cotop', noun: 'a topic', get: () => draft.coEdit.topics, title: x => (x.icon ? x.icon + ' ' : '') + (x.t || 'New topic'), sub: x => x.d,
           preview: x => '<div class="lbl">When families open it</div><div class="pv-slide" style="margin-top: 0;"><div class="tg">Company families</div><h3>' + esc(x.t) + '</h3><p style="color: var(--mut);">' + esc(x.d) + '</p>' + bodyHtml(x.body || '') + '</div>',
           newItem: () => ({ id: 't' + Date.now(), icon: '★', t: '', d: '', body: '' }), fields: [{ k: 'icon', label: 'Icon', max: 2 }, { k: 't', label: 'Topic', max: 28 }, { k: 'd', label: 'One line', max: 80 }, { k: 'body', label: 'What it says', max: 4000, area: true, hint: '“## Heading”, then “- ” for each point. [Form name](https://…) for a button.' }] }))
-      + sec('Updates itself', 'Nothing to edit here: these fill in from your calendar, spreadsheet and posted schedules.', '<div class="panel"><ul style="margin: 0; padding-left: 18px; line-height: 1.7;"><li><b>This week &amp; next:</b> rehearsals from the spreadsheet + calendar dates in the next 2 weeks.</li><li><b>Competitions &amp; convention box:</b> calendar dates titled “Competition: …” or with “Convention” in the title.</li><li><b>Coming up for Company:</b> Company, Company-only and Annual Performance dates until the season ends.</li><li><b>Find your dancer:</b> names from the rehearsal spreadsheet, the competition workbook and the team rosters (Company screen).</li><li><b>“Updated” date</b> at the top: changes every time you Publish.</li></ul></div>')
+      + sec('Updates itself', 'Nothing to edit here: these fill in from your calendar, spreadsheet and posted schedules.', '<div class="panel"><ul style="margin: 0; padding-left: 18px; line-height: 1.7;"><li><b>This week &amp; next:</b> rehearsals from the spreadsheet + calendar dates in the next 2 weeks.</li><li><b>Competitions &amp; convention box:</b> the Competition &amp; convention dates at the top of this screen.</li><li><b>Coming up for Company:</b> Company, Company-only and Annual Performance dates until the season ends.</li><li><b>Find your dancer:</b> names from the rehearsal spreadsheet, the competition workbook and the team rosters (Company screen).</li><li><b>“Updated” date</b> at the top: changes every time you Publish.</li></ul></div>')
       + sec('Next season', 'When this season wraps: archive the competition schedules, clear past dates, then upload next season’s calendar and workbooks.', newSeasonAsk
           ? '<div class="panel"><p style="margin: 0 0 10px;"><b>Start next season?</b> This takes this season’s competition schedules off Company Central (they’re kept in the archive) and removes past calendar dates. Nothing changes on the site until you Publish.</p><button type="button" class="btn primary" data-newseason="yes">Yes, start next season</button> <button type="button" class="btn ghost" data-newseason="no">Cancel</button></div>'
           : '<button type="button" class="btn" data-newseason="ask">Start next season</button>' + ((draft.coEdit.archive || []).length ? '<p class="hint">Archived: ' + esc(draft.coEdit.archive.map(c => c.name + ' (' + (c.dates || '') + ')').join(', ')) + '</p>' : ''))
-      + sec('Dates, competitions & next season', 'Company dates, Revel, competitions, the Soirée and next season’s Disney trip come from the Studio calendar. Mark a date “Company families only” to keep its details behind the password.', '<button type="button" class="btn" data-go="calendar">Open the Studio calendar</button>');
+      + sec('Other Company dates', 'Other Company dates (fees due, the Soirée, the Disney trip) come from the Studio calendar. Competitions and conventions are at the top of this screen. Mark a date “Company families only” to keep its details behind the password.', '<button type="button" class="btn" data-go="calendar">Open the Studio calendar</button>');
   }
   // ---------- Emails: short emails in the site's design ----------
   let mailPreset = '', mailOut = null, mailWho = 'company';
