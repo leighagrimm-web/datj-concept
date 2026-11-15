@@ -663,14 +663,20 @@ a{color:inherit;text-decoration:none}
           coDue: (co.due || []).filter(d => d.date >= todayISO).sort((a, b) => a.date < b.date ? -1 : 1).slice(0, 5).map(d => ({ when: fmtRange(d.date), t: d.t })),
           ...(() => { const comps = (co.comps || []).filter(c => c.show !== false && (!c.hideAfter || c.hideAfter >= todayISO) && (c.days || []).length); const cur = comps.find(c => c.id === this.state.cmp) || comps[0]; if (!cur) return { hasComps: false, noComps: true, coComps: [] };
             const dayI = this.state.cmpDay; const view = this.state.cmpView || 'schedule'; const chk = this.state.cmpChk || {};
-            const inTeam = (r) => { const m = /^(Senior|Teen|Junior|Intermediate|Petite|Hip Hop) Company$/i.exec((r.dancers || '').trim()); if (!m) return null; const t = TEAMS_.find(x => x.t.toLowerCase() === m[1].toLowerCase()); if (!t || !(t.dancers || []).length) return true; return (t.dancers || []).some(d => qs.some(w => String(d.t || '').toLowerCase().split(/[^a-z]+/).some(x => x && x.startsWith(w)))); };
-            const hit = (r) => { if (!qs.length || r.awards) return true; if (qs.some(w => (r.dancers || '').toLowerCase().split(/[^a-z]+/).some(x => x && x.startsWith(w)))) return true; const t = inTeam(r); if (t !== null) return t; return /Large Group/i.test(r.dancers || ''); };
+            // Who is in each group: the workbook's Groups tab first, then the Company team rosters
+            const GRP = {}; TEAMS_.forEach(t => { const n = (t.dancers || []).map(d => d.t).filter(Boolean); if (n.length) GRP[(t.t + ' company').toLowerCase()] = n; });
+            Object.keys(cur.groups || {}).forEach(g => { if ((cur.groups[g] || []).length) GRP[g.toLowerCase()] = cur.groups[g]; });
+            const wordHit = (txt) => qs.some(w => String(txt || '').toLowerCase().split(/[^a-z]+/).some(x => x && x.startsWith(w)));
+            const isGroupName = (r) => /\b(company|group|team|line|production)\b/i.test(r.dancers || '') && !/[,&]/.test(r.dancers || '');
+            const how = (r) => { if (!qs.length || r.awards) return 'all'; if (wordHit(r.dancers)) return 'name'; const g = GRP[(r.dancers || '').trim().toLowerCase()];
+              if (g) return g.some(wordHit) ? 'group' : ''; return isGroupName(r) ? 'unknown' : ''; };
+            const hit = (r) => how(r) !== '';
             const days = cur.days.map((d, i) => ({ d: d, i: i })).filter(x => dayI === 'all' || String(x.i) === String(dayI));
             const ITEMS = [['tights', 'Tights'], ['hair', 'Hair'], ['hairpiece', 'Hairpiece'], ['shoes', 'Shoes'], ['acc', 'Accessories'], ['props', 'Props']];
             let total = 0, done = 0;
             const cDays = days.map(x => ({ label: x.d.label, rows: x.d.rows.filter(hit).map(r => { const key = cur.id + '|' + (r.num || r.perf); const on = !!chk[key]; if (!r.awards) { total++; if (on) done++; }
               return { isAwards: !!r.awards, notAwards: !r.awards, num: r.num ? '#' + r.num : '', song: r.song || '', dancers: r.dancers || '', choreo: r.choreo || '', arrive: r.arrive || '', perf: r.perf || '', note: r.note || '', hasNote: !!r.note, awardsLine: 'Awards · ' + r.perf + (r.note ? ' (' + r.note + ')' : '') + (r.stage ? ' · ' + r.stage : ''), stage: r.stage ? (/^\d+$/.test(r.stage) ? 'Stage ' + r.stage : r.stage) : '', hasStage: !!r.stage,
-                mine: qs.length && !r.awards && qs.some(w => (r.dancers || '').toLowerCase().split(/[^a-z]+/).some(x => x && x.startsWith(w))) ? 'background: #EAF7F7;' : '',
+                mine: qs.length && !r.awards && (how(r) === 'name' || how(r) === 'group') ? 'background: #EAF7F7;' : '', viaGroup: how(r) === 'group', unknownGroup: how(r) === 'unknown',
                 items: ITEMS.filter(k => r[k[0]]).map(k => ({ k: k[1], v: r[k[0]] === 'Yes' ? 'Yes' : r[k[0]] })), checked: on, box: on ? '✓' : '', boxStyle: 'flex: none; width: 26px; height: 26px; border: 2px solid #111111; background: ' + (on ? '#00ADB5' : '#FFFFFF') + '; font-weight: 800; cursor: pointer; font-family: inherit;', rowDone: on ? 'opacity: 0.55;' : '',
                 toggle: () => { const n = Object.assign({}, this.state.cmpChk || {}); if (n[key]) delete n[key]; else n[key] = true; try { window.localStorage.setItem('datj-co-checks', JSON.stringify(n)); } catch (e) {} this.setState({ cmpChk: n }); } }; }) })).filter(x => x.rows.some(r => r.notAwards));
             const st = (cur.status || 'Preliminary');
@@ -683,6 +689,7 @@ a{color:inherit;text-decoration:none}
               cmpDays: [{ label: 'All days', v: 'all' }].concat(cur.days.map((d, i) => ({ label: d.label.split(',')[0], v: String(i) }))).map(o => ({ label: o.label, style: CHIP(String(dayI) === o.v), pressed: String(dayI) === o.v ? 'true' : 'false', pick: () => this.setState({ cmpDay: o.v }) })),
               cmpViews: [['schedule', 'Schedule'], ['costumes', 'Costume checklist']].map(o => ({ label: o[1], style: CHIP(view === o[0]), pressed: view === o[0] ? 'true' : 'false', pick: () => this.setState({ cmpView: o[0] }) })),
               cmpArrOpen: !!this.state.cmpArr, cmpArrLabel: this.state.cmpArr ? 'Hide' : 'Show', cmpArrToggle: () => this.setState({ cmpArr: !this.state.cmpArr }), cmpHasStages: cur.days.some(d => d.rows.some(r => r.stage)),
+              cmpHint: qs.length ? (cDays.length ? 'Showing routines with “' + this.state.coQ.trim() + '”, including group and Company team dances they’re in.' : '') : 'Type your dancer’s first name to see only their routines and costumes. It’s remembered on this device.',
               cmpSched: view === 'schedule', cmpCos: view === 'costumes', cmpRows: cDays, cmpEmpty: cDays.length === 0,
               cmpProgress: done + ' of ' + total + ' packed', cmpClear: () => { const n = Object.assign({}, this.state.cmpChk || {}); Object.keys(n).forEach(k => { if (k.startsWith(cur.id + '|')) delete n[k]; }); try { window.localStorage.setItem('datj-co-checks', JSON.stringify(n)); } catch (e) {} this.setState({ cmpChk: n }); },
               cmpPrint: () => { try { const src = document.querySelector('#competitions .p-printarea'); if (!src) return; const old = document.getElementById('printroot'); if (old) old.remove();

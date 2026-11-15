@@ -744,7 +744,7 @@
   // ---- competition workbook (Brittany's simple Excel format) ----
   const DOWN = { Thu: 'Thursday', Fri: 'Friday', Sat: 'Saturday', Sun: 'Sunday', Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday' };
   const MONS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  function readSheet(ws) { const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '', raw: false }); const hi = rows.findIndex(r => r.filter(Boolean).length >= 3); if (hi < 0) return []; const H = rows[hi].map(x => String(x).trim().toLowerCase());
+  function readSheet(ws, minCols) { const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '', raw: false }); const hi = rows.findIndex(r => r.filter(Boolean).length >= (minCols || 3)); if (hi < 0) return []; const H = rows[hi].map(x => String(x).trim().toLowerCase());
     return rows.slice(hi + 1).filter(r => r.some(x => String(x).trim())).map(r => { const o = {}; H.forEach((h, i) => o[h] = String(r[i] == null ? '' : r[i]).trim()); return o; }); }
   const col = (o, ...names) => { for (const n of names) { const k = Object.keys(o).find(x => x.startsWith(n)); if (k && o[k]) return o[k]; } return ''; };
   function parseWorkbook(wb, compRow) {
@@ -756,8 +756,9 @@
       if (/^awards?$/i.test(song)) { D.rows.push({ awards: true, perf: col(r, 'est'), note: col(r, 'note'), stage: col(r, 'stage') }); return; }
       const x = R[song.toLowerCase()] || {}; if (!R[song.toLowerCase()]) missing.push(song);
       D.rows.push({ num: col(r, 'entry'), song: song, dancers: col(x, 'dancers'), choreo: col(x, 'choreo'), arrive: col(r, 'arrival'), perf: col(r, 'est'), note: col(r, 'note'), stage: col(r, 'stage'), tights: col(x, 'tights'), hair: col(x, 'hair'), hairpiece: col(x, 'hairpiece'), shoes: col(x, 'shoes'), acc: col(x, 'access'), props: col(x, 'props') }); });
-    const arr = {}; readSheet(wb.Sheets['Arrival reminders'] || {}).forEach(r => { const h = col(r, 'heading'), it = col(r, 'point'); if (h && it) (arr[h] = arr[h] || []).push(it); });
-    return { days: days, missing: missing, arrival: Object.keys(arr).map(h => ({ h: h, items: arr[h] })) };
+    const arr = {}; readSheet(wb.Sheets['Arrival reminders'] || {}, 2).forEach(r => { const h = col(r, 'heading'), it = col(r, 'point'); if (h && it) (arr[h] = arr[h] || []).push(it); });
+    const groups = {}; readSheet(wb.Sheets['Groups'] || {}, 2).forEach(r => { const g = col(r, 'group'), n = col(r, 'dancers'); if (g && n && !/^e\.g\./i.test(g)) groups[g] = n.split(/\s*(?:,|&|\band\b|\n)\s*/i).map(x => x.trim()).filter(Boolean); });
+    return { days: days, missing: missing, groups: groups, arrival: Object.keys(arr).map(h => ({ h: h, items: arr[h] })) };
   }
   // Competition & convention dates: the same calendar dates, edited from Company Central
   const isCompDate = e => /^Competition:/.test(e.title || '') || /convention/i.test(e.title || '');
@@ -787,6 +788,10 @@
         if (!r.hair && !r.shoes) warn.push(nm + ': no costume pieces, so it’s blank on the checklist.'); });
       d.rows.filter(r => r.awards && !TIME_RE.test(r.perf || '')).forEach(() => warn.push(d.label + ': an awards row has no time.')); });
     const stages = days.some(d => d.rows.some(r => r.stage)); if (stages && days.some(d => d.rows.some(r => !r.awards && !r.stage))) warn.push('Some routines have a stage and some don’t. Fill in Stage for every routine on stage days, or leave it all empty.');
+    // Group dances: does the dancer search know who's in them?
+    const known = {}; ((draft.lists || {}).teams || []).forEach(t => { if ((t.dancers || []).length) known[(t.t + ' company').toLowerCase()] = 1; }); Object.keys(c.groups || {}).forEach(g => { known[g.toLowerCase()] = 1; });
+    const unk = {}; days.forEach(d => d.rows.forEach(r => { const g = (r.dancers || '').trim(); if (!r.awards && /\b(company|group|team|line|production)\b/i.test(g) && !/[,&]/.test(g) && !known[g.toLowerCase()]) (unk[g] = unk[g] || []).push('#' + r.num); }));
+    Object.keys(unk).forEach(g => warn.push(g + ' (' + unk[g].join(', ') + '): no names on the Groups tab, so “Find your dancer” shows it to everyone. Add a row for it on the Groups tab.'));
     if (!c.status) warn.push('Pick Preliminary or Final.');
     if (!c.venue) warn.push('No venue (Competitions tab).');
     return { err: err, warn: warn, n: n }; }
@@ -1039,11 +1044,11 @@
             const crow = readSheet(wb.Sheets['Competitions'] || {}).find(r => col(r, 'tab').toLowerCase() === String(c.name).toLowerCase() || col(r, 'competition').toLowerCase() === String(c.name).toLowerCase());
             if (!crow) { compMsg = 'Couldn’t find ' + esc(c.name) + ' on the Competitions tab.'; return render(); }
             const out = parseWorkbook(wb, crow); if (out.error) { compMsg = out.error; return render(); }
-            Object.assign(c, { lipstick: col(crow, 'lipstick') || c.lipstick || '', venue: col(crow, 'venue') || c.venue, address: col(crow, 'address') || c.address, dates: col(crow, 'dates') || c.dates, status: col(crow, 'status') || c.status || 'Preliminary', days: out.days, sample: '', notes: col(crow, 'notes') ? [col(crow, 'notes')] : [], arrival: out.arrival.length ? out.arrival : c.arrival,
+            Object.assign(c, { lipstick: col(crow, 'lipstick') || c.lipstick || '', venue: col(crow, 'venue') || c.venue, address: col(crow, 'address') || c.address, dates: col(crow, 'dates') || c.dates, status: col(crow, 'status') || c.status || 'Preliminary', days: out.days, groups: out.groups, sample: '', notes: col(crow, 'notes') ? [col(crow, 'notes')] : [], arrival: out.arrival.length ? out.arrival : c.arrival,
               links: [['Prop transportation sign-up', col(crow, 'prop')], ['Competition rules', col(crow, 'rules')], ['Livestream', col(crow, 'livestream')], ['Hair video (newbies)', col(crow, 'hair video')], ['Makeup pictures', col(crow, 'makeup')]].map(x => ({ label: x[0], url: x[1] })) });
             if (!draft.coEdit.comps.includes(c)) draft.coEdit.comps.push(c);
             const n = out.days.reduce((k, d) => k + d.rows.filter(r => !r.awards).length, 0);
-            compMsg = '✓ Read ' + n + ' routines from the ' + esc(c.name) + ' tab.' + (out.missing.length ? ' <b>Not on the Routines tab:</b> ' + esc([...new Set(out.missing)].join(', ')) + ' (they’ll show without dancers or costume pieces).' : '');
+            const gN = Object.keys(out.groups); compMsg = '✓ Read ' + n + ' routines from the ' + esc(c.name) + ' tab' + (gN.length ? ' and ' + gN.length + ' groups from the Groups tab (' + esc(gN.join(', ')) + ')' : '') + '.' + (out.missing.length ? ' <b>Not on the Routines tab:</b> ' + esc([...new Set(out.missing)].join(', ')) + ' (they’ll show without dancers or costume pieces).' : '');
             saveDraft(); render(); }).catch(() => { compMsg = 'Couldn’t read that file. Save it as .xlsx and try again.'; render(); }); }); } }
     bindList(); bindTexts();
     if (page === 'prices') { const P = draft.prices;
