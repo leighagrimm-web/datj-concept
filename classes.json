@@ -1,22 +1,7 @@
 {
- "updated": "2026-11-17T18:33:23.005Z",
+ "updated": "2026-11-18T18:02:42.490Z",
  "source": "Studio Pro live schedule",
  "classes": [
-  {
-   "key": "Adult Bollywood Party|Fri|7:00 PM",
-   "season": "",
-   "name": "Adult Bollywood Party",
-   "note": "Adult Bollywood Class",
-   "day": "Fri",
-   "time": "7:00",
-   "start": 1140,
-   "end": 1230,
-   "mins": 90,
-   "studio": "Studio C",
-   "location": "Prospect Heights",
-   "lo": 18,
-   "hi": 99
-  },
   {
    "key": "Ballet I/II Monday|Mon|4:15 PM",
    "season": "Session 2 2026",
@@ -1051,6 +1036,21 @@
    "location": "Prospect Heights",
    "lo": 4,
    "hi": 6
+  },
+  {
+   "key": "Adult Bollywood Party|Fri|7:00 PM",
+   "season": "Adult Bollywood Party",
+   "name": "Adult Bollywood Party",
+   "note": "Adult Bollywood Class",
+   "day": "Fri",
+   "time": "7:00",
+   "start": 1140,
+   "end": 1230,
+   "mins": 90,
+   "studio": "Studio C",
+   "location": "Prospect Heights",
+   "lo": 18,
+   "hi": 99
   }
  ]
 }
