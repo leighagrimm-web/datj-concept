@@ -360,7 +360,7 @@
   const TEACH = window.DATJ_TEACHERS || {};
   const styleOf = (n) => { const r = []; const t = n.toLowerCase();
     if (/tiny tots|disney|basics|tiny tap/.test(t)) r.push('Tiny Tots & Preschool'); if (/ballet|pointe|combo/.test(t)) r.push('Ballet'); if (/jazz|combo/.test(t)) r.push('Jazz'); if (/tap/.test(t)) r.push('Tap');
-    if (/hip hop/.test(t)) r.push('Hip Hop'); if (/break/.test(t)) r.push('Breaking'); if (/acro/.test(t)) r.push('Acro'); if (/contemporary|modern|lyrical/.test(t)) r.push('Contemporary');
+    if (/hip hop/.test(t)) r.push('Hip Hop'); if (/break/.test(t)) r.push('Breaking'); if (/acro/.test(t)) r.push('Acro'); if (/contemporary|modern/.test(t)) r.push('Contemporary');
     if (/musical/.test(t)) r.push('Musical Theater'); if (/bollywood/.test(t)) r.push('Bollywood'); return r; };
   const teaches = (p, c) => { const t = TEACH[c.key]; const first = String(p.name || '').split(' ')[0]; return !!t && (t === first || t === p.name || t === p.tag); };
   const stylesFor = (p) => { const st = []; CLASSES.filter(c => teaches(p, c)).forEach(c => styleOf(c.name).forEach(x => { if (!st.includes(x)) st.push(x); })); return st; };

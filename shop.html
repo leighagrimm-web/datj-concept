@@ -445,7 +445,7 @@ class Component extends DCLogic {
     const money = (n) => '$' + (Math.round(n * 100) % 100 ? (+n).toFixed(2) : Math.round(n));
     const C = RAW.filter(c => !c.season || /session|summer|intensive|camp/i.test(c.season)).sort((x, y) => DAYS.indexOf(x.day) - DAYS.indexOf(y.day) || (x.start || 0) - (y.start || 0)).map(c => {
       const lo = c.lo == null ? 0 : c.lo, hi = c.hi == null ? 99 : c.hi;
-      return { id: idOf(c.key), key: c.key, day: c.day, time: c.time, name: c.name.replace(/\//g, '/\u200B'), lo: lo, hi: hi,
+      return { id: idOf(c.key), key: c.key, day: c.day, time: (c.start != null ? (((Math.floor(c.start / 60) + 11) % 12 + 1) + ':' + String(c.start % 60).padStart(2, '0') + '\u00a0' + (c.start >= 720 ? 'PM' : 'AM')) : c.time), name: c.name.replace(/\//g, '/\u200B'), lo: lo, hi: hi,
         teacher: tOf(c), teacherDot: tOf(c) ? ' · ' + tOf(c) : '', studio: c.studio, price: priceFor(c), priceLabel: weeklyOf(c) === 0 ? 'Included' : curS.weeks ? '$' + priceFor(c) : 'TBD', note: (c.note || '').split('\n')[0].slice(0, 70),
         ages: c.lo == null ? 'All ages' : hi >= 99 ? lo + '+' : lo + '–' + hi };
     });
@@ -460,7 +460,7 @@ class Component extends DCLogic {
       if (/hip hop/.test(t)) r.push('Hip Hop');
       if (/break/.test(t)) r.push('Breaking');
       if (/acro/.test(t)) r.push('Acro');
-      if (/contemporary|modern|lyrical/.test(t)) r.push('Contemporary');
+      if (/contemporary|modern/.test(t)) r.push('Contemporary');
       if (/musical/.test(t)) r.push('Musical Theater');
       if (/bollywood/.test(t)) r.push('Bollywood');
       if (/leaps|conditioning/.test(t)) r.push('Technique');
