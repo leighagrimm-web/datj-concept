@@ -263,7 +263,7 @@
   ['01 / Foundations', '02 / Technique', '03 / Compete'].forEach((n, i) => P0[i].num = n);
   const STEPS0 = [
     { num: '01', title: 'Find the right class', sub: 'Tap your dancer’s age to see classes, times and tuition.', btn: 'Find a class', link: 'classes#schedule', embed: false, more: '- Filter by age, style and day\n- Plan a full week for siblings\n- Download the printable schedule' },
-    { num: '02', title: 'Try it free, no account', sub: 'Tell us a little about your dancer. No portal login or setup.', btn: '', link: '', embed: true, more: '- Add your dancer, then pick a class and date\n- The front desk confirms by email or text within a day\n- The instructor watches the trial and places your dancer in the level where they’ll thrive\n- Wear comfy clothes, bring water, arrive 10 minutes early' },
+    { num: '02', title: 'Try it free, no account', sub: 'Tell us a little about your dancer. No portal login or setup.', btn: '', link: '', embed: true, more: '- Add your dancer, then pick a class and date\n- The instructor watches the trial and places your dancer in the level where they’ll thrive\n- Wear comfy clothes, bring water, arrive 10 minutes early' },
     { num: '03', title: 'Enroll when you’re ready', sub: 'Loved it? We’ll send a link to register in the Parent Portal.', btn: 'Parent Portal', link: 'https://dancestudio-pro.com/online/index.php?account_id=20951', embed: false, more: '- $30 registration per family, per year\n- Tuition is per class, priced by the week\n- 10% off each class from the 3rd\n- Sessions 3 & 4: up to 3 absences per class in total, and no make-ups in Session 4 while classes rehearse for the Annual Performance\n- No refunds once enrolled' }];
   const POL0 = [
     { t: 'Payments', d: 'Placeholder: auto-pay through the Parent Portal, due dates.', more: 'Placeholder: the full policy, a few short lines.', label: '', url: '' },
@@ -328,7 +328,7 @@
     ['Pricing', [['pricing', 'Pricing page'], ['pricing#tuition', 'Tuition'], ['pricing#fees', 'Discounts & fees'], ['pricing#recital', 'Annual Performance (fees)'], ['pricing#policies', 'Policies']]],
     ['Company', [['company', 'Company info'], ['company#teams', 'Company teams'], ['company#auditions', 'Auditions'], ['company#competitions', 'Competition schedule']]],
     ['Current Families', [['families', 'Current Families page'], ['families#recital', 'Performance info'], ['families#calendar', 'Studio calendar'], ['families#dress', 'Dress code'], ['companyhub', '🔒 Company Central']]],
-    ['About', [['about', 'About the studio'], ['about#instructors', 'Instructors'], ['about#visit', 'Visit & address']]],
+    ['About', [['about', 'About the studio'], ['about#instructors', 'Instructors'], ['about#visit', 'Visit & address'], ['scholarship', 'Light On Stage Scholarship']]],
     ['Shop', [['shop', 'Gift Cards & Shop'], ['shop#gift', 'Gift cards'], ['shop#merch', 'Holiday merch']]],
     ['Other', [['home', 'Homepage'], [PORTAL, 'Parent Portal (Studio Pro)'], ['custom', 'Another website…']]]
   ];
@@ -382,6 +382,7 @@
     { id: 'recital', label: 'Annual Performance', short: 'Performance', g: 'Pages' },
     { id: 'about', label: 'About & mission', short: 'About', g: 'Pages' },
     { id: 'staff', label: 'Instructors & staff', short: 'Instructors', g: 'Pages' },
+    { id: 'scholarship', label: 'Light On Stage Scholarship', short: 'Scholarship', g: 'Pages' },
     { id: 'shop', label: 'Gift cards & shop', short: 'Shop', g: 'Pages' },
     { id: 'prices', label: 'Sessions & prices', short: 'Prices', g: 'Money & rules' },
     { id: 'policies', label: 'Policies', short: 'Policies', g: 'Money & rules' },
@@ -441,6 +442,7 @@
          ['company', 'Company', 'Teams, auditions and the competition schedule.', () => draft.lists.teams.length + ' teams · ' + draft.lists.comps.length + ' competitions'],
          ['families', 'Current Families', 'Dress code and Company parent cards.', () => draft.lists.dress.length + ' dress code cards · ' + draft.lists.compfam.length + ' Company cards'],
          ['about', 'About & mission', 'The studio story and the three mission words.', () => draft.lists.mission.map(w => w.t).join(' · ')],
+         ['scholarship', 'Light On Stage Scholarship', 'Kat’s story and the donate options.', () => (draft.texts.losSquare ? 'Square link added' : 'no Square link yet') + (draft.texts.losZelle ? ' · Zelle ' + draft.texts.losZelle : '')],
          ['shop', 'Gift cards & shop', 'Gift card link and merch.', () => draft.lists.merch.length + ' items' + (draft.texts.giftUrl ? '' : ' · no gift card link yet')],
          ['contact', 'Contact info & hours', 'Address, phone, email and front desk hours.', () => draft.texts.phone + (/placeholder/i.test(draft.texts.hours) ? ' · hours needed' : '')]]
         .map(x => '<button class="tile" type="button" data-go="' + x[0] + '"><b>' + esc(x[1]) + '</b><span>' + esc(x[2]) + '</span><span class="now">' + esc(x[3]()) + '</span></button>').join('')
@@ -684,9 +686,11 @@
     introBody: ['Homepage intro (under “Make room for possibility”)', 400, true], story: ['The studio story', 900, true],
     companyIntro: ['What Company is', 600, true], auditions: ['Auditions, short version', 200, true], auditionsMore: ['Auditions, more details', 1200, true, 'Opens from the More details button. Start a line with “- ” for a bullet.'],
     address: ['Address', 80], phone: ['Phone', 20], email: ['Email', 60], hours: ['Front desk hours', 200, true],
-    perfNote: ['Annual Performance line on the Pricing page', 240, true], schedulePdf: ['Printable schedule (PDF link)', 400, false, 'The “Download the schedule” button on the Classes page. Paste the link to the PDF.'],
+    perfNote: ['Annual Performance line on the Pricing page', 240, true], schedulePdf: ['Printable schedule (PDF link)', 400, false, 'The “Download the schedule” button on the Classes page. Leave it as DATJ_Class_Schedule.pdf: that PDF rebuilds itself every night from Studio Pro.'],
     facebook: ['Facebook link', 200], instagram: ['Instagram link', 200], giftAmounts: ['Gift card amounts', 60, false, 'Separate with commas, e.g. $25, $50, $100. “Custom” is added after them.'],
-    giftNote: ['Gift card line', 120, true], giftUrl: ['Where “Buy a gift card” goes', 300, false, 'Paste the Square gift card link. Leave empty to hide the button.'], merchNote: ['Merch line', 120, true]
+    giftNote: ['Gift card line', 120, true], giftUrl: ['Where “Buy a gift card” goes', 300, false, 'Paste the Square gift card link. Leave empty to hide the button.'], merchNote: ['Merch line', 120, true],
+    losIntro: ['One-line summary (top of the page)', 160, true], losStory: ['Kat’s story', 2000, true, 'Leave an empty line between paragraphs.'], losSquare: ['Square donation link', 300, false, 'In Square: Payment Links → Create link → Donation. Paste the link here. Leave empty to hide the Donate button.'], losZelle: ['Zelle tag', 80, false, 'Shown with a Copy button. Leave empty to hide the Zelle card.'], losGiveNote: ['Line under the donate options', 200, true],
+    absenceNote: ['Report an absence line (Current Families)', 200, true]
   };
   const tfield = (k) => { const c = TXT[k]; return field('tx-' + k, c[0], draft.texts[k], c[1], { area: c[2], hint: c[3] }); };
   const sec = (h, lede, body) => '<h2 style="margin-top: 30px;">' + h + '</h2>' + (lede ? '<p class="lede" style="margin-bottom: 14px;">' + lede + '</p>' : '') + body;
@@ -703,9 +707,11 @@
       + sec('Auditions', '', '<div class="panel">' + tfield('auditions') + tfield('auditionsMore') + '</div>')
       + sec('Competition schedule', 'The list on the Company page fills in from the competition dates in Company Central, in date order.', '<a class="btn" href="#company2" data-go="company2">Edit competition dates in Company Central →</a>'),
     families: () => '<h1>Current Families</h1><p class="lede">Dress code on the Current Families page, plus the link to Company Central. The homepage quick links are on the Homepage screen.</p>'
-      + sec('Dress code', '', cList('dress')) + sec('Company families', 'The Company section on this page is now one link to Company Central, where rehearsals, competitions, costumes and the handbook live.', '<button type="button" class="btn" data-go="company2">Open Company Central</button>'),
+      + sec('Report an absence', 'The teal bar at the top of Current Families. Its button opens the Parent Portal.', '<div class="panel">' + tfield('absenceNote') + '</div>') + sec('Dress code', '', cList('dress')) + sec('Company families', 'The Company section on this page is now one link to Company Central, where rehearsals, competitions, costumes and the handbook live.', '<button type="button" class="btn" data-go="company2">Open Company Central</button>'),
     about: () => '<h1>About &amp; mission</h1><p class="lede">The story and the three words on the About page. Instructors have their own screen.</p>'
       + '<div class="panel">' + tfield('story') + '</div>' + sec('Mission words', '', cList('mission')),
+    scholarship: () => '<h1>Light On Stage Scholarship</h1><p class="lede">The scholarship page (under About, in the menu and the footer). Photos of Kat are on the page already.</p>'
+      + '<div class="panel">' + tfield('losIntro') + tfield('losStory') + '</div>' + sec('Donations', '', '<div class="panel">' + tfield('losSquare') + tfield('losZelle') + tfield('losGiveNote') + '</div>'),
     shop: () => '<h1>Gift cards &amp; shop</h1><p class="lede">The Gift Cards &amp; Shop page.</p>'
       + '<div class="panel">' + tfield('giftNote') + tfield('giftUrl') + tfield('giftAmounts') + tfield('merchNote') + '</div>' + sec('Merch', '', cList('merch')),
     contact: () => '<h1>Contact info &amp; hours</h1><p class="lede">Used in the Visit section on the About page and Need help on Current Families.</p>'
@@ -967,7 +973,7 @@
       + '<div style="padding: 24px;"><h2 style="font-size: 24px; letter-spacing: -0.03em; margin: 0 0 10px;">' + esc(m.subject) + '</h2><p style="font-size: 15px; line-height: 1.6; margin: 0 0 6px;">' + esc(m.intro) + '</p>'
       + m.sections.map(x => '<div style="margin-top: 18px;"><div style="font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 700; color: #007A80; border-bottom: 2px solid #00ADB5; padding-bottom: 4px;">' + esc(x.h) + '</div>' + x.items.map(i => '<p style="margin: 8px 0; font-size: 14px; line-height: 1.5;">▪ ' + i + '</p>').join('') + '</div>').join('')
       + '<div style="margin-top: 22px; display: flex; flex-direction: column; gap: 8px;">' + m.buttons.map((b, i) => '<span style="display: block; text-align: center; padding: 14px; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700; ' + (i === 0 ? 'background: #00ADB5; color: #000000;' : 'border: 1px solid #111111;') + '">' + esc(b.label) + (b.url ? '' : ' · link needed') + '</span>').join('') + '</div></div>'
-      + '<div style="background: #111111; padding: 22px 24px; color: #AEB8B3; font-size: 12px; line-height: 1.6;"><div style="display: flex; gap: 12px; align-items: center;"><img src="email/logo_circle_160.png" alt="" style="width: 48px; height: 48px;"><div><div style="color: #FFFFFF; font-weight: 800; font-size: 16px;">create. inspire. <i style="color: #00ADB5; font-family: Georgia, serif; font-weight: normal;">dance.</i></div>844 N Elmhurst Rd, Prospect Heights, IL · (847) 947-8464 · team@danceandallthatjazz.com</div></div><div style="border-top: 1px solid #333333; margin: 12px 0 10px;"></div><b style="color: #FFFFFF;">Studio calendar · ' + (mailWho === 'all' ? '' : 'Company Central · ') + 'Parent Portal · Class schedule</b><br><b style="color: #00ADB5;">Instagram · Facebook</b>' + (mailWho === 'all' ? '' : '<br><span style="color: #8A8A8A; font-size: 11px;">Update preferences · Unsubscribe (added by Mailchimp)</span>') + '</div></div>'; }
+      + '<div style="background: #111111; padding: 22px 24px; color: #AEB8B3; font-size: 12px; line-height: 1.6;"><div style="display: flex; gap: 12px; align-items: center;"><img src="email/logo_circle_160.png" alt="" style="width: 48px; height: 48px;"><div><div style="color: #FFFFFF; font-weight: 800; font-size: 16px;">create. inspire. <i style="color: #00ADB5; font-family: Georgia, serif; font-weight: normal;">dance.</i></div>844 N Elmhurst Rd, Prospect Heights, IL · (847) 947-8464 · team@danceandallthatjazz.com</div></div><div style="margin-top: 14px; background: #00ADB5; color: #000000; padding: 12px 14px; font-size: 13px; line-height: 1.5;"><b>Missing class?</b> Report an absence in the Parent Portal. No need to email. <b style="text-decoration: underline; white-space: nowrap;">Report an absence →</b></div><div style="border-top: 1px solid #333333; margin: 12px 0 10px;"></div><b style="color: #FFFFFF;">Studio calendar · ' + (mailWho === 'all' ? '' : 'Company Central · ') + 'Parent Portal · Class schedule</b><br><b style="color: #00ADB5;">Instagram · Facebook</b>' + (mailWho === 'all' ? '' : '<br><span style="color: #8A8A8A; font-size: 11px;">Update preferences · Unsubscribe (added by Mailchimp)</span>') + '</div></div>'; }
   function vEmails() {
     if (mailPreset.startsWith('comp:')) { const c = (draft.coEdit && compsList().find(x => x.id === mailPreset.slice(5))); if (c) { mailOut = compMail(c); mailWho = 'company'; } mailPreset = ''; }
     const WHO = [['all', 'All studio families'], ['company', 'Company families'], ['team', 'One Company team']];

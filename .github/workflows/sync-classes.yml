@@ -4,7 +4,7 @@ on:
     - cron: '17 9 * * *'   # every night around 3:17 AM Central
   workflow_dispatch:        # "Run workflow" button for an instant refresh
   push:
-    paths: ['scripts/studiopro.js', 'scripts/sync-classes.js', '.github/workflows/sync-classes.yml']
+    paths: ['scripts/studiopro.js', 'scripts/sync-classes.js', 'scripts/make-schedule-pdf.py', '.github/workflows/sync-classes.yml']
 permissions:
   contents: write
 jobs:
@@ -15,11 +15,17 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 20 }
       - run: node scripts/sync-classes.js
+      - name: Rebuild the printable schedule PDF when classes changed
+        run: |
+          if git diff --quiet classes.json; then echo "Nothing new"; exit 0; fi
+          pip install playwright
+          python -m playwright install --with-deps chromium
+          python scripts/make-schedule-pdf.py
       - name: Save changes
         run: |
           if git diff --quiet classes.json; then echo "Nothing new"; exit 0; fi
           git config user.name "schedule-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add classes.json
+          git add classes.json DATJ_Class_Schedule.pdf
           git commit -m "Class schedule refreshed from Studio Pro"
           git push
