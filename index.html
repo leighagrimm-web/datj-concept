@@ -835,9 +835,17 @@ class Component extends DCLogic {
         const dayName = (iso) => { const A = dOf(iso); const d = new Date(A.y, A.m, A.d); return DOW[d.getDay()] + ', ' + MON[A.m] + ' ' + A.d; };
         const plus = (n) => { const t = new Date(); t.setDate(t.getDate() + n); return t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0'); };
         const q = (this.state.coQ || '').trim().toLowerCase(), qs = q.split(/[ ,]+/).filter(Boolean);
+        // A name with an initial ("Bella M") must match those words in a row; commas or & search for more than one dancer
+        const qG = q.split(/\s*(?:,|&|\+|\band\b)\s*/).map(x => x.split(/[^a-z]+/).filter(Boolean)).filter(g => g.length);
+        const hitQ = (txt) => { const T = String(txt || '').toLowerCase().split(/[^a-z]+/).filter(Boolean); return qG.some(g => T.some((_, i) => g.every((w, j) => T[i + j] && T[i + j].startsWith(w)))); };
+        // Two dancers with the same first name ("Bella M", "Bella S"): suggest adding the initial
+        const twins = (() => { if (qG.length !== 1 || qG[0].length !== 1) return []; const w = qG[0][0]; const seen = {}; const add = (t) => String(t || '').replace(/\b([A-Z][a-z]+) ([A-Z])\b\.?/g, (m0, f, l) => { if (f.toLowerCase() === w) seen[f + ' ' + l] = 1; return m0; });
+          (co.rehearsals || []).forEach(r => add(r.what)); (co.comps || []).forEach(c => { (c.days || []).forEach(d => (d.rows || []).forEach(r => { add(r.dancers); add(r.title); })); Object.keys(c.groups || {}).forEach(g => (c.groups[g] || []).forEach(add)); });
+          return Object.keys(seen).sort(); })();
+        const twinTip = twins.length > 1 ? ' There are ' + twins.length + ' dancers named ' + twins[0].split(' ')[0] + ': add the initial (' + twins.join(' or ') + ') to see just one.' : '';
         const K = [['all', 'Everything'], ['Solo', 'Solos'], ['Duet', 'Duets'], ['Trio', 'Trios'], ['Small group', 'Small groups'], ['Large group', 'Large groups'], ['Hip Hop Company', 'Hip Hop Company'], ['Dress rehearsal', 'Dress rehearsals'], ['Performance', 'Shows & competitions']];
         const k = this.state.coK || 'all';
-        const nameHit = (r) => !qs.length || qs.some(w => r.what.toLowerCase().split(/[^a-z]+/).some(x => x && x.startsWith(w)));
+        const nameHit = (r) => !qs.length || hitQ(r.what);
         const groupHit = (r) => qs.length && (r.kind === 'Large group' || r.kind === 'Hip Hop Company' || r.kind === 'Dress rehearsal' || r.kind === 'Windy City Bulls' || r.kind === 'Performance');
         const R = co.rehearsals.filter(r => (k === 'all' || r.kind === k) && (nameHit(r) || (k === 'all' && groupHit(r))) && (this.state.coAll || r.date >= todayISO));
         const by = {}; R.forEach(r => { (by[r.date] = by[r.date] || []).push(r); });
@@ -850,8 +858,8 @@ class Component extends DCLogic {
         const dancerName = (this.state.coQ || '').trim().replace(/\b\w/g, c => c.toUpperCase());
         const GG = {}; ((this.state.lists || {}).teams || CONTENT0.lists.teams).forEach(t => { const n = (t.dancers || []).map(d => d.t).filter(Boolean); if (n.length) GG[(t.t + ' company').toLowerCase()] = n; });
           (co.comps || []).forEach(c => Object.keys(c.groups || {}).forEach(g => { if ((c.groups[g] || []).length) GG[g.toLowerCase()] = c.groups[g]; }));
-          const TT = ((this.state.lists || {}).teams || CONTENT0.lists.teams); const onTeam = (t) => (t.dancers || []).some(d => qs.some(w => String(d.t || '').toLowerCase().split(/[^a-z]+/).some(x => x && x.startsWith(w))));
-          const inIt = (r) => { if (!qs.length || nameHit(r)) return true; if (r.kind === 'Dress rehearsal' || isShow(r)) { const named = TT.filter(t => new RegExp('\\b' + t.t + '\\b', 'i').test(r.what || '')); return !named.length || named.some(onTeam); } const g = GG[String(r.what || '').replace(/\s*\(.*\)$/, '').trim().toLowerCase()]; return g ? g.some(n => qs.some(w => String(n).toLowerCase().split(/[^a-z]+/).some(x => x && x.startsWith(w)))) : true; };
+          const TT = ((this.state.lists || {}).teams || CONTENT0.lists.teams); const onTeam = (t) => (t.dancers || []).some(d => hitQ(d.t));
+          const inIt = (r) => { if (!qs.length || nameHit(r)) return true; if (r.kind === 'Dress rehearsal' || isShow(r)) { const named = TT.filter(t => new RegExp('\\b' + t.t + '\\b', 'i').test(r.what || '')); return !named.length || named.some(onTeam); } const g = GG[String(r.what || '').replace(/\s*\(.*\)$/, '').trim().toLowerCase()]; return g ? g.some(n => hitQ(n)) : true; };
         const coAddAll = () => { const comps = CALSRC.filter(e => (/^Competition:/.test(e.title || '') || /convention/i.test(e.title || '')) && (e.end || e.start) >= todayISO)
             .map(e => ({ uid: 'cal-' + e.id, date: e.start, end: e.end, title: e.title, where: e.where || '', desc: 'Schedule and costume list: ' + ICS.cc() + '#competitions' }));
           // Only the group rehearsals this dancer is in (team rosters + the competition workbook's Groups tab); unknown groups stay in
@@ -910,7 +918,7 @@ class Component extends DCLogic {
             // Who is in each group: the workbook's Groups tab first, then the Company team rosters
             const GRP = {}; TEAMS_.forEach(t => { const n = (t.dancers || []).map(d => d.t).filter(Boolean); if (n.length) GRP[(t.t + ' company').toLowerCase()] = n; });
             Object.keys(cur.groups || {}).forEach(g => { if ((cur.groups[g] || []).length) GRP[g.toLowerCase()] = cur.groups[g]; });
-            const wordHit = (txt) => qs.some(w => String(txt || '').toLowerCase().split(/[^a-z]+/).some(x => x && x.startsWith(w)));
+            const wordHit = (txt) => hitQ(txt);
             const isGroupName = (r) => /\b(company|group|team|line|production)\b/i.test(r.dancers || '') && !/[,&]/.test(r.dancers || '');
             const how = (r) => { if (!qs.length || r.awards) return 'all'; if (wordHit(r.dancers)) return 'name'; const g = GRP[(r.dancers || '').trim().toLowerCase()];
               if (g) return g.some(wordHit) ? 'group' : ''; return isGroupName(r) ? 'unknown' : ''; };
@@ -945,7 +953,7 @@ class Component extends DCLogic {
               cmpViews: [['schedule', 'Schedule'], ['costumes', 'Costume checklist']].map(o => ({ label: o[1], style: CHIP(view === o[0]), pressed: view === o[0] ? 'true' : 'false', pick: () => this.setState({ cmpView: o[0] }) })),
               cmpArrOpen: !!this.state.cmpArr, cmpArrLabel: this.state.cmpArr ? 'Hide' : 'Show', cmpArrToggle: () => this.setState({ cmpArr: !this.state.cmpArr }), cmpHasStages: cur.days.some(d => d.rows.some(r => r.stage)),
               cmpFiltered: qs.length > 0, cmpFilterLine: qs.length ? 'Only ' + this.state.coQ.trim().replace(/\b\w/g, c => c.toUpperCase()) + '’s routines (plus group dances)' : '',
-              cmpHint: qs.length ? (cDays.length ? 'Showing routines with “' + this.state.coQ.trim() + '”, including group and Company team dances they’re in.' : '') : 'Type your dancer’s first name to see only their routines and costumes. It’s remembered on this device.',
+              cmpHint: qs.length ? (cDays.length ? 'Showing routines with “' + this.state.coQ.trim() + '”, including group and Company team dances they’re in.' + twinTip : '') : 'Type your dancer’s first name to see only their routines and costumes. It’s remembered on this device.',
               cmpSched: view === 'schedule', cmpCos: view === 'costumes', cmpRows: cDays, cmpEmpty: cDays.length === 0,
               cmpProgress: done + ' of ' + total + ' packed', cmpClear: () => { const n = Object.assign({}, this.state.cmpChk || {}); Object.keys(n).forEach(k => { if (k.startsWith(cur.id + '|')) delete n[k]; }); try { window.localStorage.setItem('datj-co-checks', JSON.stringify(n)); } catch (e) {} this.setState({ cmpChk: n }); },
               cmpPrint: (ev) => {
@@ -986,7 +994,7 @@ class Component extends DCLogic {
           coEvents: evs.filter(e => (e.end || e.start) >= todayISO && e.start <= SEASON_END).map(e => ({ when: fmtRange(e.start, e.end), t: e.title, where: e.where || '', open: () => this.setState({ ev: e.id }) })),
           coKinds: K.map(x => ({ label: x[1], style: CHIP(k === x[0]), pressed: k === x[0] ? 'true' : 'false', pick: () => this.setState({ coK: x[0] }) })),
           coQ: this.state.coQ, setCoQ: (e) => { const v = e.target.value; try { window.localStorage.setItem('datj-co-q', v); } catch (x) {} this.setState({ coQ: v }); }, clearCoQ: () => { try { window.localStorage.removeItem('datj-co-q'); } catch (x) {} this.setState({ coQ: '' }); }, hasCoQ: !!q,
-          coHint: qs.length ? 'Showing rehearsals with “' + this.state.coQ.trim() + '”, plus large groups, Hip Hop Company and dress rehearsals (they don’t list names).' : 'Type your dancer’s first name to see only their rehearsals. It’s remembered on this device.',
+          coHint: qs.length ? 'Showing rehearsals with “' + this.state.coQ.trim() + '”, plus large groups, Hip Hop Company and dress rehearsals (they don’t list names).' + twinTip : 'Type your dancer’s first name to see only their rehearsals. It’s remembered on this device.',
           coAddAll: coAddAll, coPdf: coPdf, coPdfLabel: dancerName ? 'Download ' + dancerName + '’s PDF' : 'Download PDF', coAddLabel: dancerName ? 'Add ' + dancerName + '’s schedule to my calendar' : 'Add all to my calendar',
           coDays: dates.map(d => ({ day: dayName(d), off: offBy[d] ? 'No rehearsals today for ' + offBy[d].join(', ') : '', hasOff: !!offBy[d], rows: by[d].map(row) })),
           coEmpty: dates.length === 0, coMore: !this.state.coAll && !qs.length && total > limit, coMoreLabel: 'Show the whole season (' + total + ' dates)', coShowAll: () => this.setState({ coAll: true }),
