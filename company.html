@@ -274,6 +274,24 @@ a{color:inherit;text-decoration:none}
       <sc-if value="{{evCur.noInfo}}" hint-placeholder-val="{{ false }}"><p style="font-size: 14px; color: #555555; margin: 18px 0 0;">More details coming soon.</p></sc-if>
     </div>
   </sc-if>
+  <sc-if value="{{subOpen}}" hint-placeholder-val="{{ false }}">
+    <button type="button" class="h-menu-scrim" tabindex="-1" aria-label="Close" onClick="{{subClose}}"></button>
+    <div role="dialog" aria-modal="true" aria-label="Subscribe to a calendar" class="h-team-panel" data-keep-scroll="sub" style="position: fixed; z-index: 20; top: 0; right: 0; bottom: 0; width: 100%; max-width: 520px; background: #FFFFFF; color: #111111; overflow-y: auto; box-sizing: border-box; padding: 26px 32px 40px; border-left: 6px solid #00ADB5;">
+      <div style="display: flex; justify-content: flex-end; margin-bottom: 22px;"><button type="button" onClick="{{subClose}}" aria-label="Close" style="width: 44px; height: 44px; border: 1px solid #111111; background: transparent; color: #111111; cursor: pointer; font-size: 22px;">×</button></div>
+      <div style="font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #007A80; margin-bottom: 8px; font-weight: 700;">↻ Subscribe · updates on its own</div>
+      <h2 style="font-size: 36px; letter-spacing: -0.045em; line-height: 1.02; margin: 0 0 12px; font-weight: 800; overflow-wrap: anywhere;">{{subTitle}}</h2>
+      <p style="font-size: 15px; line-height: 1.55; margin: 0 0 22px; color: #333333;">{{subLead}}</p>
+      <sc-if value="{{subReady}}" hint-placeholder-val="{{ true }}"><div style="display: grid; gap: 8px;"><sc-for list="{{subBtns}}" as="b" hint-placeholder-count="3"><a href="{{b.href}}" target="{{b.target}}" rel="noopener" style="{{b.style}}"><span style="display: block; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700;">{{b.label}} {{b.arrow}}</span><span style="display: block; font-size: 12px; margin-top: 3px; opacity: 0.8;">{{b.sub}}</span></a></sc-for></div>
+        <div style="margin-top: 16px; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 700; color: #555555;">Other calendar app? Copy the link</div>
+        <div style="display: flex; gap: 8px; margin-top: 6px;"><input readonly value="{{subUrl}}" onFocus="{{subSelect}}" aria-label="Calendar link" style="flex: 1; min-width: 0; padding: 11px 10px; border: 1px solid #BBBBBB; font: 12px Arial, sans-serif; color: #333333; background: #F7F7F7;"><button type="button" onClick="{{subCopy}}" style="flex: none; padding: 0 14px; border: 1px solid #111111; background: #111111; color: #FFFFFF; font-family: inherit; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700; cursor: pointer;">{{subCopyLabel}}</button></div></sc-if>
+      <sc-if value="{{subBusy}}" hint-placeholder-val="{{ false }}"><p style="font-size: 14px; color: #555555; margin: 0;">Making your link…</p></sc-if>
+      <sc-if value="{{hasSubErr}}" hint-placeholder-val="{{ false }}"><p role="alert" style="font-size: 14px; color: #B00020; margin: 0;">{{subErr}}</p></sc-if>
+      <sc-if value="{{subNoName}}" hint-placeholder-val="{{ false }}"><p style="font-size: 14px; color: #333333; margin: 0; padding: 16px; background: #F2F2F2;">Type your dancer’s name in Find your dancer first, then tap Subscribe.</p></sc-if>
+      <sc-if value="{{subPending}}" hint-placeholder-val="{{ false }}"><div style="padding: 18px; background: #FFF6D6; font-size: 14px; line-height: 1.55;"><b style="display: block; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 6px;">Preview</b>The dancer link turns on once the studio’s calendar feed is set up. Until then, use “Add to my calendar”, which saves a one-time copy.</div></sc-if>
+      <h3 style="font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; margin: 28px 0 4px; color: #007A80;">Good to know</h3>
+      <ul style="list-style: none; margin: 0; padding: 0;"><sc-for list="{{subHow}}" as="it" hint-placeholder-count="4"><li style="padding: 10px 0 10px 20px; border-bottom: 1px solid #E5E5E5; font-size: 14px; line-height: 1.5; position: relative;"><span aria-hidden="true" style="position: absolute; left: 0; top: 17px; width: 7px; height: 7px; background: #00ADB5;"></span>{{it.x}}</li></sc-for></ul>
+    </div>
+  </sc-if>
   <sc-if value="{{tpOpen}}" hint-placeholder-val="{{ false }}">
     <button type="button" class="h-menu-scrim" tabindex="-1" aria-label="Close" onClick="{{tpClose}}"></button>
     <div role="dialog" aria-modal="true" aria-label="Company info" class="h-team-panel" data-keep-scroll="tp" style="position: fixed; z-index: 20; top: 0; right: 0; bottom: 0; width: 100%; max-width: 520px; background: #FFFFFF; color: #111111; overflow-y: auto; box-sizing: border-box; padding: 26px 32px 40px; border-left: 6px solid #00ADB5;">
@@ -343,6 +361,16 @@ a{color:inherit;text-decoration:none}
 const DEV = (() => { try { const u = navigator.userAgent || ''; const ios = /iPhone|iPad|iPod/.test(u) || (/Macintosh/.test(u) && navigator.maxTouchPoints > 1); const and = /Android/i.test(u); return { ios: ios, and: and, phone: ios || and }; } catch (e) { return { ios: false, and: false, phone: false }; } })();
 const PDFBACK = { mark: () => { try { sessionStorage.setItem('datj-pdf-back', JSON.stringify({ p: location.pathname, y: window.scrollY || 0, t: Date.now() })); } catch (e) {} } };
 try { const b = JSON.parse(sessionStorage.getItem('datj-pdf-back') || 'null'); if (b && b.p === location.pathname && Date.now() - b.t < 15 * 60000) { sessionStorage.removeItem('datj-pdf-back'); let n = 0; const go = () => { if (document.documentElement.scrollHeight >= b.y + 200 || n > 40) { window.scrollTo(0, b.y); return; } n++; setTimeout(go, 150); }; window.addEventListener('load', () => setTimeout(go, 300)); } } catch (e) {}
+// Calendar subscribe (live feed): the studio calendar is studio.ics on this site (rebuilt on every publish);
+// a dancer's Company calendar comes from the studio's Apps Script feed (FEED_URL) once it is set up.
+const SUB = (() => { const FEED_URL = '';
+  const base = () => { try { return location.origin + location.pathname.replace(/[^/]*$/, ''); } catch (e) { return ''; } };
+  const mac = (() => { try { return /Macintosh/.test(navigator.userAgent) && !(navigator.maxTouchPoints > 1); } catch (e) { return false; } })();
+  const links = (https, name) => { const wc = https.replace(/^https?:/, 'webcal:'); return { https: https, apple: wc, google: 'https://calendar.google.com/calendar/r?cid=' + encodeURIComponent(wc), outlook: 'https://outlook.live.com/calendar/0/addfromweb?url=' + encodeURIComponent(https) + '&name=' + encodeURIComponent(name) }; };
+  const proof = async (key, q) => { const E = new TextEncoder(); const k = await crypto.subtle.importKey('raw', E.encode(key), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+    return Array.from(new Uint8Array(await crypto.subtle.sign('HMAC', k, E.encode(q)))).map(b => b.toString(16).padStart(2, '0')).join(''); };
+  return { FEED_URL: FEED_URL, base: base, mac: mac, links: links, proof: proof };
+})();
 const ICS = (() => {
   const TZ = 'BEGIN:VTIMEZONE\r\nTZID:America/Chicago\r\nBEGIN:STANDARD\r\nDTSTART:19701101T020000\r\nRRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU\r\nTZOFFSETFROM:-0500\r\nTZOFFSETTO:-0600\r\nTZNAME:CST\r\nEND:STANDARD\r\nBEGIN:DAYLIGHT\r\nDTSTART:19700308T020000\r\nRRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU\r\nTZOFFSETFROM:-0600\r\nTZOFFSETTO:-0500\r\nTZNAME:CDT\r\nEND:DAYLIGHT\r\nEND:VTIMEZONE';
   const pad = (n) => String(n).padStart(2, '0');
@@ -381,7 +409,7 @@ class Component extends DCLogic {
       ['Show-day checklist', 'Placeholder: hair, makeup, arrival time.', '', '', '', true]
     ].map(r => ({ t: r[0], d: r[1], label: r[2], url: r[3], more: r[4], lockMore: !!r[5] }));
     this.RC = RC;
-    this.state = { sound: false, admin: false, rcEdit: false, rcOpen: -1, dp: null, dpf: {}, dpfTried: false, dpfSent: false, recital: !!sv.recital, season: sv.season || null, isPreview: PREV, ownTrial: !!sv.ownTrial, staff: sv.staff || null, staffV: sv.staffV || 0, nav: sv.nav || null, prices: sv.prices || null, home: sv.home || null, photos: sv.photos || null, calendar: (sv.calendar && sv.calendar.some(e => e.id)) ? sv.calendar : null, policies: sv.policies || null, ev: null, calPast: false, cmpArr: false, cmp: null, cmpDay: 'all', cmpView: 'schedule', cmpChk: (() => { try { return JSON.parse(window.localStorage.getItem('datj-co-checks') || '{}'); } catch (e) { return {}; } })(), coEdit: sv.coEdit || null, co: null, coPw: '', coErr: '', coBusy: false, coRem: true, coAll: false, coK: 'all', coOpt: (() => { try { return window.localStorage.getItem('datj-co-opt') || 'A'; } catch (e) { return 'A'; } })(), coQ: (() => { try { return window.localStorage.getItem('datj-co-q') || ''; } catch (e) { return ''; } })(), featured: sv.featured || null, lists: sv.lists || null, texts: sv.texts || null, pillX: (() => { try { return JSON.parse(window.localStorage.getItem('datj-pill-closed') || '[]'); } catch (e) { return []; } })(), banner: sv.banner || { text: '', href: '' }, rc: (sv.rc || RC).map((r, i) => Object.assign({ more: '' }, RC[i] ? { more: RC[i].more, lockMore: RC[i].lockMore } : {}, r)).map(r => { const n = RC.find(x => x.t === r.t); return n && /^Placeholder: (date, time and venue address|date and what to bring)\./.test(r.d || '') ? Object.assign({}, n) : r; }), trial: false, sent: false, name: '', tf: {}, tAge: '', tStyle: '', tCls: -2, tTried: false, age: 'tots', menu: false, msg: false, summer: true, team: 0, ages: [], wages: [], sstyles: [], wstyles: [], panel: -1, day: 'all', teachers: [], plan: [] }; }
+    this.state = { sound: false, admin: false, rcEdit: false, rcOpen: -1, dp: null, dpf: {}, dpfTried: false, dpfSent: false, recital: !!sv.recital, season: sv.season || null, isPreview: PREV, ownTrial: !!sv.ownTrial, staff: sv.staff || null, staffV: sv.staffV || 0, nav: sv.nav || null, prices: sv.prices || null, home: sv.home || null, photos: sv.photos || null, calendar: (sv.calendar && sv.calendar.some(e => e.id)) ? sv.calendar : null, policies: sv.policies || null, ev: null, sub: null, subCode: '', subBusy: false, subErr: '', subCopied: false, calPast: false, cmpArr: false, cmp: null, cmpDay: 'all', cmpView: 'schedule', cmpChk: (() => { try { return JSON.parse(window.localStorage.getItem('datj-co-checks') || '{}'); } catch (e) { return {}; } })(), coEdit: sv.coEdit || null, co: null, coPw: '', coErr: '', coBusy: false, coRem: true, coAll: false, coK: 'all', coOpt: (() => { try { return window.localStorage.getItem('datj-co-opt') || 'A'; } catch (e) { return 'A'; } })(), coQ: (() => { try { return window.localStorage.getItem('datj-co-q') || ''; } catch (e) { return ''; } })(), featured: sv.featured || null, lists: sv.lists || null, texts: sv.texts || null, pillX: (() => { try { return JSON.parse(window.localStorage.getItem('datj-pill-closed') || '[]'); } catch (e) { return []; } })(), banner: sv.banner || { text: '', href: '' }, rc: (sv.rc || RC).map((r, i) => Object.assign({ more: '' }, RC[i] ? { more: RC[i].more, lockMore: RC[i].lockMore } : {}, r)).map(r => { const n = RC.find(x => x.t === r.t); return n && /^Placeholder: (date, time and venue address|date and what to bring)\./.test(r.d || '') ? Object.assign({}, n) : r; }), trial: false, sent: false, name: '', tf: {}, tAge: '', tStyle: '', tCls: -2, tTried: false, age: 'tots', menu: false, msg: false, summer: true, team: 0, ages: [], wages: [], sstyles: [], wstyles: [], panel: -1, day: 'all', teachers: [], plan: [] }; }
   // Classes come from Studio Pro: the saved copy (classes.json, refreshed nightly) shows right away,
   // then one quick live check swaps in anything that changed today. Ages always come from the saved copy.
   // Company Families: the Company bundle is encrypted with the Company password (company.enc.json).
@@ -393,6 +421,21 @@ class Component extends DCLogic {
     const key = await crypto.subtle.deriveKey({ name: 'PBKDF2', salt: b(j.s), iterations: j.it, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
     const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b(j.i) }, key, b(j.c));
     return JSON.parse(new TextDecoder().decode(pt));
+  }
+  // Company Central → Subscribe: ask the studio's feed for this dancer's private link (a random code, no name in it)
+  async subDancer() {
+    const q = String(this.state.coQ || '').trim().toLowerCase().replace(/\s+/g, ' ');
+    this.setState({ sub: 'dancer', subErr: '', subCode: '', subCopied: false, subBusy: false });
+    const co = this.state.co; if (!q || !SUB.FEED_URL || !co || !co.feedKey) return;
+    let code = ''; try { code = window.localStorage.getItem('datj-sub|' + q) || ''; } catch (e) {}
+    if (code) { this.setState({ subCode: code }); return; }
+    this.setState({ subBusy: true });
+    try {
+      const r = await fetch(SUB.FEED_URL, { method: 'POST', body: JSON.stringify({ action: 'subscribe', q: q, proof: await SUB.proof(co.feedKey, q) }) });
+      const j = await r.json();
+      if (j && j.ok && j.code) { try { window.localStorage.setItem('datj-sub|' + q, j.code); } catch (e) {} this.setState({ subCode: j.code, subBusy: false }); }
+      else this.setState({ subErr: (j && j.error) || 'Couldn’t make the link. Try again in a minute.', subBusy: false });
+    } catch (e) { this.setState({ subErr: 'Couldn’t reach the studio calendar right now. Try again in a minute.', subBusy: false }); }
   }
   // Annual Performance details: encrypted with the Families password (recital.enc.json), like Company Central
   async famDecrypt(pw) {
@@ -738,6 +781,34 @@ class Component extends DCLogic {
       calAll: CALV.map(e => ({ addCal: (ev) => { try { ev.stopPropagation(); } catch (x) {} ICS.download([calEv(e)], e.title || 'D&ATJ date'); }, hasDate: !!e.start, key: (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); this.setState({ ev: e.id }); } }, open: () => this.setState({ ev: e.id }), hasMore: !!(e.info || e.lock), lockTag: e.lock && !this.state.co ? '🔒 Company' : '', past: (e.end || e.start) < todayISO, rowStyle: (e.end || e.start) < todayISO ? 'opacity: 0.5;' : '', when: fmtRange(e.start, e.end), title: e.title, where: e.where || '', type: (CALF.find(f => f[0] === (e.type || 'Event')) || [0, 'Events'])[1], tagStyle: 'display: inline-block; padding: 5px 8px; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700; background: ' + (TAGC[e.type] || '#00ADB5') + '; color: ' + (e.type === 'Closure' ? '#FFFFFF' : '#000000') + ';' })),
       auditionsMore: lines(T.auditionsMore), giftAmts: String(T.giftAmounts || '').split(',').map(x => x.trim()).filter(Boolean).concat(['Custom']).map((a, i) => ({ a: a, style: i === 1 ? 'border: 1px solid #111111; background: #111111; color: #FFFFFF;' : 'border: 1px solid #CCCCCC; background: #FFFFFF; color: #111111;' })), calEmpty: CALV.length === 0, calAddAll: () => ICS.download(calUp.map(calEv), calFName ? 'D&ATJ ' + calFName : 'D&ATJ studio calendar'), hasCalUp: calUp.length > 0, calAddLabel: calFName ? 'Add these ' + calUp.length + ' ' + calFName.toLowerCase() + ' to my calendar' : 'Add all ' + calUp.length + ' upcoming dates to my calendar', calPastLabel: this.state.calPast ? 'Hide past dates' : 'Show past dates', toggleCalPast: () => this.setState({ calPast: !this.state.calPast }),
       // ---- event details panel (calendar) ----
+      ...(() => { const s = this.state.sub; if (!s) return { subOpen: false, subBtns: [], subHow: [] };
+        const isD = s === 'dancer', nm = String(this.state.coQ || '').trim().replace(/\s+/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+        const https = isD ? (this.state.subCode ? SUB.FEED_URL + '?c=' + this.state.subCode : '') : SUB.base() + 'studio.ics';
+        const calName = isD ? nm + ' · D&ATJ Company' : 'Dance & All That Jazz';
+        const L = https ? SUB.links(https, calName) : null;
+        const B = L ? [
+          { k: 'apple', label: DEV.ios ? 'Subscribe on this ' + (/iPad/.test(navigator.userAgent) ? 'iPad' : 'iPhone') : SUB.mac ? 'Subscribe on this Mac' : 'Apple Calendar', sub: 'iPhone, iPad and Mac Calendar', href: L.apple, target: '_self' },
+          { k: 'google', label: 'Google Calendar', sub: DEV.and ? 'Opens Google Calendar on the web, then it shows on your phone' : 'Adds it to your Google account', href: L.google, target: '_blank' },
+          { k: 'outlook', label: 'Outlook', sub: 'Outlook.com or Microsoft 365', href: L.outlook, target: '_blank' }] : [];
+        const order = (DEV.ios || SUB.mac) ? ['apple', 'google', 'outlook'] : ['google', 'outlook', 'apple'];
+        const btns = order.map(k => B.find(b => b.k === k)).filter(Boolean).map((b, i) => Object.assign(b, { arrow: b.target === '_blank' ? '↗︎' : '→︎', style: 'display: block; padding: 14px 16px; text-decoration: none; ' + (i === 0 ? 'background: #00ADB5; color: #000000;' : 'background: #FFFFFF; color: #111111; border: 1px solid #111111;') }));
+        const how = ['New dates and changes show up in your calendar on their own. You never add them again.',
+          'iPhone and Outlook check about every hour. Google Calendar checks on its own schedule (up to about a day) and can’t be sped up.',
+          'Same-day changes still come from the studio by email or text.']
+          .concat(isD ? ['Competition times start as Preliminary and update on their own when the Final schedule is posted.', 'This link is just for your family. If it gets shared, the studio can turn it off; subscribe again here for a new one.'] : ['Company families: also subscribe to your dancer’s Company calendar in Company Central (Find your dancer → Subscribe).'])
+          .concat(DEV.and ? ['On Android, subscriptions are added in Google Calendar on the web. Use the same Google account as your phone; it then appears in the Calendar app.'] : [])
+          .concat(['To stop it, delete the calendar in your calendar app.']);
+        return { subOpen: true, subClose: () => this.setState({ sub: null, subErr: '', subCopied: false }),
+          subTitle: isD ? (nm ? nm + '’s Company calendar' : 'Your dancer’s Company calendar') : 'Studio calendar',
+          subLead: isD ? 'Their rehearsals, their competition times (arrival, on stage, awards), Company-only dates and due dates. It keeps itself up to date.' : 'Every studio date: closures, events, session dates and the Annual Performance. It keeps itself up to date.',
+          subReady: !!L, subBtns: btns, subUrl: https, subCopyLabel: this.state.subCopied ? 'Copied ✓︎' : 'Copy link',
+          subCopy: () => { const done = () => this.setState({ subCopied: true }); try { navigator.clipboard.writeText(https).then(done, () => {}); } catch (e) {} },
+          subSelect: (ev) => { try { ev.target.select(); } catch (e) {} },
+          subBusy: !!this.state.subBusy, subErr: this.state.subErr || '', hasSubErr: !!this.state.subErr,
+          subNoName: isD && !nm, subPending: isD && !!nm && !SUB.FEED_URL,
+          subHow: how.map(x => ({ x: x })) }; })(),
+      subStudio: () => this.setState({ sub: 'studio', subErr: '', subCopied: false }),
+      subDancer: () => this.subDancer(),
       evOpen: !!this.state.ev, evClose: () => this.setState({ ev: null, coErr: '' }),
       evCur: (() => { const e = CALSRC.find(x => x.id === this.state.ev) || {}; const co = this.state.co; const lk = !!e.lock;
         const info = lk ? (co ? (e.fromAdmin ? e.info : Object.assign({}, e.info || {}, (co.locked && co.locked[e.id]) || {})) : {}) : (e.info || {});
@@ -934,7 +1005,7 @@ class Component extends DCLogic {
           coKinds: K.map(x => ({ label: x[1], style: CHIP(k === x[0]), pressed: k === x[0] ? 'true' : 'false', pick: () => this.setState({ coK: x[0] }) })),
           coQ: this.state.coQ, setCoQ: (e) => { const v = e.target.value; try { window.localStorage.setItem('datj-co-q', v); } catch (x) {} this.setState({ coQ: v }); }, clearCoQ: () => { try { window.localStorage.removeItem('datj-co-q'); } catch (x) {} this.setState({ coQ: '' }); }, hasCoQ: !!q,
           coHint: qs.length ? 'Showing rehearsals with “' + this.state.coQ.trim() + '”, plus large groups, Hip Hop Company and dress rehearsals (they don’t list names).' + twinTip : 'Type your dancer’s first name to see only their rehearsals. It’s remembered on this device.',
-          coAddAll: coAddAll, coPdf: coPdf, coPdfLabel: dancerName ? 'Download ' + dancerName + '’s PDF' : 'Download PDF', coAddLabel: dancerName ? 'Add ' + dancerName + '’s schedule to my calendar' : 'Add all to my calendar',
+          coAddAll: coAddAll, coSubLabel: dancerName ? '↻ Subscribe to ' + dancerName + '’s calendar' : '↻ Subscribe (updates on its own)', coPdf: coPdf, coPdfLabel: dancerName ? 'Download ' + dancerName + '’s PDF' : 'Download PDF', coAddLabel: dancerName ? 'Add ' + dancerName + '’s schedule to my calendar' : 'Add all to my calendar',
           coDays: dates.map(d => ({ day: dayName(d), off: offBy[d] ? 'No rehearsals today for ' + offBy[d].join(', ') : '', hasOff: !!offBy[d], rows: by[d].map(row) })),
           coEmpty: dates.length === 0, coMore: !this.state.coAll && !qs.length && total > limit, coMoreLabel: 'Show the whole season (' + total + ' dates)', coShowAll: () => this.setState({ coAll: true }),
           coPastLabel: this.state.coAll ? 'Upcoming only' : 'Include past dates', coTogglePast: () => this.setState({ coAll: !this.state.coAll }),

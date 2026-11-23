@@ -629,7 +629,7 @@
         iWhen: String(at(r, 'time') || ''), iWhere: String(at(r, 'address') || ''), iBody: [String(at(r, 'summary') || ''), String(at(r, 'details') || '')].concat(links).filter(Boolean).join('\n\n') })); });
     return { items: out, bad: bad }; }
   function vCalendar() { sortCal();
-    return '<h1>Studio calendar</h1><p class="lede">Breaks, session dates, the Annual Performance and events. Past dates hide themselves, and the next three show on the homepage under “Mark your calendar.”</p>'
+    return '<h1>Studio calendar</h1><p class="lede">Breaks, session dates, the Annual Performance and events. Past dates hide themselves, and the next three show on the homepage under “Mark your calendar.”</p><p class="lede" style="margin-top: -6px;">↻ Families can <b>subscribe</b> to this calendar. Changes reach their calendars on their own after you Publish: iPhone and Outlook in about an hour, Google Calendar within a day. Dates marked “Only on Company Central” stay out of the public calendar and go to each Company dancer’s calendar instead.</p>'
       + calTools()
       + (draft.calendar.some(e => e.tbc) ? '<div class="note">Dates marked <b>To confirm</b> came from the old sample calendar. Check them, then edit or remove them.</div>' : '')
       + '<p class="hint">Competitions and conventions can also be edited in <a href="#company2" data-go="company2">Company Central</a>, next to their schedules.</p>'

@@ -1,0 +1,455 @@
+[
+ {
+  "title": "Feed My Starving Children",
+  "start": "2026-10-17",
+  "end": "",
+  "where": "Schaumburg",
+  "type": "Company",
+  "id": "fmsc",
+  "lock": true
+ },
+ {
+  "title": "Halloween Party (ages 4+)",
+  "start": "2026-10-25",
+  "end": "",
+  "where": "At the studio",
+  "type": "Event",
+  "id": "halloween",
+  "info": {
+   "when": "2:30–4:30 PM",
+   "summary": "Costumes, DJ, dancing, games and prizes. Friends can come too.",
+   "sections": [
+    {
+     "h": "Sign up",
+     "items": [
+      "Through the Parent Portal"
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "title": "Studio Food Drive",
+  "start": "2026-11-01",
+  "end": "2026-11-19",
+  "where": "Collection box in Studio A",
+  "type": "Event",
+  "id": "food",
+  "info": {
+   "summary": "Donate nonperishable food for the holidays.",
+   "sections": [
+    {
+     "h": "How",
+     "items": [
+      "Drop items in the box in Studio A",
+      "Last day: Thursday, Nov 19",
+      "Most-needed items are on the flyer"
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "title": "Popcorn Fundraiser",
+  "start": "2026-11-01",
+  "end": "2026-11-22",
+  "where": "Online",
+  "type": "Event",
+  "id": "popcorn",
+  "info": {
+   "summary": "Holiday popcorn, cookies and treats shipped to your door. 50% of sales go to Company teams.",
+   "sections": [
+    {
+     "h": "How to order or sell",
+     "items": [
+      "Visit Poppin Popcorn and order online",
+      "Company dancers: create a seller account and share your link. Your sales go toward your own competition fees",
+      "Last day: Sunday, Nov 22"
+     ]
+    }
+   ],
+   "links": [
+    {
+     "label": "Shop the fundraiser",
+     "url": ""
+    }
+   ]
+  }
+ },
+ {
+  "title": "Windy City Bulls halftime performance (ages 7+)",
+  "start": "2026-11-14",
+  "end": "",
+  "where": "NOW Arena, Hoffman Estates",
+  "type": "Event",
+  "id": "wcb",
+  "info": {
+   "when": "Saturday, Nov 14 · Call time 4:15 PM · Game 5:00 PM",
+   "where": "NOW Arena, 5333 Prairie Stone Pkwy, Hoffman Estates, IL 60192",
+   "summary": "Dancers ages 7+ perform at halftime. Breakers and Hip Hop dancers are part of the routine too. $30 covers four rehearsals and the game T-shirt.",
+   "sections": [
+    {
+     "h": "Rehearsals",
+     "items": [
+      "Sundays 2:30–4:00 PM: Oct 11, Oct 18, Nov 1, Nov 8",
+      "Last rehearsal Nov 8: arrive 2:15 PM",
+      "Know your ripple counts and formation before game day"
+     ]
+    },
+    {
+     "h": "What to wear",
+     "items": [
+      "WCB performance T-shirt over a black leotard, tied in the back",
+      "Solid black, tight-fitting shorts",
+      "Hair slicked back in a ponytail with a middle part",
+      "Light makeup"
+     ]
+    },
+    {
+     "h": "Shoes",
+     "items": [
+      "Petite Company: tan jazz shoes",
+      "Intermediate, Junior, Teen and Senior Company: turners",
+      "Hip Hop Company: gym shoes",
+      "Not on Company? Ask the front desk"
+     ]
+    },
+    {
+     "h": "Tickets",
+     "items": [
+      "Every performing dancer needs a game ticket too",
+      "Buy tickets early"
+     ]
+    }
+   ],
+   "links": [
+    {
+     "label": "Buy game tickets",
+     "url": ""
+    },
+    {
+     "label": "Sign up in the Parent Portal",
+     "url": "https://dancestudio-pro.com/online/index.php?account_id=20951"
+    }
+   ]
+  }
+ },
+ {
+  "title": "Class Observation & Dance Family Appreciation Week",
+  "start": "2026-11-15",
+  "end": "2026-11-21",
+  "where": "At the studio",
+  "type": "Event",
+  "id": "obs",
+  "info": {
+   "summary": "Watch your dancer’s class from the lobby, and stop for coffee, tea, hot chocolate and treats as a thank-you to dance families.",
+   "sections": [
+    {
+     "h": "Observation guidelines",
+     "items": [
+      "Wait outside until all students are on the dance floor. Miss Yessica or Miss Lisa will bring you in",
+      "Silence phones and keep noise down",
+      "Don’t open the door to the dance floor",
+      "No eating in the lobby",
+      "No waving or talking through the glass",
+      "Studio C: sit to the side, shoes off, no talking"
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "title": "New Family Info Call: Annual Performance",
+  "start": "2026-11-18",
+  "end": "",
+  "where": "Online (Google Meet)",
+  "type": "Recital",
+  "id": "newfam",
+  "info": {
+   "when": "Wednesday, Nov 18 · 7:00 PM",
+   "summary": "For families new to the Annual Performance: show expectations, costumes, rehearsals and important dates.",
+   "sections": [
+    {
+     "h": "Good to know",
+     "items": [
+      "Commitment forms are coming in the next couple of weeks"
+     ]
+    }
+   ],
+   "links": [
+    {
+     "label": "Join on Google Meet",
+     "url": ""
+    }
+   ]
+  }
+ },
+ {
+  "title": "Fall Break: studio closed",
+  "start": "2026-11-24",
+  "end": "2026-11-29",
+  "where": "No classes",
+  "type": "Closure",
+  "id": "fall",
+  "info": {
+   "summary": "No classes Tuesday, Nov 24 through Sunday, Nov 29. Classes resume Monday, Nov 30."
+  }
+ },
+ {
+  "title": "Revel Convention",
+  "start": "2026-12-05",
+  "end": "2026-12-06",
+  "where": "Itasca",
+  "type": "Company",
+  "id": "revel",
+  "lock": true
+ },
+ {
+  "title": "Session 3 autopay",
+  "start": "2026-12-09",
+  "end": "",
+  "where": "Card on file",
+  "type": "Session",
+  "id": "auto3",
+  "info": {
+   "summary": "Session 3 tuition is charged to the card on file. Send class changes before this date."
+  }
+ },
+ {
+  "title": "Winter Break: studio closed",
+  "start": "2026-12-20",
+  "end": "2027-01-03",
+  "where": "No classes",
+  "type": "Closure",
+  "id": "winter",
+  "info": {
+   "summary": "No classes Dec 20 through Jan 3. Classes resume Monday, Jan 4."
+  }
+ },
+ {
+  "title": "Session 3 begins",
+  "start": "2027-01-06",
+  "end": "",
+  "where": "All classes",
+  "type": "Session",
+  "id": "s3"
+ },
+ {
+  "title": "Competition fees due",
+  "start": "2027-01-15",
+  "end": "",
+  "where": "Company families",
+  "type": "Company",
+  "id": "compfees",
+  "lock": true,
+  "hidden": true
+ },
+ {
+  "title": "Company sign-up deadline: New Member Auditions",
+  "start": "2027-01-15",
+  "end": "",
+  "where": "Google Form",
+  "type": "Company",
+  "id": "aud-signup"
+ },
+ {
+  "title": "Lutheran Home Performance & studio party",
+  "start": "2027-01-17",
+  "end": "",
+  "where": "2:00 PM",
+  "type": "Company",
+  "id": "lutheran",
+  "lock": true
+ },
+ {
+  "title": "New Member Company Auditions",
+  "start": "2027-01-17",
+  "end": "",
+  "where": "At the studio",
+  "type": "Company",
+  "id": "aud-new"
+ },
+ {
+  "title": "Lou Malnati’s Dining Fundraiser",
+  "start": "2027-02-03",
+  "end": "",
+  "where": "Lou Malnati’s",
+  "type": "Event",
+  "id": "lou",
+  "info": {
+   "when": "Wednesday, Feb 3 · 4–10 PM",
+   "summary": "Eat at Lou’s and part of your bill supports D&ATJ Company. Details and the flyer are coming closer to the date."
+  }
+ },
+ {
+  "title": "3-Miss Attendance Policy begins",
+  "start": "2027-02-03",
+  "end": "",
+  "where": "",
+  "type": "Session",
+  "id": "att-policy"
+ },
+ {
+  "title": "Session 4 autopay",
+  "start": "2027-03-03",
+  "end": "",
+  "where": "Card on file",
+  "type": "Session",
+  "id": "auto4"
+ },
+ {
+  "title": "Session 4 begins",
+  "start": "2027-03-10",
+  "end": "",
+  "where": "All classes",
+  "type": "Session",
+  "id": "s4"
+ },
+ {
+  "title": "No makeup classes for the rest of the season",
+  "start": "2027-03-10",
+  "end": "",
+  "where": "",
+  "type": "Session",
+  "id": "no-makeups"
+ },
+ {
+  "title": "Competition: VIP (Elgin)",
+  "start": "2027-03-12",
+  "end": "2027-03-13",
+  "where": "Elgin",
+  "type": "Company",
+  "id": "vip",
+  "lock": true
+ },
+ {
+  "title": "Observation Week",
+  "start": "2027-03-14",
+  "end": "2027-03-20",
+  "where": "At the studio",
+  "type": "Event",
+  "id": "obs-mar"
+ },
+ {
+  "title": "Spring Break: studio closed",
+  "start": "2027-03-21",
+  "end": "2027-03-28",
+  "where": "No classes",
+  "type": "Closure",
+  "id": "spring"
+ },
+ {
+  "title": "Studio photo shoot",
+  "start": "2027-04-04",
+  "end": "",
+  "where": "At the studio",
+  "type": "Company",
+  "id": "photo",
+  "lock": true
+ },
+ {
+  "title": "Competition: Hall of Fame (Schaumburg)",
+  "start": "2027-04-09",
+  "end": "2027-04-10",
+  "where": "Schaumburg",
+  "type": "Company",
+  "id": "hof",
+  "lock": true
+ },
+ {
+  "title": "Competition: WCTE (Chicago)",
+  "start": "2027-04-16",
+  "end": "2027-04-17",
+  "where": "Chicago",
+  "type": "Company",
+  "id": "wcte",
+  "lock": true
+ },
+ {
+  "title": "Competition: BTS (Milwaukee)",
+  "start": "2027-04-23",
+  "end": "2027-04-24",
+  "where": "Milwaukee",
+  "type": "Company",
+  "id": "bts",
+  "lock": true
+ },
+ {
+  "title": "Company Soirée",
+  "start": "2027-05-02",
+  "end": "",
+  "where": "Chevy Chase Country Club",
+  "type": "Company",
+  "id": "soiree",
+  "lock": true
+ },
+ {
+  "title": "Dress rehearsals",
+  "start": "2027-05-19",
+  "end": "2027-05-21",
+  "where": "Wheeling High School",
+  "type": "Recital",
+  "id": "dress",
+  "info": {
+   "summary": "Times by class are on your show flyer. Company dancers arrive 15 minutes early on Friday to review the Opening Act on stage."
+  }
+ },
+ {
+  "title": "14th Annual Performance",
+  "start": "2027-05-22",
+  "end": "2027-05-23",
+  "where": "Wheeling High School",
+  "type": "Recital",
+  "id": "perf",
+  "info": {
+   "summary": "Every dancer performs. Show assignments, times and tickets come with the commitment forms.",
+   "links": [
+    {
+     "label": "Performance info",
+     "url": "families#recital"
+    }
+   ]
+  }
+ },
+ {
+  "title": "Studio closed after the Annual Performance",
+  "start": "2027-05-24",
+  "end": "2027-06-13",
+  "where": "",
+  "type": "Closure",
+  "id": "closed-summer"
+ },
+ {
+  "title": "Summer Intensives & Returning Company Member Auditions",
+  "start": "2027-06-14",
+  "end": "2027-06-18",
+  "where": "At the studio",
+  "type": "Company",
+  "id": "aud-return"
+ },
+ {
+  "title": "Summer Session",
+  "start": "2027-06-18",
+  "end": "2027-07-31",
+  "where": "At the studio",
+  "type": "Session",
+  "id": "summer-session"
+ },
+ {
+  "title": "New season begins",
+  "start": "2027-08-18",
+  "end": "",
+  "where": "",
+  "type": "Session",
+  "id": "new-season"
+ },
+ {
+  "title": "Company trip: Walt Disney World",
+  "start": "2027-10-14",
+  "end": "2027-10-17",
+  "where": "Orlando, FL",
+  "type": "Company",
+  "id": "disney",
+  "lock": true
+ }
+]
