@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-23T02:17:46.864Z",
+ "updated": "2026-11-23T21:20:05.913Z",
  "source": "Studio Pro live schedule",
  "classes": [
   {
@@ -420,7 +420,7 @@
    "studio": "Studio A",
    "location": "Prospect Heights",
    "lo": 9,
-   "hi": 99
+   "hi": 18
   },
   {
    "key": "Modern/Contemporary I|Wed|4:15 PM",
@@ -1049,7 +1049,7 @@
    "mins": 90,
    "studio": "Studio C",
    "location": "Prospect Heights",
-   "lo": 18,
+   "lo": 19,
    "hi": 99
   }
  ]
