@@ -391,7 +391,8 @@ function company_() {
   return j;
 }
 function todayChicago_() { return Utilities.formatDate(new Date(), 'America/Chicago', 'yyyy-MM-dd'); }
-function prop_(k) { return PropertiesService.getScriptProperties().getProperty(k) || ''; }
+var PROPS_ = null; // one Properties read per request (daily limit is 50,000)
+function prop_(k) { if (!PROPS_) PROPS_ = PropertiesService.getScriptProperties().getProperties(); return PROPS_[k] || ''; }
 function ics_(s) { return ContentService.createTextOutput(s).setMimeType(ContentService.MimeType.ICAL); }
 function json_(o) { return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON); }
 
