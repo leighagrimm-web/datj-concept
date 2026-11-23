@@ -50,7 +50,7 @@ let total = 0, per = [];
   const q = n.toLowerCase(), hit = F.query(q);
   const evs = F.dancerEvents({ co, cal, teams, q, today, siteUrl: SITE }); total += evs.length; per.push([n, evs.length]);
   const ics = F.calendar(n, evs); const parsed = lint(ics, 'dancer ' + n);
-  evs.filter(e => e.uid.startsWith('reh-')).forEach(e => { const r = co.rehearsals.find(x => e.uid === 'reh-' + x.date + '-' + String(x.time).replace(/\W/g, '') + '-' + String(x.what).replace(/\W/g, '').slice(0, 24));
+  evs.filter(e => e.uid.startsWith('reh-')).forEach(e => { const r = co.rehearsals.find(x => x.date === e.date && e.uid.endsWith('-' + String(x.what).replace(/\W/g, '').slice(0, 24)) && e.title.endsWith(x.what));
     ok(!!r, n + ': rehearsal maps back'); if (r && personal.test(r.kind)) ok(hit(r.what), n + ': got someone else’s ' + r.kind + ': ' + r.what); });
   ok(parsed.length === evs.length, n + ': every event parsed');
 });

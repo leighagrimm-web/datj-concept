@@ -5,7 +5,7 @@
  *  1. Studio calendar (public): every public date on the studio calendar.
  *     Built into studio.ics by the website build (scripts/make-studio-ics.js uses the same code below),
  *     so it needs no Apps Script at all.
- *  2. A dancer's Company calendar (private): their rehearsals, their competition times
+ *  2. A dancer's Company calendar (private), read straight from Brittany's sheets: an edit shows up within 10 minutes: their rehearsals, their competition times
  *     (arrival / on stage / awards), Company-only dates and payment due dates.
  *     Served by this Apps Script web app: https://script.google.com/.../exec?c=CODE
  *
@@ -23,7 +23,9 @@
  *  1. In the sign-ups spreadsheet: Extensions > Apps Script > add a file, paste this file.
  *  2. Project Settings > Script properties:
  *       FEED_KEY     the same feed key that is inside the Company bundle (Leigha sets both)
- *       COMPANY_FILE Drive file id of the readable Company data (company_plain.json)
+ *       COMPANY_SHEET     id of the Company Calendar Google Sheet (rehearsals + days off)
+ *       COMPETITION_SHEET id of the Competition Google Sheet (schedules, routines, groups)
+ *       COMPANY_FILE Drive file id of the published Company Central data (due dates, Company-only details)
  *       CONTENT_URL  https://<site>/content.json (studio calendar + team rosters)
  *       SITE_URL     https://<site>/
  *  3. Deploy > New deployment > Web app. Execute as: Me. Who has access: Anyone.
@@ -164,7 +166,7 @@ var FEED = (function () {
     var out = [];
     (co.rehearsals || []).filter(function (r) { return r.date >= from && (nameHit(r) || GROUPK[r.kind]) && inIt(r); }).forEach(function (r) {
       var sp = span(r.time);
-      out.push({ uid: 'reh-' + r.date + '-' + String(r.time).replace(/\W/g, '') + '-' + String(r.what).replace(/\W/g, '').slice(0, 24), date: r.date, t0: sp && sp[0], t1: sp && sp[1],
+      out.push({ uid: 'reh-' + r.date + '-' + (sp ? pad(sp[0][0]) + pad(sp[0][1]) + pad(sp[1][0]) + pad(sp[1][1]) : String(r.time).replace(/\W/g, '')) + '-' + String(r.what).replace(/\W/g, '').slice(0, 24), date: r.date, t0: sp && sp[0], t1: sp && sp[1],
         title: (isShow(r) || /rehearsal/i.test(r.what) ? '' : 'Rehearsal: ') + r.what,
         where: isShow(r) ? (r.room || '') : STUDIO + (r.room ? ' (' + r.room + ')' : ''),
         desc: [r.room, r.teacher].filter(Boolean).join(' · ') + (sp ? '' : (r.time ? '\n' + r.time : '')) + '\nCompany Central: ' + cc });
@@ -222,7 +224,71 @@ var FEED = (function () {
   }
   function dancerName(q) { return String(q || '').trim().replace(/\s+/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); }); }
 
-  return { calendar: calendar, studioEvents: studioEvents, dancerEvents: dancerEvents, dancerName: dancerName, query: query, span: span, timeIn: timeIn };
+
+  // ---------- Reading Brittany's sheets (rows of displayed text, the way Google Sheets shows them) ----------
+  var MON3 = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+  function isoDate(v) {
+    v = String(v || '').trim(); var m;
+    if ((m = /^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(v))) return m[1] + '-' + pad(+m[2]) + '-' + pad(+m[3]);
+    if ((m = /^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/.exec(v))) return (m[3].length === 2 ? '20' + m[3] : m[3]) + '-' + pad(+m[1]) + '-' + pad(+m[2]);
+    if ((m = /([A-Za-z]{3})[a-z]*\.?\s+(\d{1,2}),?\s+(\d{4})/.exec(v))) { var mo = MON3.indexOf(m[1].toLowerCase()); if (mo >= 0) return m[3] + '-' + pad(mo + 1) + '-' + pad(+m[2]); }
+    return '';
+  }
+  function hhmm(v) { var m = /^\s*(\d{1,2})(?::(\d{2}))?(?::\d{2})?\s*(am|pm)\s*$/i.exec(String(v || '')); return m ? [+m[1] % 12 + (/pm/i.test(m[3]) ? 12 : 0), +(m[2] || 0)] : null; }
+  function short(a, b) {
+    var lab = function (t) { return (t[0] % 12 || 12) + (t[1] ? ':' + pad(t[1]) : ''); }, ap = function (t) { return t[0] < 12 ? 'am' : 'pm'; };
+    if (!a) return ''; if (!b) return lab(a) + ap(a);
+    return lab(a) + (ap(a) === ap(b) ? '' : ap(a)) + '–' + lab(b) + ap(b);
+  }
+  function kindOf(w) {
+    var wl = String(w || '').toLowerCase();
+    if (/dress rehearsal/.test(wl)) return 'Dress rehearsal'; if (/windy city/.test(wl)) return 'Windy City Bulls';
+    if (/hip hop company/.test(wl)) return 'Hip Hop Company'; if (/large group/.test(wl)) return 'Large group';
+    if (/solo/.test(wl) || (wl.indexOf(',') < 0 && wl.indexOf('&') < 0 && wl.split(/\s+/).filter(Boolean).length <= 2)) return 'Solo';
+    var n = String(w).split(/,|&/).length; return n === 2 ? 'Duet' : n === 3 ? 'Trio' : 'Small group';
+  }
+  // rows: 2-D array; the header is the first row with at least `min` filled cells. Returns objects keyed by lower-case header.
+  function table(rows, min) {
+    rows = rows || []; var hi = -1;
+    for (var i = 0; i < rows.length; i++) if (rows[i].filter(function (x) { return String(x).trim(); }).length >= (min || 3)) { hi = i; break; }
+    if (hi < 0) return [];
+    var H = rows[hi].map(function (x) { return String(x).trim().toLowerCase(); });
+    return rows.slice(hi + 1).filter(function (r) { return r.some(function (x) { return String(x).trim(); }); })
+      .map(function (r) { var o = {}; H.forEach(function (h, i) { o[h] = String(r[i] == null ? '' : r[i]).trim(); }); return o; });
+  }
+  function col(o) { for (var a = 1; a < arguments.length; a++) { for (var k in o) if (k.indexOf(arguments[a]) === 0 && o[k]) return o[k]; } return ''; }
+  function normN(x) { return String(x || '').toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]/g, ''); }
+  // Company Calendar workbook: Rehearsals + No rehearsals tabs
+  function readCompany(tab) {
+    var reh = table(tab('Rehearsals'), 4).filter(function (r) { return isoDate(col(r, 'date')); }).map(function (r) {
+      var st = col(r, 'studio'), what = col(r, 'dancers', 'routine');
+      return { date: isoDate(col(r, 'date')), time: short(hhmm(col(r, 'start')), hhmm(col(r, 'end'))) || col(r, 'notes') || 'Time TBA',
+        room: /^[abc]$/i.test(st) ? 'Studio ' + st.toUpperCase() : st, what: what, teacher: col(r, 'teacher'), kind: col(r, 'type') || kindOf(what) };
+    });
+    var off = table(tab('No rehearsals'), 2).filter(function (r) { return isoDate(col(r, 'date')); }).map(function (r) {
+      return { date: isoDate(col(r, 'date')), who: (col(r, 'teacher') || 'All').split(',').map(function (x) { return x.trim(); }).filter(Boolean) };
+    });
+    return { rehearsals: reh, off: off };
+  }
+  // Competition workbook: Competitions, Routines, Groups + one schedule tab per competition (same rules as the admin)
+  function readComps(tab) {
+    var R = {}; table(tab('Routines')).forEach(function (r) { var s = col(r, 'song'); if (s) R[s.toLowerCase()] = r; });
+    var groups = {}; table(tab('Groups'), 2).forEach(function (r) { var g = col(r, 'group'), n = col(r, 'dancers'); if (g && n && !/^e\.g\./i.test(g)) groups[g] = n.split(/\s*(?:,|&|\band\b|\n)\s*/i).map(function (x) { return x.trim(); }).filter(Boolean); });
+    return table(tab('Competitions')).filter(function (c) { return col(c, 'tab') || col(c, 'competition'); }).map(function (c) {
+      var t = col(c, 'tab') || col(c, 'competition'), days = [];
+      table(tab(t)).forEach(function (r) {
+        var d = col(r, 'day'); if (!d) return;
+        if (!days.length || days[days.length - 1].day !== d) days.push({ day: d, label: d, rows: [] });
+        var song = col(r, 'song'), D = days[days.length - 1];
+        if (/^awards?$/i.test(song)) { D.rows.push({ awards: true, perf: col(r, 'est'), note: col(r, 'note'), stage: col(r, 'stage') }); return; }
+        var x = R[song.toLowerCase()] || {};
+        D.rows.push({ num: col(r, 'entry'), song: song, dancers: col(x, 'dancers'), arrive: col(r, 'arrival'), perf: col(r, 'est'), note: col(r, 'note'), stage: col(r, 'stage') });
+      });
+      return { id: normN(t), name: col(c, 'competition') || t, venue: col(c, 'venue'), address: col(c, 'address'), dates: col(c, 'dates'), status: col(c, 'status') || 'Preliminary', groups: groups, days: days };
+    });
+  }
+
+  return { calendar: calendar, studioEvents: studioEvents, dancerEvents: dancerEvents, dancerName: dancerName, query: query, span: span, timeIn: timeIn, readCompany: readCompany, readComps: readComps, isoDate: isoDate };
 })();
 
 // ================= Apps Script web app (runs in Brittany's Google account) =================
@@ -233,10 +299,38 @@ function doGet(e) {
   if (p.feed === 'studio') return ics_(FEED.calendar('Dance & All That Jazz', FEED.studioEvents(content_().calendar, prop_('SITE_URL'), todayChicago_())));
   var row = findCode_(p.c);
   if (!row) return ContentService.createTextOutput('This calendar link is turned off. Subscribe again from Company Central.').setMimeType(ContentService.MimeType.TEXT);
-  var c = content_();
-  var events = FEED.dancerEvents({ co: company_(), cal: c.calendar, teams: (c.lists || {}).teams || [], q: row.q, today: todayChicago_(), siteUrl: prop_('SITE_URL') });
   touch_(row);
-  return ics_(FEED.calendar(FEED.dancerName(row.q) + ' · D&ATJ Company', events));
+  // Calendar apps check every hour or so; the finished calendar is kept 10 minutes, so a sheet edit shows up within 10 minutes
+  var cache = CacheService.getScriptCache(), hit = cache.get('ics:' + p.c);
+  if (hit) return ics_(hit);
+  var src = sources_();
+  var ics = FEED.calendar(FEED.dancerName(row.q) + ' · D&ATJ Company', FEED.dancerEvents({ co: src.co, cal: src.cal, teams: src.teams, q: row.q, today: todayChicago_(), siteUrl: prop_('SITE_URL') }));
+  try { cache.put('ics:' + p.c, ics, 600); } catch (x) {} // too big to cache (very rare): just built fresh next time
+  return ics_(ics);
+}
+
+// Everything a dancer calendar needs, read straight from Brittany's sheets (one read shared by all links for 10 minutes).
+// Rehearsals + days off: Company Calendar sheet. Competitions + groups: Competition sheet.
+// Company-only dates, due dates and team rosters: the published site content.
+function sources_() {
+  var lock = LockService.getScriptLock(); lock.waitLock(25000);
+  try {
+    var cache = CacheService.getScriptCache(), keys = ['src0', 'src1', 'src2', 'src3'], got = cache.getAll(keys);
+    if (got.src0) { var txt = keys.map(function (k) { return got[k] || ''; }).join(''); try { return JSON.parse(txt); } catch (x) {} }
+    var tabsOf = function (id) { var ss = SpreadsheetApp.openById(id); return function (name) {
+      var sh = ss.getSheetByName(name) || ss.getSheets().filter(function (x) { return x.getName().toLowerCase().replace(/[^a-z0-9]/g, '') === String(name).toLowerCase().replace(/[^a-z0-9]/g, ''); })[0];
+      return sh ? sh.getDataRange().getDisplayValues() : []; }; };
+    var c = content_(), co = JSON.parse(JSON.stringify(company_()));
+    var cal = FEED.readCompany(tabsOf(prop_('COMPANY_SHEET')));
+    co.rehearsals = cal.rehearsals; co.off = cal.off;
+    var comps = FEED.readComps(tabsOf(prop_('COMPETITION_SHEET')));
+    if (comps.length) co.comps = comps.map(function (x) { var old = (co.comps || []).filter(function (o) { return o.id === x.id; })[0] || {}; return Object.assign({}, old, x); });
+    var out = { co: { rehearsals: co.rehearsals, off: co.off, comps: co.comps, due: co.due, locked: co.locked }, cal: c.calendar, teams: (c.lists || {}).teams || [] };
+    var s = JSON.stringify(out), parts = {}; // the cache holds 100 KB per entry: split it
+    for (var i = 0; i < keys.length; i++) parts[keys[i]] = s.slice(i * 95000, (i + 1) * 95000);
+    if (s.length <= 95000 * keys.length) { try { cache.putAll(parts, 600); } catch (x) {} }
+    return out;
+  } finally { lock.releaseLock(); }
 }
 
 // Company Central asks for a link: { action: 'subscribe', q: 'bella m', proof: HMAC-SHA256(FEED_KEY, q) as hex }
@@ -262,7 +356,7 @@ function hmacHex_(q) {
 }
 function linksSheet_() {
   var ss = SpreadsheetApp.getActive(), sh = ss.getSheetByName(LINKS_TAB);
-  if (!sh) { sh = ss.insertSheet(LINKS_TAB); sh.appendRow(['Code', 'Dancer search', 'Created', 'Last checked by a calendar app', 'Times checked', 'Active']); sh.setFrozenRows(1); }
+  if (!sh) { sh = ss.insertSheet(LINKS_TAB); sh.appendRow(['Code', 'Dancer search', 'Created', 'Last checked by a calendar app', 'Hours with a check', 'Active']); sh.setFrozenRows(1); }
   return sh;
 }
 function findCode_(code) {
@@ -277,7 +371,10 @@ function findCode_(code) {
   return null;
 }
 function touch_(row) {
-  try { var sh = linksSheet_(); sh.getRange(row.r, 4).setValue(new Date()); var n = sh.getRange(row.r, 5); n.setValue((+n.getValue() || 0) + 1); } catch (e) {}
+  try {
+    var cache = CacheService.getScriptCache(), k = 'seen:' + row.r; if (cache.get(k)) return; cache.put(k, '1', 3600);
+    var sh = linksSheet_(); sh.getRange(row.r, 4).setValue(new Date()); var n = sh.getRange(row.r, 5); n.setValue((+n.getValue() || 0) + 1);
+  } catch (e) {}
 }
 function content_() {
   var cache = CacheService.getScriptCache(), hit = cache.get('content');
