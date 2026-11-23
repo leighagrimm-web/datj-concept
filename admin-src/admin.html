@@ -374,7 +374,7 @@
     { id: 'calendar', label: 'Studio calendar', short: 'Calendar', g: 'Everyday', tab: 1 },
     { id: 'emails', label: '✉️ Emails', short: 'Emails', g: 'Everyday' },
     { id: 'homepage', label: 'Homepage', short: 'Homepage', g: 'Pages' },
-    { id: 'styles', label: 'Classes: dance styles', short: 'Styles', g: 'Pages' },
+    { id: 'styles', label: 'Classes & dance styles', short: 'Styles', g: 'Pages' },
     { id: 'summer', label: 'Summer', short: 'Summer', g: 'Pages' },
     { id: 'company', label: 'Company', short: 'Company', g: 'Pages' },
     { id: 'company2', label: '🔒 Company Central', short: 'Co. Central', g: 'Pages' },
@@ -479,6 +479,24 @@
       draft.rc.forEach(r => { if (!(r.more || '').trim() && f.byTitle && f.byTitle[r.t]) r.more = f.byTitle[r.t]; }); famErrA = ''; saveDraft();
     } catch (e) { famErrA = 'That password didn’t work.'; }
     render();
+  }
+  let dspBusy = false, dspMsg = '', dspStep = '';
+  async function dspRefreshNow() {
+    if (dspBusy) return; dspBusy = true; dspMsg = ''; dspStep = ''; render();
+    try {
+      if (!window.StudioPro) await new Promise((ok, no) => { const sc = document.createElement('script'); sc.src = 'scripts/studiopro.js'; sc.onload = ok; sc.onerror = no; document.head.appendChild(sc); });
+      let n = 0; const f = (u, o) => { n++; dspStep = Math.min(100, Math.round(n / 21 * 100)) + '%'; const b = document.getElementById('dspRefresh'); if (b) b.textContent = 'Refreshing… ' + dspStep; return fetch(u, o); };
+      const list = await window.StudioPro.snapshot(f);
+      let before = []; try { const j = await (await fetch('classes.json', { cache: 'no-cache' })).json(); before = j.classes || []; } catch (e) {}
+      try { const x = JSON.parse(localStorage.getItem('datj-classes-refresh') || 'null'); if (x && x.classes) before = x.classes; } catch (e) {}
+      const old = {}; before.forEach(c => { old[c.key] = c; });
+      const ages = (c) => c.lo == null ? 'all ages' : (c.hi >= 99 ? c.lo + '+' : c.lo + '–' + c.hi);
+      const changes = []; list.forEach(c => { const o = old[c.key]; if (!o) changes.push('New: ' + c.name + ' (' + c.day + ')'); else if (ages(o) !== ages(c)) changes.push(c.name + ': ages ' + ages(o) + ' → ' + ages(c)); });
+      before.forEach(o => { if (!list.find(c => c.key === o.key)) changes.push('Removed: ' + o.name + ' (' + o.day + ')'); });
+      localStorage.setItem('datj-classes-refresh', JSON.stringify({ updated: new Date().toISOString(), classes: list }));
+      dspMsg = '✓ Refreshed ' + list.length + ' classes from Studio Pro.' + (changes.length ? '\nWhat changed:\n• ' + changes.slice(0, 15).join('\n• ') + (changes.length > 15 ? '\n…and ' + (changes.length - 15) + ' more' : '') : '\nNothing changed since the last refresh.');
+    } catch (e) { dspMsg = 'Couldn’t reach Studio Pro just now. Try again in a minute. (' + (e && e.message || e) + ')'; }
+    dspBusy = false; render();
   }
   function vRecital() {
     const sw = '<button type="button" class="switch" role="switch" id="recSw" aria-checked="' + draft.recital + '"><span class="knob"></span><span><b>Performance season is ' + (draft.recital ? 'on' : 'off') + '</b><span>' + (draft.recital ? 'Families see a performance link in the top banner and a Recital link in the menu.' : 'Turn on when you’re ready to share performance tickets, costumes and schedule.') + '</span></span></button>';
@@ -708,7 +726,12 @@
   const tfield = (k) => { const c = TXT[k]; return field('tx-' + k, c[0], draft.texts[k], c[1], { area: c[2], hint: c[3] }); };
   const sec = (h, lede, body) => '<h2 style="margin-top: 30px;">' + h + '</h2>' + (lede ? '<p class="lede" style="margin-bottom: 14px;">' + lede + '</p>' : '') + body;
   const CPAGES = {
-    styles: () => '<h1>Dance styles</h1><p class="lede">The style cards on the Classes page. Tap a card to edit it, or add a new style.</p>' + cList('styles'),
+    styles: () => '<h1>Classes</h1><p class="lede">The class schedule comes from Studio Pro. The style cards below are yours to edit.</p>'
+      + '<div class="panel" style="margin-bottom: 22px;"><b style="display: block; font-size: 16px; margin-bottom: 4px;">Class schedule from Studio Pro</b><p class="lede" style="margin: 0 0 12px;">The website refreshes class times, ages and openings from Studio Pro every night. Changed something in Studio Pro (like an age range) and need it on the site now? Refresh it here. It takes about 30 seconds.</p>'
+      + '<button type="button" class="btn" id="dspRefresh"' + (dspBusy ? ' disabled' : '') + '>' + (dspBusy ? 'Refreshing… ' + dspStep : '↻ Refresh from Studio Pro now') + '</button>'
+      + (dspMsg ? '<p style="margin: 12px 0 0; font-size: 14px; line-height: 1.55; white-space: pre-line;">' + esc(dspMsg) + '</p>' : '')
+      + '<p class="lede" style="margin: 12px 0 0; font-size: 12px;">Prototype: the refresh shows on this browser right away. On the real site, this button updates it for everyone.</p></div>'
+      + '<h2>Dance style cards</h2>' + cList('styles'),
     summer: () => { const on = draft.texts.summerShow !== 'off';
       return '<h1>Summer</h1><p class="lede">Mini camps, summer classes and Summer Intensives on the Classes page.</p>'
         + '<button type="button" class="switch" role="switch" id="sumSw" aria-checked="' + on + '"><span class="knob"></span><span><b>Summer is ' + (on ? 'showing' : 'hidden') + '</b><span>' + (on ? 'Families see the Summer section on the Classes page.' : 'Turn on when summer registration opens.') + '</span></span></button>'
@@ -1209,6 +1232,7 @@
     if (d.slotx !== undefined) { const k = d.slotx; if (/^prog/.test(k)) draft.home.programs[+k.slice(4)].photo = ''; else delete draft.photos[k]; saveDraft(); render(); return; }
     if (t.id === 'pPhotoX') { draft.home.programs[openItem].photo = ''; saveDraft(); render(); return; }
     if (t.id === 'recSw') { draft.recital = !draft.recital; saveDraft(); render(); return; }
+    if (t.id === 'dspRefresh') { dspRefreshNow(); return; }
     if (t.id === 'famGoA') { const el = document.getElementById('famPwA'); famUnlockA(el ? el.value : ''); return; }
     if (d.open !== undefined) { const i = +d.open; openItem = openItem === i ? -1 : i; confirmDel = -1; roleOther = false; render(); return; }
     if (d.close) { openItem = -1; confirmDel = -1; render(); return; }

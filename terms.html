@@ -370,7 +370,7 @@ class Component extends DCLogic {
     const trialHash = () => { const sm = /^#signup-(\d+)$/.exec(location.hash); if (sm) { try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {} this.setState({ su: +sm[1], trial: false }); return; } if (location.hash === '#trial') { try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {} this.setState({ trial: true, ownForm: false, sent: false, tTried: false }); } };
     window.addEventListener('hashchange', trialHash); setTimeout(trialHash, 0);
     const saved = () => this.state.savedClasses || (window.DATJ_CLASSES && window.DATJ_CLASSES.classes) || [];
-    fetch('classes.json', { cache: 'no-cache' }).then(r => r.ok ? r.json() : null).then(j => { if (j && j.classes && j.classes.length) this.setState({ savedClasses: j.classes, classesAt: j.updated }); }).catch(() => {})
+    fetch('classes.json', { cache: 'no-cache' }).then(r => r.ok ? r.json() : null).then(j => { let use = (j && j.classes && j.classes.length) ? j : null; try { const x = JSON.parse(window.localStorage.getItem('datj-classes-refresh') || 'null'); if (x && x.classes && x.classes.length && (!use || String(x.updated) > String(use.updated))) use = x; } catch (e) {} if (use) this.setState({ savedClasses: use.classes, classesAt: use.updated }); }).catch(() => {})
       .then(() => window.StudioPro ? window.StudioPro.fetchClasses(fetch.bind(window)) : null)
       .then(live => {
         const old = saved();
