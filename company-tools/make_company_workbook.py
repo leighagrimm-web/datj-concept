@@ -1,90 +1,90 @@
-"""Company Calendar workbook in plain rows: what Brittany would type into from now on."""
+"""Company Calendar workbook: one plain row per rehearsal (no month-by-month layout).
+Makes this season's filled workbook (private: dancer names) and a blank TEMPLATE for next season.
+python3 make_company_workbook.py  -> Company_Calendar_Workbook_2026-27.xlsx + Company_Calendar_TEMPLATE.xlsx"""
 import json, re, datetime as dt, openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment
 from openpyxl.worksheet.datavalidation import DataValidation
-co = json.load(open('company_plain.json')); cal = json.load(open('cal0.json'))
+from openpyxl.utils import get_column_letter as L
+co = json.load(open('company_plain.json'))
 H = Font(bold=True, color='FFFFFF'); F = PatternFill('solid', fgColor='00ADB5'); W = Alignment(wrap_text=True, vertical='top')
-wb = openpyxl.Workbook()
-def sheet(ws, note, head, rows, widths):
-    ws.append([note]); ws['A1'].font = Font(italic=True, color='555555'); ws.append(head)
-    for c in ws[2]: c.font = H; c.fill = F
-    for r in rows: ws.append(r)
-    for i, w in enumerate(widths): ws.column_dimensions[openpyxl.utils.get_column_letter(i + 1)].width = w
-    for row in ws.iter_rows(min_row=3):
-        for c in row: c.alignment = W
-    ws.freeze_panes = 'A3'; ws.auto_filter.ref = 'A2:' + openpyxl.utils.get_column_letter(len(head)) + str(max(2, ws.max_row))
-def split_time(t):
-    m = re.match(r'^(\d[\d:]*)\s*(am|pm)?\s*[–-]\s*(\d[\d:]*)\s*(am|pm)$', t.replace(' ', ''), re.I)
-    if not m: return t, ''
-    a, ap, b, bp = m.groups(); ap = ap or bp
-    if not m.group(2):  # "12–2pm", "8–10am", "11am–1pm"
-        h1 = int(a.split(':')[0]); h2 = int(b.split(':')[0])
-        if bp.lower() == 'pm' and (h1 > h2 and h1 != 12): ap = 'am'
-    fix = lambda x, p: (x if ':' in x else x + ':00') + ' ' + p.upper()
-    return fix(a, ap), fix(b, bp)
-D = lambda s: dt.date.fromisoformat(s)
-weekly_dates = sorted({r['date'] for r in co['rehearsals'] if r['date'] >= '2027-01-09' and r['kind'] not in ('Performance', 'Dress rehearsal') and not r['room']})
-# --- Rehearsals: every dated rehearsal except the repeating Jan–May Saturdays ---
-rows = []
-for r in co['rehearsals']:
-    if r['date'] in weekly_dates and r['kind'] not in ('Performance', 'Dress rehearsal'): continue
-    s, e = split_time(r['time']); note = ''
-    if not e: s, note = '', r['time']
-    room = r['room'].replace('Studio ', '')
-    if room not in ('A', 'B', 'C', ''): note = (note + ' · ' if note else '') + room; room = ''
-    rows.append([D(r['date']), D(r['date']).strftime('%a'), s, e, room, r['teacher'], r['what'], r['kind'], note])
-ws = wb.active; ws.title = 'Rehearsals'
-sheet(ws, 'One row per rehearsal. Studio = A, B or C. Type is optional (Solo, Duet, Trio, Small group, Large group, Hip Hop Company, Dress rehearsal, Performance). Dancer names go in Routine.',
-      ['Date', 'Day', 'Start', 'End', 'Studio', 'Teacher', 'Routine / dancers', 'Type', 'Notes'], rows, [12, 6, 10, 10, 8, 14, 52, 16, 30])
-for row in ws.iter_rows(min_row=3, max_col=1):
-    for c in row: c.number_format = 'mmm d, yyyy'
-dv = DataValidation(type='list', formula1='"A,B,C"', allow_blank=True); ws.add_data_validation(dv); dv.add('E3:E2000')
-dv2 = DataValidation(type='list', formula1='"Miss Kelly,Miss Katie,Miss Meghan,Mr. Daniel,Miss Allie"', allow_blank=True); ws.add_data_validation(dv2); dv2.add('F3:F2000')
-# --- Weekly Saturdays Jan–May: a template + the dates it runs ---
-seen, tmpl = set(), []
-for r in co['rehearsals']:
-    if r['date'] == weekly_dates[0] and r['kind'] not in ('Performance', 'Dress rehearsal'):
-        s, e = split_time(r['time']); tmpl.append(['', s, e, '', r['teacher'], r['what']])
-ws = wb.create_sheet('Weekly Saturdays')
-sheet(ws, 'The Saturday rehearsals that repeat every week from January. Fill in the Studio column. Change a routine once here instead of on every Saturday.',
-      ['', 'Start', 'End', 'Studio', 'Teacher', 'Routine / dancers'], tmpl, [2, 10, 10, 8, 14, 52])
-ws.delete_cols(1)
-ws2 = wb.create_sheet('Weekly dates')
-sheet(ws2, 'Every Saturday the weekly rehearsals happen. Delete a date to skip it (competition weekends are already left out).', ['Date', 'Note'], [[D(d), ''] for d in weekly_dates], [14, 40])
-for row in ws2.iter_rows(min_row=3, max_col=1):
-    for c in row: c.number_format = 'ddd mmm d, yyyy'
-# --- No rehearsals ---
-ws = wb.create_sheet('No rehearsals')
-sheet(ws, 'Days with no rehearsals. Teacher = All, or the teachers whose rehearsals are off.', ['Date', 'Teacher', 'Reason'],
-      [[D(o['date']), ', '.join(o['who']), ''] for o in co['off']], [14, 40, 40])
-# --- Company events (and studio dates) ---
-SHOW = {True: 'Company details locked', False: 'Public'}
-erows = []
-for e in cal:
-    info = e.get('info') or co['locked'].get(e['id']) or {}
-    body = []
-    for s in info.get('sections', []):
-        body.append(('## ' + s['h'] + '\n' if s.get('h') else '') + '\n'.join('- ' + i for i in s['items']))
-    links = info.get('links', [])
-    erows.append([e['title'], D(e['start']), D(e['end']) if e.get('end') else None, info.get('when', ''), e.get('where', ''), info.get('where', ''), e['type'],
-                  'Company Central only' if e.get('hidden') else SHOW[bool(e.get('lock'))], info.get('summary', ''), '\n\n'.join(body),
-                  links[0]['label'] if links else '', links[0]['url'] if links else '', links[1]['label'] if len(links) > 1 else '', links[1]['url'] if len(links) > 1 else ''])
-ws = wb.create_sheet('Events')
-sheet(ws, 'Every date for the calendar: Company events, competitions, breaks, autopay. Details: “## Heading” on its own line, then “- ” for each point. Leave End empty for one-day events.',
-      ['What', 'Start', 'End', 'Time', 'Where (short)', 'Address', 'Type', 'Who sees details', 'Summary (one or two sentences)', 'Details', 'Button 1', 'Button 1 link', 'Button 2', 'Button 2 link'],
-      erows, [34, 12, 12, 30, 20, 34, 11, 22, 44, 60, 22, 30, 22, 30])
-for row in ws.iter_rows(min_row=3, min_col=2, max_col=3):
-    for c in row: c.number_format = 'mmm d, yyyy'
-dv3 = DataValidation(type='list', formula1='"Event,Company,Closure,Session,Recital"', allow_blank=True); ws.add_data_validation(dv3); dv3.add('G3:G500')
-dv4 = DataValidation(type='list', formula1='"Public,Company details locked,Company Central only"', allow_blank=True); ws.add_data_validation(dv4); dv4.add('H3:H500')
-ws = wb.create_sheet('How to use')
-for line in ['How this workbook works', '', 'Rehearsals: one row per rehearsal (fall choreography Saturdays, weekday extras, dress rehearsals, shows).',
-             'Weekly Saturdays + Weekly dates: the January–May Saturday schedule, typed once. The site repeats it on every date listed.',
-             'No rehearsals: days off, all teachers or some.', 'Events: everything that goes on the calendar. “Who sees details” decides what’s behind the Company password.',
-             '', 'Tips: one thing per cell, real dates (not “Sat 3/14”), times like 9:00 AM, leave a cell empty instead of “--”.',
-             'Colors and formatting don’t matter: the website does the design.']:
-    ws.append([line])
-ws['A1'].font = Font(bold=True, size=14); ws.column_dimensions['A'].width = 110
-wb.move_sheet('How to use', offset=-len(wb.sheetnames) + 1)
-wb.save('Company_Calendar_Workbook_2026-27.xlsx')
-print(len(rows), 'rehearsal rows,', len(tmpl), 'weekly slots x', len(weekly_dates), 'Saturdays,', len(co['off']), 'days off,', len(erows), 'events')
+TEACHERS = ['Miss Kelly', 'Miss Katie', 'Miss Meghan', 'Mr. Daniel', 'Miss Allie']
+TYPES = ['Solo', 'Duet', 'Trio', 'Small group', 'Large group', 'Hip Hop Company', 'Dress rehearsal', 'Performance', 'Windy City Bulls']
+def kindOf(w):  # same guess the website makes when Type is empty
+    wl = w.lower()
+    if 'dress rehearsal' in wl: return 'Dress rehearsal'
+    if 'windy city' in wl: return 'Windy City Bulls'
+    if 'hip hop company' in wl: return 'Hip Hop Company'
+    if 'large group' in wl: return 'Large group'
+    if 'solo' in wl or ',' not in wl and '&' not in wl and len(wl.split()) <= 2: return 'Solo'
+    return {2: 'Duet', 3: 'Trio'}.get(len(re.split(r',|&', w)), 'Small group')
+def times(t):  # "8–10am" -> (time(8,0), time(10,0)); not a time -> None
+    p = re.split(r'\s*[–-]\s*', t.replace(' ', ''))
+    if len(p) != 2: return None
+    hm = lambda x: re.fullmatch(r'(\d{1,2})(?::(\d{2}))?(am|pm)?', x, re.I)
+    a, b = hm(p[0]), hm(p[1])
+    if not a or not b or not b.group(3): return None
+    to = lambda m, ap: (int(m.group(1)) % 12 + (12 if ap.lower() == 'pm' else 0), int(m.group(2) or 0))
+    e = to(b, b.group(3)); s = to(a, a.group(3) or b.group(3))
+    if not a.group(3) and s > e: s = to(a, 'am')
+    return dt.time(*s), dt.time(*e)
+def build(name, rows, off, filled):
+    wb = openpyxl.Workbook(); ws = wb.active; ws.title = 'How to use'
+    for line in ['Company Calendar: how this workbook works', '',
+                 'Rehearsals tab: one row per rehearsal. That’s it: no monthly layout, no colors.',
+                 '  Date: a real date (type 3/13/2027). Day fills itself in.',
+                 '  Start / End: times like 9:00 AM. If there’s no set time yet, leave them empty and write it in Notes (e.g. “Times on your show flyer”).',
+                 '  Studio: A, B or C. For somewhere else, type the place (e.g. Wheeling High School). Empty = “Studio TBA”.',
+                 '  Teacher: pick from the list. It sets the color dot on the website.',
+                 '  Dancers or group: first names with the last initial when two dancers share a first name (Bella M), separated by commas.',
+                 '      For a group dance, type its group name exactly as on the Groups tab of the Competition workbook (e.g. Jazz Large Group, Teen Company).',
+                 '      That’s how “Find your dancer” and each dancer’s calendar know who is in it.',
+                 '  Type: optional. Leave it empty and the website works it out (1 name = Solo, 2 = Duet, 3 = Trio, 4+ = Small group, “Large group”, “Hip Hop Company”, “Dress rehearsal” in the name).',
+                 '      Pick one only for shows and performances, or if the guess is wrong.',
+                 '  Repeating Saturdays: copy the rows and paste them under the next Saturday’s date.',
+                 '',
+                 'No rehearsals tab: days off. Teacher = All, or the teachers who are off (Miss Kelly, Miss Meghan).',
+                 '',
+                 'Studio dates (breaks, events, competitions days, autopay) are on the Studio calendar in the admin, not here.',
+                 'Competition schedules and group lineups are in the Competition workbook.',
+                 '',
+                 'Changes show up in Company Central and in every subscribed dancer calendar on their own (see the admin help).',
+                 'Next season: File > Make a copy, rename it for the new season, and delete last season’s rows (keep the header rows).']:
+        ws.append([line])
+    ws['A1'].font = Font(bold=True, size=14); ws.column_dimensions['A'].width = 120
+    def sheet(title, note, head, data, widths):
+        ws = wb.create_sheet(title); ws.append([note]); ws['A1'].font = Font(italic=True, color='555555'); ws.append(head)
+        for c in ws[2]: c.font = H; c.fill = F
+        for r in data: ws.append(r)
+        for i, w in enumerate(widths): ws.column_dimensions[L(i + 1)].width = w
+        ws.freeze_panes = 'A3'; ws.auto_filter.ref = 'A2:' + L(len(head)) + '2'
+        return ws
+    ws = sheet('Rehearsals', 'One row per rehearsal. Type is optional. Dancers or group: names separated by commas, or the group name from the Competition workbook’s Groups tab.',
+               ['Date', 'Day', 'Start', 'End', 'Studio', 'Teacher', 'Dancers or group', 'Type', 'Notes'], rows, [13, 6, 10, 10, 18, 13, 50, 16, 28])
+    last = 1500
+    for i in range(3, last + 1):
+        ws.cell(i, 2).value = '=IF(A%d="","",TEXT(A%d,"ddd"))' % (i, i)
+        ws.cell(i, 1).number_format = 'mmm d, yyyy'; ws.cell(i, 3).number_format = ws.cell(i, 4).number_format = 'h:mm AM/PM'
+        for c in (7, 9): ws.cell(i, c).alignment = W
+    def dv(col, items, strict):
+        v = DataValidation(type='list', formula1='"' + ','.join(items) + '"', allow_blank=True, showErrorMessage=strict); ws.add_data_validation(v); v.add('%s3:%s%d' % (col, col, last))
+    dv('E', ['A', 'B', 'C'], False); dv('F', TEACHERS, False); dv('H', TYPES, True)
+    ws.auto_filter.ref = 'A2:I%d' % max(3, len(rows) + 2)
+    ws2 = sheet('No rehearsals', 'Days with no rehearsals. Teacher = All, or the teachers who are off, separated by commas.', ['Date', 'Day', 'Teacher', 'Reason'], off, [13, 6, 40, 40])
+    for i in range(3, 300):
+        ws2.cell(i, 2).value = '=IF(A%d="","",TEXT(A%d,"ddd"))' % (i, i); ws2.cell(i, 1).number_format = 'mmm d, yyyy'
+    wb.save(name)
+if __name__ == '__main__':
+    rows = []
+    for r in sorted(co['rehearsals'], key=lambda r: (r['date'], times(r['time'])[0] if times(r['time']) else dt.time(23, 59), r['what'])):
+        tt = times(r['time']); room = r['room']
+        st = room.replace('Studio ', '') if re.fullmatch(r'Studio [ABC]', room) else room
+        rows.append([dt.date.fromisoformat(r['date']), None, tt[0] if tt else None, tt[1] if tt else None, st, r['teacher'], r['what'],
+                     '' if kindOf(r['what']) == r['kind'] else r['kind'], '' if tt else r['time']])
+    off = [[dt.date.fromisoformat(o['date']), None, ', '.join(o['who']), ''] for o in co['off']]
+    build('Company_Calendar_Workbook_2026-27.xlsx', rows, off, True)
+    EX = [[dt.date(2027, 9, 11), None, dt.time(9), dt.time(10), 'B', 'Miss Kelly', 'Ava S', '', ''],
+          [dt.date(2027, 9, 11), None, dt.time(10), dt.time(11), 'B', 'Miss Kelly', 'Ava S, Max T, Lily R', '', ''],
+          [dt.date(2027, 9, 11), None, dt.time(11), dt.time(13), 'C', 'Miss Katie', 'Jazz Large Group', '', ''],
+          [dt.date(2027, 12, 4), None, None, None, 'Wheeling High School', '', 'Holiday show', 'Performance', 'Schedule ~1 week before']]
+    build('Company_Calendar_TEMPLATE.xlsx', EX, [[dt.date(2027, 11, 27), None, 'All', 'Thanksgiving']], False)
+    print(len(rows), 'rehearsals,', sum(1 for r in rows if r[7]), 'with a Type typed in,', len(off), 'days off')
