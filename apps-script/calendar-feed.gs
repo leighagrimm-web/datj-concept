@@ -23,8 +23,8 @@
  *  1. In the sign-ups spreadsheet: Extensions > Apps Script > add a file, paste this file.
  *  2. Project Settings > Script properties:
  *       FEED_KEY     the same feed key that is inside the Company bundle (Leigha sets both)
- *       COMPANY_SHEET     id of the Company Calendar Google Sheet (rehearsals + days off)
- *       COMPETITION_SHEET id of the Competition Google Sheet (schedules, routines, groups)
+ *       COMPANY_SHEET     (fallback) id of the Company Calendar sheet; normally the link saved in the admin is used
+ *       COMPETITION_SHEET (fallback) id of the Competition sheet; normally the admin's season sheet link is used
  *       COMPANY_FILE Drive file id of the published Company Central data (due dates, Company-only details)
  *       CONTENT_URL  https://<site>/content.json (studio calendar + team rosters)
  *       SITE_URL     https://<site>/
@@ -321,9 +321,11 @@ function sources_() {
       var sh = ss.getSheetByName(name) || ss.getSheets().filter(function (x) { return x.getName().toLowerCase().replace(/[^a-z0-9]/g, '') === String(name).toLowerCase().replace(/[^a-z0-9]/g, ''); })[0];
       return sh ? sh.getDataRange().getDisplayValues() : []; }; };
     var c = content_(), co = JSON.parse(JSON.stringify(company_()));
-    var cal = FEED.readCompany(tabsOf(prop_('COMPANY_SHEET')));
+    // Which sheets: the links saved in the admin (Company Central screen), so a new season's sheet is picked up on its own
+    var idOf = function (u) { var m = /\/d\/([a-zA-Z0-9_-]{20,})/.exec(String(u || '')); return m ? m[1] : ''; };
+    var cal = FEED.readCompany(tabsOf(idOf(co.sheet) || prop_('COMPANY_SHEET')));
     co.rehearsals = cal.rehearsals; co.off = cal.off;
-    var comps = FEED.readComps(tabsOf(prop_('COMPETITION_SHEET')));
+    var comps = FEED.readComps(tabsOf(idOf(co.compSheet) || prop_('COMPETITION_SHEET')));
     if (comps.length) co.comps = comps.map(function (x) { var old = (co.comps || []).filter(function (o) { return o.id === x.id; })[0] || {}; return Object.assign({}, old, x); });
     var out = { co: { rehearsals: co.rehearsals, off: co.off, comps: co.comps, due: co.due, locked: co.locked }, cal: c.calendar, teams: (c.lists || {}).teams || [] };
     var s = JSON.stringify(out), parts = {}; // the cache holds 100 KB per entry: split it
