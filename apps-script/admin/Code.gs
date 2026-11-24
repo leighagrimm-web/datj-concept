@@ -8,8 +8,14 @@
  *             checks the sign-in pass first and answers only the owner.
  *
  * Publish: checks the content on the server, saves it as a new version on the History tab (the full draft,
- * including the private Company Central edits, which stay in this Sheet), then writes the public part to
- * content.json in the site's GitHub repo. The website reads content.json.
+ * including the private parts, which stay in this Sheet), then writes the public part to content.json in the
+ * site's GitHub repo, in one commit with the re-encrypted company.enc.json / recital.enc.json when those changed.
+ * The website reads content.json.
+ *
+ * Private parts never go into content.json: Company Central edits (coEdit), the calendar sheet link, the details of
+ * "Company families only" dates, and the Annual Performance "More details". The admin encrypts them in the browser
+ * with the current Company / Families passwords (the passwords never come here) and sends the sealed files;
+ * this script only checks their shape and refuses a publish that changes private parts without them.
  *
  * Script Properties (Project Settings → Script Properties), typed by hand:
  *   GITHUB_TOKEN    fine-grained token: only the site repo, Contents read and write
@@ -29,6 +35,10 @@ var CHUNK = 45000;         // a cell holds at most 50,000 characters
 var PASS_HOURS = 12;
 var MAX_BYTES = 3000000;   // the whole draft
 var MAX_PUBLIC_BYTES = 1500000;
+var MAX_ENC_BYTES = 4000000;
+// Encrypted files Publish may write, by what they protect
+var ENC_FILES = { company: 'company.enc.json', recital: 'recital.enc.json' };
+var ENC_NAMES = { company: 'Company Central (Company password)', recital: 'Annual Performance details (Families password)' };
 
 // Top-level keys the admin's pick() produces, and their types. Anything else is dropped.
 var KEYS = {
@@ -159,10 +169,19 @@ function publish_(email, req) {
     var changed = last ? changedSections_(last.content, full) : ['First version'];
     if (last && !changed.length) return { ok: true, unchanged: true, version: latest, publishedAt: last.at, content: last.content };
 
+    // Private parts that changed must come with their re-encrypted file, or families would keep seeing the old ones.
+    var enc = {}, encErr = [], need = [];
+    Object.keys(ENC_FILES).forEach(function (k) {
+      var x = req.enc && req.enc[k];
+      if (x != null) { var v = sealed_(x); if (v) enc[k] = v; else encErr.push(ENC_NAMES[k] + ': the locked file isn’t in the expected format.'); }
+      else if (privateKey_(k, last ? last.content : null) !== privateKey_(k, full)) need.push(k);
+    });
+    if (encErr.length) return { ok: false, code: 'invalid', error: 'Some things need fixing before this can go live:', errors: encErr };
+    if (need.length) return { ok: false, code: 'needpw', need: need, error: 'Locked details changed, so they need to be locked again with the current password.' };
+
     var version = latest + 1;
     var at = new Date();
-    var pub = { _published: { version: version, at: at.toISOString() } };
-    PUBLIC_KEYS.forEach(function (k) { if (k in full) pub[k] = full[k]; });
+    var pub = publicPart_(full, version, at);
     var pubText = JSON.stringify(pub);
     if (pubText.length > MAX_PUBLIC_BYTES) return { ok: false, error: 'The website part is too big to publish (' + Math.round(pubText.length / 1024) + ' KB).' };
 
@@ -174,14 +193,17 @@ function publish_(email, req) {
     sh.getRange(row, 2).setNumberFormat('yyyy-mm-dd h:mm am/pm');
     SpreadsheetApp.flush();
 
+    var files = { 'content.json': pubText };
+    Object.keys(enc).forEach(function (k) { files[ENC_FILES[k]] = JSON.stringify(enc[k]); });
     var site;
-    try { site = ghPut_('content.json', pubText, 'Content v' + version + ' published from the admin (' + changed.join(', ').slice(0, 120) + ')'); }
+    try { site = ghCommit_(files, 'Content v' + version + ' published from the admin (' + changed.join(', ').slice(0, 120) + ')'); }
     catch (err) {
       sh.getRange(row, 6).setValue('Failed: ' + String(err && err.message || err).slice(0, 300));
       return { ok: false, code: 'site', version: version, publishedAt: at.toISOString(), content: full,
         error: 'Saved as version ' + version + ', but the website couldn’t be updated: ' + (err && err.message || err) + '. Press Publish again to retry.' };
     }
-    sh.getRange(row, 6).setValue(site.url ? '=HYPERLINK("' + site.url + '","Updated")' : 'Updated');
+    var label = 'Updated' + (Object.keys(enc).length ? ' + locked files' : '');
+    sh.getRange(row, 6).setValue(site.url ? '=HYPERLINK("' + site.url + '","' + label + '")' : label);
     return { ok: true, version: version, publishedAt: at.toISOString(), changed: changed, content: full };
   } finally {
     lock.releaseLock();
@@ -229,6 +251,46 @@ function changedSections_(a, b) {
     if (JSON.stringify(a ? a[k] : undefined) !== JSON.stringify(b[k]) && SECTION_NAMES[k]) out.push(SECTION_NAMES[k]);
   });
   return out;
+}
+
+// ---------------------------------------------------------------- public and private parts
+
+// What goes into content.json. Never trusts the page to have left the private parts out.
+function publicPart_(full, version, at) {
+  var pub = { _published: { version: version, at: at.toISOString() } };
+  PUBLIC_KEYS.forEach(function (k) { if (k in full) pub[k] = full[k]; });
+  if (pub.calendar) pub.calendar = pub.calendar.map(function (e) {
+    if (!e || !e.lock) return e;
+    var o = {}; Object.keys(e).forEach(function (k) { if (['iWhen', 'iWhere', 'iBody', 'info'].indexOf(k) < 0) o[k] = e[k]; });
+    return o;
+  });
+  if (pub.rc) pub.rc = pub.rc.map(function (r) {
+    if (!r || !String(r.more || '').trim()) return r;
+    var o = {}; Object.keys(r).forEach(function (k) { o[k] = r[k]; });
+    o.more = ''; o.lockMore = true;
+    return o;
+  });
+  return pub;
+}
+
+// A fingerprint of what each encrypted file holds, to tell whether it needs re-encrypting.
+function privateKey_(which, c) {
+  c = c || {};
+  var t = function (x) { return String(x || '').trim(); };
+  if (which === 'company') return JSON.stringify([c.coEdit || null, (c.calendar || []).filter(function (e) { return e && e.lock; })
+    .map(function (e) { return [e.id, t(e.iWhen), t(e.iWhere), t(e.iBody)]; }).filter(function (x) { return x[1] || x[2] || x[3]; })]);
+  return JSON.stringify((c.rc || []).filter(function (r) { return r && t(r.more); }).map(function (r) { return [t(r.t), t(r.more)]; }));
+}
+
+// An encrypted file as the site reads it: {v, it, s, i, c} (PBKDF2-SHA256 + AES-GCM, all base64). Anything else is refused.
+function sealed_(x) {
+  if (!x || typeof x !== 'object' || x.v !== 1) return null;
+  var b64 = /^[A-Za-z0-9+\/]+={0,2}$/;
+  if (typeof x.it !== 'number' || x.it < 100000 || x.it > 5000000 || x.it % 1) return null;
+  if (typeof x.s !== 'string' || !b64.test(x.s) || x.s.length < 16 || x.s.length > 64) return null;
+  if (typeof x.i !== 'string' || !b64.test(x.i) || x.i.length !== 16) return null;
+  if (typeof x.c !== 'string' || !b64.test(x.c) || x.c.length < 24 || x.c.length > MAX_ENC_BYTES) return null;
+  return { v: 1, it: x.it, s: x.s, i: x.i, c: x.c };
 }
 
 // ---------------------------------------------------------------- server-side checks (never trust the page)
@@ -288,21 +350,32 @@ function gh_() {
     headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' } };
 }
 
-function ghPut_(path, text, message) {
+// Writes several files in one commit (Git Data API), so the site never sees content.json without its matching
+// locked files. If the branch moved in between (e.g. the nightly schedule bot), it starts again from the new tip.
+function ghCommit_(files, message) {
   var c = gh_();
-  var api = 'https://api.github.com/repos/' + c.repo + '/contents/' + path;
-  for (var attempt = 0; attempt < 2; attempt++) {
-    var sha = null;
-    var g = UrlFetchApp.fetch(api + '?ref=' + encodeURIComponent(c.branch), { headers: c.headers, muteHttpExceptions: true });
-    if (g.getResponseCode() === 200) sha = JSON.parse(g.getContentText()).sha;
-    else if (g.getResponseCode() !== 404) throw new Error('GitHub said ' + g.getResponseCode() + ' when reading ' + path);
-    var body = { message: message, content: Utilities.base64Encode(Utilities.newBlob(text).getBytes()), branch: c.branch };
-    if (sha) body.sha = sha;
-    var r = UrlFetchApp.fetch(api, { method: 'put', contentType: 'application/json', headers: c.headers, payload: JSON.stringify(body), muteHttpExceptions: true });
-    var code = r.getResponseCode();
-    if (code === 200 || code === 201) { var j = JSON.parse(r.getContentText()); return { url: j.commit && j.commit.html_url, sha: j.content && j.content.sha }; }
-    if (code !== 409 && code !== 422) throw new Error('GitHub said ' + code + ': ' + (JSON.parse(r.getContentText() || '{}').message || ''));
-    // 409/422: the file changed between the read and the write (e.g. the nightly schedule bot). Read again once.
+  var api = 'https://api.github.com/repos/' + c.repo + '/git/';
+  var call = function (method, path, body) {
+    var o = { method: method, headers: c.headers, muteHttpExceptions: true };
+    if (body) { o.contentType = 'application/json'; o.payload = JSON.stringify(body); }
+    var r = UrlFetchApp.fetch(api + path, o);
+    return { code: r.getResponseCode(), j: JSON.parse(r.getContentText() || '{}') };
+  };
+  var fail = function (r, what) { return new Error('GitHub said ' + r.code + ' when ' + what + (r.j && r.j.message ? ': ' + r.j.message : '')); };
+  var tree = Object.keys(files).map(function (p) { return { path: p, mode: '100644', type: 'blob', content: files[p] }; });
+  for (var attempt = 0; attempt < 3; attempt++) {
+    var ref = call('get', 'ref/heads/' + encodeURIComponent(c.branch));
+    if (ref.code !== 200) throw fail(ref, 'reading the branch');
+    var head = ref.j.object.sha;
+    var hc = call('get', 'commits/' + head);
+    if (hc.code !== 200) throw fail(hc, 'reading the latest commit');
+    var t = call('post', 'trees', { base_tree: hc.j.tree.sha, tree: tree });
+    if (t.code !== 201) throw fail(t, 'saving the files');
+    var cm = call('post', 'commits', { message: message, tree: t.j.sha, parents: [head] });
+    if (cm.code !== 201) throw fail(cm, 'making the commit');
+    var up = call('patch', 'refs/heads/' + encodeURIComponent(c.branch), { sha: cm.j.sha, force: false });
+    if (up.code === 200) return { url: cm.j.html_url, sha: cm.j.sha };
+    if (up.code !== 422 && up.code !== 409) throw fail(up, 'updating the branch');
   }
   throw new Error('GitHub kept reporting a conflict');
 }

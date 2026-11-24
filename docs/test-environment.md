@@ -34,8 +34,21 @@ The site reads `content.json`. Nothing reaches production until she approves the
    lay the admin's unpublished draft on top. The datj-concept prototype has no `content.json`, so it keeps the old
    browser-only behavior.
 
-Company Central still reads `company.enc.json`. Re-encrypting it on Publish (with the current Company password)
-is the next piece of handoff step 2, so for now Company Central edits are saved in the Sheet but don't reach the site.
+### Locked details (Company Central and Annual Performance)
+
+Some details are only for families with a password, so they never go into `content.json`:
+
+| What | Locked with | File |
+|---|---|---|
+| Company Central edits (`coEdit`) and the details of "Company families only" dates (`lock`) | Company password | `company.enc.json` |
+| Annual Performance "More details" (`rc[].more`) | Families password | `recital.enc.json` |
+
+When one of these changes, Publish (in the browser) opens the current file with the current password, lays the edits
+on top, locks it again (PBKDF2-SHA256 250,000 + AES-GCM, the same format as `company-tools/encrypt.mjs`), opens it
+once more to check, and sends only the locked file. It uses the password saved in this browser when Company Central
+or the families page was unlocked; otherwise it asks. **Passwords never reach the server or the Sheet.** The server
+strips those details from `content.json` itself, refuses a publish that changes them without the locked file, and
+writes `content.json` and the locked files in **one commit**. Changing the passwords for a new season is a later step.
 
 ## One-time setup (test)
 
@@ -69,6 +82,9 @@ Google account. Apps Script gets confused when two accounts are signed in at onc
 - [ ] `content.json` in the repo has no `coEdit` and no Company Central data.
 - [ ] Edit on a second device, publish there, then publish from the first → "published from another device"
       notice with both choices working.
+- [ ] Locked details: add "More details" to a performance card and details to a "Company families only" date →
+      Publish asks for the Families / Company password (or uses the saved one) → one commit with `content.json` +
+      the locked files; `content.json` has none of that text; the families page shows it only after the password.
 - [ ] Bad data is refused by the server (e.g. a calendar date that ends before it starts).
 - [ ] Turn the token off in Script Properties → Publish says the website couldn't be updated, and the version is still
       saved. Put it back, publish again.
