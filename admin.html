@@ -214,7 +214,8 @@
   .envbar { background: #FFE08A; color: #111111; font-size: 13px; padding: 8px 20px; text-align: center; }
   .envbar b { letter-spacing: 0.12em; }
   #notice:empty { display: none; }
-  #notice { background: #FFF3F0; border-bottom: 1px solid #F1C4B8; padding: 12px 20px; font-size: 14px; }
+  /* Stays in view under the sticky header, wherever the page is scrolled */
+  #notice { position: sticky; top: 60px; z-index: 9; max-height: 60vh; overflow-y: auto; background: #FFF3F0; border-bottom: 1px solid #F1C4B8; padding: 12px 20px; font-size: 14px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); }
   #notice.ok { background: #EAF7F7; border-bottom-color: #BfE6E8; }
   #notice ul { margin: 6px 0; padding-left: 20px; }
   #notice .row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
@@ -505,6 +506,11 @@
     }
     if (publishing) return toast('One moment, still publishing your last change…');
     if (!pass) return signinAgain('Sign in to publish.');
+    // Whatever happens, the button comes back and a message says why
+    try { await publishNow(force); } catch (e) { console.error(e); busy(false); notice('<b>Not published.</b> Something went wrong on this page: ' + esc(e && e.message || e) + '. Reload the admin and try again; your changes are saved on this device.'); }
+    if (!publishing && $('notice').innerHTML && !$('notice').classList.contains('ok')) toast('Not published yet. See the message at the top.');
+  }
+  async function publishNow(force) {
     notice(''); busy(true);
     let sealed;
     try { sealed = await sealChanged(); } catch (e) { busy(false); return notice('<b>Not published.</b> Couldn’t get the locked details ready: ' + esc(e && e.message || e) + ' Check the connection and try again.'); }
@@ -533,7 +539,9 @@
   // Same format the site reads (and company-tools/encrypt.mjs writes): PBKDF2-SHA256 250,000 + AES-GCM.
   const SEALED = { company: { file: 'company.enc.json', ls: 'datj-co-pw', name: 'Company password', what: 'Company Central and “Company families only” dates' },
     recital: { file: 'recital.enc.json', ls: 'datj-fam-pw', name: 'Families password', what: 'Annual Performance “More details”' } };
-  const pwMem = { company: '', recital: '' };
+  // Filled from the server on load (Script Properties, owner only), so Brittany never has to type them.
+  const pwMem = { company: '', recital: '' }, pwServer = { company: '', recital: '' };
+  const useLocks = (L) => { Object.keys(pwServer).forEach(k => { pwServer[k] = (L && L[k]) || ''; if (pwServer[k]) pwMem[k] = pwServer[k]; }); };
   const unb64 = (x) => Uint8Array.from(atob(x), c => c.charCodeAt(0));
   const b64 = (u) => { let s = ''; for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return btoa(s); };
   const pwKey = async (pw, salt, it, use) => crypto.subtle.deriveKey({ name: 'PBKDF2', salt: salt, iterations: it, hash: 'SHA-256' },
@@ -598,6 +606,8 @@
         out.enc.recital = await seal(Object.assign({}, old, { byTitle: by }), cur.pw);
       }
       pwMem[which] = cur.pw;
+      // A password typed here (or saved in this browser) that works is kept on the server, so it's never asked again
+      if (cur.pw !== pwServer[which]) { const s = await api('savelock', { which: which, pw: cur.pw }); if (s.ok) pwServer[which] = cur.pw; }
     }
     if (Object.keys(out.enc).length) saveDraft();
     return out;
@@ -605,7 +615,7 @@
   let pwForce = false;
   function askPw(list, force, wrong) {
     pwForce = !!force;
-    notice('<b>Locked details changed.</b> To publish, they’re locked again with the password families use now. Passwords stay on this device.'
+    notice('<b>One-time step: the password families use now.</b> Locked details changed, so Publish locks them again with the same password families already have. Type it once here; the admin remembers it from now on, on every device.'
       + list.map(w => { const S = SEALED[w]; return '<label class="field" for="pw-' + w + '" style="margin: 12px 0 0; max-width: 420px;"><span class="row"><span>' + esc(S.name) + ' <span class="count">(' + esc(S.what) + ')</span></span></span>'
         + '<input type="password" id="pw-' + w + '" data-pwfor="' + w + '" autocomplete="off">' + (wrong.includes(w) ? '<div class="hint" style="color: #B00020;">That password doesn’t open the current file. Use the one families use right now.</div>' : '') + '</label>'; }).join('')
       + '<div class="row"><button type="button" class="btn primary" data-pubpw="1">Publish</button></div>');
@@ -626,7 +636,7 @@
     const res = await api('load');
     if (!res.ok) { if (res.code === 'signin') { pass = ''; try { sessionStorage.removeItem(PASS); } catch (e) {} return gate(res.error); } $('main').innerHTML = '<div class="gate"><h1>Couldn’t load the admin</h1><p>' + esc(res.error) + '</p><button type="button" class="btn primary" data-reboot="1">Try again</button></div>'; return; }
     document.body.classList.remove('gated'); $('signout').hidden = false;
-    useServer(res.content, res.version, res.publishedAt);
+    useServer(res.content, res.version, res.publishedAt); useLocks(res.locks);
     const saved = read(DRAFT); draft = saved ? pick(saved) : clone(live);
     if (saved && read(DRAFT_BASE) != null && read(DRAFT_BASE) < serverVer) notice('You have unpublished changes on this device from before version ' + serverVer + ' was published. Check them in the preview before you publish, or press Discard to start from the live version.');
     render();
