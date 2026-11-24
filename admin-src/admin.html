@@ -505,9 +505,13 @@
     if (publishing) return toast('One moment, still publishing your last change…');
     if (!pass) return signinAgain('Sign in to publish.');
     notice(''); busy(true);
+    let sealed;
+    try { sealed = await sealChanged(); } catch (e) { busy(false); return notice('<b>Not published.</b> Couldn’t get the locked details ready: ' + esc(e && e.message || e) + ' Check the connection and try again.'); }
+    if (sealed.ask.length) { busy(false); return askPw(sealed.ask, force, sealed.wrong); }
     const base = read(DRAFT_BASE);
-    const res = await api('publish', { content: draft, baseVersion: base == null ? serverVer : base, force: !!force });
+    const res = await api('publish', { content: draft, baseVersion: base == null ? serverVer : base, force: !!force, enc: sealed.enc });
     busy(false);
+    if (res.code === 'needpw') return askPw(res.need || [], force, []);
     if (res.ok) {
       useServer(res.content, res.version, res.publishedAt); draft = clone(live); clearDraft(); render();
       if (res.unchanged) return toast('Nothing new to publish. Everything is already live.');
@@ -521,6 +525,92 @@
     notice('<b>Not published.</b> ' + esc(res.error) + (res.errors ? '<ul>' + res.errors.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul>' : ''));
   }
   function discard() { draft = clone(live); clearDraft(); render(); toast('Changes discarded.'); }
+
+  // ---------- locked files: Company Central (company.enc.json) and Annual Performance details (recital.enc.json) ----------
+  // When their details change, Publish opens the current file with the current password, adds the edits and locks it
+  // again, here in the browser. The passwords never leave this device; the server only gets the locked file.
+  // Same format the site reads (and company-tools/encrypt.mjs writes): PBKDF2-SHA256 250,000 + AES-GCM.
+  const SEALED = { company: { file: 'company.enc.json', ls: 'datj-co-pw', name: 'Company password', what: 'Company Central and “Company families only” dates' },
+    recital: { file: 'recital.enc.json', ls: 'datj-fam-pw', name: 'Families password', what: 'Annual Performance “More details”' } };
+  const pwMem = { company: '', recital: '' };
+  const unb64 = (x) => Uint8Array.from(atob(x), c => c.charCodeAt(0));
+  const b64 = (u) => { let s = ''; for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return btoa(s); };
+  const pwKey = async (pw, salt, it, use) => crypto.subtle.deriveKey({ name: 'PBKDF2', salt: salt, iterations: it, hash: 'SHA-256' },
+    await crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveKey']), { name: 'AES-GCM', length: 256 }, false, [use]);
+  const unseal = async (j, pw) => JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: unb64(j.i) }, await pwKey(pw, unb64(j.s), j.it || 250000, 'decrypt'), unb64(j.c))));
+  async function seal(obj, pw) {
+    const salt = crypto.getRandomValues(new Uint8Array(16)), iv = crypto.getRandomValues(new Uint8Array(12));
+    const ct = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, await pwKey(pw, salt, 250000, 'encrypt'), new TextEncoder().encode(JSON.stringify(obj))));
+    const out = { v: 1, it: 250000, s: b64(salt), i: b64(iv), c: b64(ct) };
+    // Open it again before sending, so a family never gets a file their password can't open
+    if (JSON.stringify(await unseal(out, pw)) !== JSON.stringify(obj)) throw new Error('The locked file didn’t check out.');
+    return out;
+  }
+  // Same text format as the site's txtInfo: first paragraph, "## Heading", "- point", "[Button](link)"
+  const textToInfo = (body, when, where) => { const o = { when: when || '', where: where || '', summary: '', sections: [], links: [] }; let cur = null;
+    String(body || '').split('\n').map(l => l.trim()).filter(Boolean).forEach(l => { let m;
+      if (/^## /.test(l)) { cur = { h: l.slice(3), items: [] }; o.sections.push(cur); }
+      else if ((m = /^\[(.+)\]\((.*)\)$/.exec(l))) o.links.push({ label: m[1], url: m[2] });
+      else if (/^- /.test(l)) { if (!cur) { cur = { h: '', items: [] }; o.sections.push(cur); } cur.items.push(l.slice(2)); }
+      else if (!cur) o.summary = (o.summary ? o.summary + ' ' : '') + l; else cur.items.push(l); });
+    return o; };
+  // What each locked file holds (same fingerprint as the server's privateKey_)
+  const tr = (x) => String(x || '').trim();
+  const privKey = (which, c) => which === 'company'
+    ? JSON.stringify([c.coEdit || null, (c.calendar || []).filter(e => e && e.lock).map(e => [e.id, tr(e.iWhen), tr(e.iWhere), tr(e.iBody)]).filter(x => x[1] || x[2] || x[3])])
+    : JSON.stringify((c.rc || []).filter(r => r && tr(r.more)).map(r => [tr(r.t), tr(r.more)]));
+  async function openCurrent(which) {
+    const S = SEALED[which];
+    const r = await fetch(S.file + '?t=' + Date.now(), { cache: 'no-store' });
+    if (!r.ok) throw new Error('the current ' + S.file + ' couldn’t be read (' + r.status + ').');
+    const j = await r.json();
+    let saved = ''; try { saved = localStorage.getItem(S.ls) || ''; } catch (e) {}
+    for (const pw of [pwMem[which], saved].filter((x, i, a) => x && a.indexOf(x) === i)) {
+      try { return { data: await unseal(j, pw), pw: pw }; } catch (e) {}
+    }
+    return null;
+  }
+  // The site's view of Company Central = the old bundle with the admin's edits laid on top (same merge as the site)
+  function companyBundle(old) {
+    const ce = draft.coEdit, out = Object.assign({}, old);
+    if (ce) Object.assign(out, { comps: (ce.comps && ce.comps.length) ? ce.comps : old.comps, highlights: ce.highlights || old.highlights, seasonEnd: ce.seasonEnd || old.seasonEnd,
+      topics: (ce.topics || []).map(t => Object.assign({ id: t.id, icon: t.icon, t: t.t, d: t.d }, textToInfo(t.body))), due: ce.due || old.due });
+    out.locked = Object.assign({}, old.locked || {});
+    draft.calendar.forEach(e => { if (e.lock && (tr(e.iBody) || tr(e.iWhen) || tr(e.iWhere))) out.locked[e.id] = textToInfo(e.iBody, e.iWhen, e.iWhere); });
+    return out;
+  }
+  async function sealChanged() {
+    const out = { enc: {}, ask: [], wrong: [] };
+    for (const which of Object.keys(SEALED)) {
+      if (privKey(which, draft) === privKey(which, live)) continue;
+      const cur = await openCurrent(which);
+      if (!cur) { out.ask.push(which); if (pwMem[which]) out.wrong.push(which); continue; }
+      const old = cur.data || {};
+      if (which === 'company') {
+        // Locked dates never opened in this admin keep the details already in the file
+        draft.calendar.forEach(e => { const L = e.lock && old.locked && old.locked[e.id]; if (L && !tr(e.iBody) && !tr(e.iWhen) && !tr(e.iWhere)) { e.iWhen = L.when || ''; e.iWhere = L.where || ''; e.iBody = infoToText(L); } });
+        out.enc.company = await seal(companyBundle(old), cur.pw);
+      } else {
+        const by = Object.assign({}, old.byTitle || {});
+        draft.rc.forEach(r => { if (r.lockMore && !tr(r.more) && by[r.t]) r.more = by[r.t]; });
+        draft.rc.forEach(r => { if (tr(r.more)) by[r.t] = r.more; });
+        out.enc.recital = await seal(Object.assign({}, old, { byTitle: by }), cur.pw);
+      }
+      pwMem[which] = cur.pw;
+    }
+    if (Object.keys(out.enc).length) saveDraft();
+    return out;
+  }
+  let pwForce = false;
+  function askPw(list, force, wrong) {
+    pwForce = !!force;
+    notice('<b>Locked details changed.</b> To publish, they’re locked again with the password families use now. Passwords stay on this device.'
+      + list.map(w => { const S = SEALED[w]; return '<label class="field" for="pw-' + w + '" style="margin: 12px 0 0; max-width: 420px;"><span class="row"><span>' + esc(S.name) + ' <span class="count">(' + esc(S.what) + ')</span></span></span>'
+        + '<input type="password" id="pw-' + w + '" data-pwfor="' + w + '" autocomplete="off">' + (wrong.includes(w) ? '<div class="hint" style="color: #B00020;">That password doesn’t open the current file. Use the one families use right now.</div>' : '') + '</label>'; }).join('')
+      + '<div class="row"><button type="button" class="btn primary" data-pubpw="1">Publish</button></div>');
+    const first = document.querySelector('[data-pwfor]'); if (first) first.focus();
+  }
+  function publishWithPw() { document.querySelectorAll('[data-pwfor]').forEach(el => { pwMem[el.dataset.pwfor] = el.value; }); publish(pwForce); }
 
   // ---------- sign-in gate and first load (sites with a backend) ----------
   function gate(msg) {
@@ -1350,6 +1440,7 @@
     if (listClick(d)) return;
     if (t.id === 'publishTop' || t.id === 'publishBar') return publish();
     if (d.pubforce) return publish(true);
+    if (d.pubpw) return publishWithPw();
     if (d.pubreload) { clearDraft(); notice(''); boot(); return; }
     if (d.reboot) { boot(); return; }
     if (t.id === 'signout') { pass = ''; try { sessionStorage.removeItem(PASS); } catch (x) {} $('signout').hidden = true; notice(''); gate('You’re signed out.'); return; }
