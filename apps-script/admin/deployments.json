@@ -1,0 +1,4 @@
+{
+  "test": { "user": "datj-test", "scriptId": "", "deployments": { "public": "", "signin": "" } },
+  "live": { "user": "datj-live", "scriptId": "", "deployments": { "public": "", "signin": "" } }
+}

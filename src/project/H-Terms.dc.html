@@ -341,7 +341,7 @@ const ICS = (() => {
   return { span, clock, later, parseDates, download, file, cc, STUDIO: 'Dance & All That Jazz, 844 N Elmhurst Rd, Prospect Heights, IL' };
 })();
 class Component extends DCLogic {
-  constructor(p) { super(p); let sv = {}; const PREV = typeof location !== 'undefined' && /[?&]preview=draft/.test(location.search); try { sv = JSON.parse(window.localStorage.getItem('datj-admin') || '{}') || {}; if (PREV) sv = Object.assign(sv, JSON.parse(window.localStorage.getItem('datj-admin-draft') || '{}') || {}); } catch (e) {}
+  constructor(p) { super(p); let sv = {}; const PREV = typeof location !== 'undefined' && /[?&]preview=draft/.test(location.search); const NS = this.ns(); try { sv = JSON.parse(window.localStorage.getItem('datj-live' + NS) || 'null') || JSON.parse(window.localStorage.getItem('datj-admin' + NS) || '{}') || {}; if (PREV) sv = Object.assign(sv, JSON.parse(window.localStorage.getItem('datj-admin-draft' + NS) || '{}') || {}); } catch (e) {}
     const RC = [
       ['Date & venue', 'May 22–23. Venue and show times coming soon.', '', '', '', true],
       ['Tickets', 'Placeholder: on-sale date and price.', 'Buy tickets', 'https://example.com/tickets', ''],
@@ -401,9 +401,27 @@ class Component extends DCLogic {
       this.setState({ co: co, coBusy: false, coPw: '' });
     }).catch(() => { try { window.localStorage.removeItem('datj-co-pw'); } catch (e) {} this.setState({ coBusy: false, coErr: quiet ? '' : 'That password didn’t work. Check the Company welcome email or ask the front desk.' }); });
   }
+  // Several copies of the site share one browser origin (github.io), so admin drafts are kept per copy. Same rule as admin.html.
+  ns() { try { const b = location.pathname.replace(/[^/]*$/, ''); return b === '/datj-concept/' ? '' : '@' + b; } catch (e) { return ''; } }
+  // The state that comes from published content (content.json, written by the admin's Publish).
+  savedState(sv) { const RC = this.RC; return { recital: !!sv.recital, season: sv.season || null, ownTrial: !!sv.ownTrial, staff: sv.staff || null, staffV: sv.staffV || 0, nav: sv.nav || null, prices: sv.prices || null, home: sv.home || null, photos: sv.photos || null, calendar: (sv.calendar && sv.calendar.some(e => e.id)) ? sv.calendar : null, policies: sv.policies || null, teachOv: sv.teachers || null, coEdit: sv.coEdit || null, featured: sv.featured || null, lists: sv.lists || null, texts: sv.texts || null, banner: sv.banner || { text: '', href: '' },
+    rc: (sv.rc || RC).map((r, i) => Object.assign({ more: '' }, RC[i] ? { more: RC[i].more, lockMore: RC[i].lockMore } : {}, r)).map(r => { const n = RC.find(x => x.t === r.t); return n && /^Placeholder: (date, time and venue address|date and what to bring)./.test(r.d || '') ? Object.assign({}, n) : r; }) }; }
+  // Published content: content.json next to the page (written by the admin's Publish). The last copy is kept in this
+  // browser so the next visit paints with it straight away. No content.json (the prototype) = keep the browser-only saves.
+  loadContent() {
+    const NS = this.ns(), PREV = /[?&]preview=draft/.test(location.search);
+    fetch('content.json?t=' + Math.floor(Date.now() / 60000), { cache: 'no-cache' }).then(r => r.ok ? r.json() : null).then(j => {
+      if (!j || typeof j !== 'object') return;
+      const txt = JSON.stringify(j); let had = null; try { had = window.localStorage.getItem('datj-live' + NS); window.localStorage.setItem('datj-live' + NS, txt); } catch (e) {}
+      if (had === txt && !PREV) return;
+      let sv = j; if (PREV) { try { sv = Object.assign({}, j, JSON.parse(window.localStorage.getItem('datj-admin-draft' + NS) || '{}') || {}); } catch (e) {} }
+      this.setState(this.savedState(sv));
+    }).catch(() => {});
+  }
   loadClasses() {
     if (this._spInit || typeof window === 'undefined' || typeof fetch === 'undefined') return;
     this._spInit = true;
+    this.loadContent();
     // Any link to "#trial" (banner, cards) opens the free trial form
     const trialHash = () => { const sm = /^#signup-(\d+)$/.exec(location.hash); if (sm) { try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {} this.setState({ su: +sm[1], trial: false }); return; } if (location.hash === '#trial') { try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {} this.setState({ trial: true, ownForm: false, sent: false, tTried: false }); } };
     window.addEventListener('hashchange', trialHash); setTimeout(trialHash, 0);
@@ -427,7 +445,7 @@ class Component extends DCLogic {
     this.setState(next);
     const KEYS = ['recital', 'ownTrial', 'staff', 'banner', 'rc', 'nav', 'prices', 'home', 'photos', 'calendar', 'policies', 'featured', 'lists', 'texts'];
     const s = {}; KEYS.forEach(k => { s[k] = k in next ? next[k] : this.state[k]; });
-    try { if (/[?&]preview=draft/.test(location.search)) return; const prev = JSON.parse(window.localStorage.getItem('datj-admin') || '{}') || {}; window.localStorage.setItem('datj-admin', JSON.stringify(Object.assign(prev, s))); } catch (e) {}
+    try { if (/[?&]preview=draft/.test(location.search)) return; const prev = JSON.parse(window.localStorage.getItem('datj-admin' + this.ns()) || '{}') || {}; window.localStorage.setItem('datj-admin' + this.ns(), JSON.stringify(Object.assign(prev, s))); } catch (e) {}
   }
   renderVals() {
     const byAge = {
