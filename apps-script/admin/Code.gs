@@ -14,7 +14,7 @@
  *
  * Private parts never go into content.json: Company Central edits (coEdit), the calendar sheet link, the details of
  * "Company families only" dates, and the Annual Performance "More details". The admin encrypts them in the browser
- * with the current Company / Families passwords (the passwords never come here) and sends the sealed files;
+ * with the current Company / Families passwords (kept in Script Properties, given only to the owner) and sends the sealed files;
  * this script only checks their shape and refuses a publish that changes private parts without them.
  *
  * Script Properties (Project Settings → Script Properties), typed by hand:
@@ -23,6 +23,8 @@
  *   GITHUB_BRANCH   main
  *   ADMIN_PAGE_URL  the admin page, e.g. https://leighagrimm-web.github.io/datj-test/admin.html
  *   ENVIRONMENT     TEST or LIVE
+ *   LOCK_PW_COMPANY / LOCK_PW_FAMILIES  the passwords families use now (Company Central / Annual Performance
+ *                   details). Optional: if missing, the admin asks once and saves them here.
  * Set by setup() (run once from the editor, signed in as the owner):
  *   OWNER_EMAIL     the Google account allowed into the admin
  *   SIGNIN_SECRET   random key that signs the sign-in passes
@@ -103,6 +105,7 @@ function doPost(e) {
     if (req.action === 'load') return json_(load_(who.email));
     if (req.action === 'publish') return json_(publish_(who.email, req));
     if (req.action === 'history') return json_({ ok: true, versions: history_(20) });
+    if (req.action === 'savelock') return json_(saveLock_(req));
     return json_({ ok: false, error: 'Unknown action.' });
   } catch (err) {
     console.error(req.action, err && err.stack || err);
@@ -146,7 +149,18 @@ function safeEqual_(a, b) {
 function load_(email) {
   var last = lastVersion_();
   return { ok: true, email: email, env: prop_('ENVIRONMENT') || 'TEST', version: last ? last.version : 0,
-    publishedAt: last ? last.at : '', by: last ? last.by : '', content: last ? last.content : null };
+    publishedAt: last ? last.at : '', by: last ? last.by : '', content: last ? last.content : null, locks: locks_() };
+}
+
+// The Company and Families passwords, kept here so Brittany's admin can re-lock details without typing them.
+// Only the signed-in owner ever gets them (every action checks the pass first). Never written to the repo.
+var LOCK_PROPS = { company: 'LOCK_PW_COMPANY', recital: 'LOCK_PW_FAMILIES' };
+function locks_() { var o = {}; Object.keys(LOCK_PROPS).forEach(function (k) { o[k] = prop_(LOCK_PROPS[k]); }); return o; }
+// The admin saves a password here only after it has opened the current locked file with it.
+function saveLock_(req) {
+  if (!LOCK_PROPS[req.which] || typeof req.pw !== 'string' || !req.pw || req.pw.length > 200) return { ok: false, error: 'That password can’t be saved.' };
+  PropertiesService.getScriptProperties().setProperty(LOCK_PROPS[req.which], req.pw);
+  return { ok: true };
 }
 
 function publish_(email, req) {

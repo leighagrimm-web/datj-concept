@@ -45,8 +45,10 @@ Some details are only for families with a password, so they never go into `conte
 
 When one of these changes, Publish (in the browser) opens the current file with the current password, lays the edits
 on top, locks it again (PBKDF2-SHA256 250,000 + AES-GCM, the same format as `company-tools/encrypt.mjs`), opens it
-once more to check, and sends only the locked file. It uses the password saved in this browser when Company Central
-or the families page was unlocked; otherwise it asks. **Passwords never reach the server or the Sheet.** The server
+once more to check, and sends only the locked file. The passwords families use now are kept in Script Properties
+(`LOCK_PW_COMPANY`, `LOCK_PW_FAMILIES`) and given only to the signed-in owner's admin, so Brittany never types them
+when publishing. If one is missing, the admin asks once, checks it opens the current file, and saves it there.
+They're never in the repo or `content.json`. The server
 strips those details from `content.json` itself, refuses a publish that changes them without the locked file, and
 writes `content.json` and the locked files in **one commit**. Changing the passwords for a new season is a later step.
 
