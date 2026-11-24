@@ -260,7 +260,11 @@
   // through it. Addresses come from apps-script/admin/deployments.json after the first deploy. Any other address
   // (the datj-concept prototype, localhost) keeps the old browser-only Publish.
   const BACKENDS = {
-    '/datj-test/': { name: 'test', api: '', signin: '' }
+    '/datj-test/': {
+      name: 'test',
+      api: 'https://script.google.com/macros/s/AKfycbye-nEG-VYkahNzDHmkZNe2BurZ6n4g-m6o9R_PpgLNUNUvRujgoF97Hry-nODKegg35w/exec',
+      signin: 'https://script.google.com/macros/s/AKfycbzt6PGMN3ihrtt0C3xEMtfsT4zj4CrpNZyvXDG5fma049ZCJb-W4oHP903gn27RAuiBZA/exec'
+    }
   };
   const BASE = location.pathname.replace(/[^/]*$/, '');
   const ENV = BACKENDS[BASE] || null;

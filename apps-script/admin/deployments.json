@@ -1,4 +1,18 @@
 {
-  "test": { "user": "datj-test", "scriptId": "", "deployments": { "public": "", "signin": "" } },
-  "live": { "user": "datj-live", "scriptId": "", "deployments": { "public": "", "signin": "" } }
+  "test": {
+    "user": "datj-test",
+    "scriptId": "1CyYobraCF0eq_ReyeF0OvwI48GEQg8qxNKmInNeQmT0UoxFp67YJ4nAG",
+    "deployments": {
+      "public": "AKfycbye-nEG-VYkahNzDHmkZNe2BurZ6n4g-m6o9R_PpgLNUNUvRujgoF97Hry-nODKegg35w",
+      "signin": "AKfycbzt6PGMN3ihrtt0C3xEMtfsT4zj4CrpNZyvXDG5fma049ZCJb-W4oHP903gn27RAuiBZA"
+    }
+  },
+  "live": {
+    "user": "datj-live",
+    "scriptId": "",
+    "deployments": {
+      "public": "",
+      "signin": ""
+    }
+  }
 }
