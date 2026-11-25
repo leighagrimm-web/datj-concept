@@ -26,7 +26,7 @@ END:DAYLIGHT
 END:VTIMEZONE
 BEGIN:VEVENT
 UID:cal-fmsc@danceandallthatjazz.com
-DTSTAMP:20261123T025015Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20261017
 DTEND;VALUE=DATE:20261018
 TRANSP:TRANSPARENT
@@ -38,110 +38,84 @@ DESCRIPTION:Company families: details are in Company Central (Company passw
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-halloween@danceandallthatjazz.com
-DTSTAMP:20261123T025015Z
-DTSTART;TZID=America/Chicago:20261025T143000
-DTEND;TZID=America/Chicago:20261025T163000
+DTSTAMP:20261125T032805Z
+DTSTART;VALUE=DATE:20261025
+DTEND;VALUE=DATE:20261026
+TRANSP:TRANSPARENT
 SUMMARY:Halloween Party (ages 4+)
 LOCATION:At the studio
-DESCRIPTION:2:30–4:30 PM\nCostumes\, DJ\, dancing\, games and prizes. Fri
- ends can come too.\n\nSign up\n• Through the Parent Portal\n\nStudio cal
- endar: https://leighagrimm-web.github.io/datj-concept/families.html#calend
- ar
+DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
+ /families.html#calendar
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-food@danceandallthatjazz.com
-DTSTAMP:20261123T025015Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20261101
 DTEND;VALUE=DATE:20261120
 TRANSP:TRANSPARENT
 SUMMARY:Studio Food Drive
 LOCATION:Collection box in Studio A
-DESCRIPTION:Donate nonperishable food for the holidays.\n\nHow\n• Drop it
- ems in the box in Studio A\n• Last day: Thursday\, Nov 19\n• Most-need
- ed items are on the flyer\n\nStudio calendar: https://leighagrimm-web.gith
- ub.io/datj-concept/families.html#calendar
+DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
+ /families.html#calendar
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-popcorn@danceandallthatjazz.com
-DTSTAMP:20261123T025015Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20261101
 DTEND;VALUE=DATE:20261123
 TRANSP:TRANSPARENT
 SUMMARY:Popcorn Fundraiser
 LOCATION:Online
-DESCRIPTION:Holiday popcorn\, cookies and treats shipped to your door. 50% 
- of sales go to Company teams.\n\nHow to order or sell\n• Visit Poppin Po
- pcorn and order online\n• Company dancers: create a seller account and s
- hare your link. Your sales go toward your own competition fees\n• Last d
- ay: Sunday\, Nov 22\n\nStudio calendar: https://leighagrimm-web.github.io/
- datj-concept/families.html#calendar
+DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
+ /families.html#calendar
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-wcb@danceandallthatjazz.com
-DTSTAMP:20261123T025015Z
-DTSTART;TZID=America/Chicago:20261114T161500
-DTEND;TZID=America/Chicago:20261114T171500
+DTSTAMP:20261125T032805Z
+DTSTART;VALUE=DATE:20261114
+DTEND;VALUE=DATE:20261115
+TRANSP:TRANSPARENT
 SUMMARY:Windy City Bulls halftime performance (ages 7+)
 LOCATION:NOW Arena\, Hoffman Estates
-DESCRIPTION:Saturday\, Nov 14 · Call time 4:15 PM · Game 5:00 PM\nDancers
-  ages 7+ perform at halftime. Breakers and Hip Hop dancers are part of the
-  routine too. $30 covers four rehearsals and the game T-shirt.\n\nRehearsa
- ls\n• Sundays 2:30–4:00 PM: Oct 11\, Oct 18\, Nov 1\, Nov 8\n• Last 
- rehearsal Nov 8: arrive 2:15 PM\n• Know your ripple counts and formation
-  before game day\n\nWhat to wear\n• WCB performance T-shirt over a black
-  leotard\, tied in the back\n• Solid black\, tight-fitting shorts\n• H
- air slicked back in a ponytail with a middle part\n• Light makeup\n\nSho
- es\n• Petite Company: tan jazz shoes\n• Intermediate\, Junior\, Teen a
- nd Senior Company: turners\n• Hip Hop Company: gym shoes\n• Not on Com
- pany? Ask the front desk\n\nTickets\n• Every performing dancer needs a g
- ame ticket too\n• Buy tickets early\n\nStudio calendar: https://leighagr
- imm-web.github.io/datj-concept/families.html#calendar
+DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
+ /families.html#calendar
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-obs@danceandallthatjazz.com
-DTSTAMP:20261123T025015Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20261115
 DTEND;VALUE=DATE:20261122
 TRANSP:TRANSPARENT
 SUMMARY:Class Observation & Dance Family Appreciation Week
 LOCATION:At the studio
-DESCRIPTION:Watch your dancer’s class from the lobby\, and stop for coffe
- e\, tea\, hot chocolate and treats as a thank-you to dance families.\n\nOb
- servation guidelines\n• Wait outside until all students are on the dance
-  floor. Miss Yessica or Miss Lisa will bring you in\n• Silence phones an
- d keep noise down\n• Don’t open the door to the dance floor\n• No ea
- ting in the lobby\n• No waving or talking through the glass\n• Studio 
- C: sit to the side\, shoes off\, no talking\n\nStudio calendar: https://le
- ighagrimm-web.github.io/datj-concept/families.html#calendar
+DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
+ /families.html#calendar
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-newfam@danceandallthatjazz.com
-DTSTAMP:20261123T025015Z
-DTSTART;TZID=America/Chicago:20261118T190000
-DTEND;TZID=America/Chicago:20261118T200000
+DTSTAMP:20261125T032805Z
+DTSTART;VALUE=DATE:20261118
+DTEND;VALUE=DATE:20261119
+TRANSP:TRANSPARENT
 SUMMARY:New Family Info Call: Annual Performance
 LOCATION:Online (Google Meet)
-DESCRIPTION:Wednesday\, Nov 18 · 7:00 PM\nFor families new to the Annual P
- erformance: show expectations\, costumes\, rehearsals and important dates.
- \n\nGood to know\n• Commitment forms are coming in the next couple of we
- eks\n\nStudio calendar: https://leighagrimm-web.github.io/datj-concept/fam
- ilies.html#calendar
+DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
+ /families.html#calendar
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-fall@danceandallthatjazz.com
-DTSTAMP:20261123T025015Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20261124
 DTEND;VALUE=DATE:20261130
 TRANSP:TRANSPARENT
 SUMMARY:Fall Break: studio closed
 LOCATION:No classes
-DESCRIPTION:No classes Tuesday\, Nov 24 through Sunday\, Nov 29. Classes re
- sume Monday\, Nov 30.\n\nStudio calendar: https://leighagrimm-web.github.i
- o/datj-concept/families.html#calendar
+DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
+ /families.html#calendar
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-revel@danceandallthatjazz.com
-DTSTAMP:20261123T025015Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20261205
 DTEND;VALUE=DATE:20261207
 TRANSP:TRANSPARENT
@@ -153,31 +127,29 @@ DESCRIPTION:Company families: details are in Company Central (Company passw
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-auto3@danceandallthatjazz.com
-DTSTAMP:20261123T025015Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20261209
 DTEND;VALUE=DATE:20261210
 TRANSP:TRANSPARENT
 SUMMARY:Session 3 autopay
 LOCATION:Card on file
-DESCRIPTION:Session 3 tuition is charged to the card on file. Send class ch
- anges before this date.\n\nStudio calendar: https://leighagrimm-web.github
- .io/datj-concept/families.html#calendar
+DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
+ /families.html#calendar
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-winter@danceandallthatjazz.com
-DTSTAMP:20261123T025015Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20261220
 DTEND;VALUE=DATE:20270104
 TRANSP:TRANSPARENT
 SUMMARY:Winter Break: studio closed
 LOCATION:No classes
-DESCRIPTION:No classes Dec 20 through Jan 3. Classes resume Monday\, Jan 4.
- \n\nStudio calendar: https://leighagrimm-web.github.io/datj-concept/famili
- es.html#calendar
+DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
+ /families.html#calendar
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-s3@danceandallthatjazz.com
-DTSTAMP:20261123T025015Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270106
 DTEND;VALUE=DATE:20270107
 TRANSP:TRANSPARENT
@@ -188,7 +160,7 @@ DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-aud-signup@danceandallthatjazz.com
-DTSTAMP:20261123T025015Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270115
 DTEND;VALUE=DATE:20270116
 TRANSP:TRANSPARENT
@@ -199,7 +171,7 @@ DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-lutheran@danceandallthatjazz.com
-DTSTAMP:20261123T025015Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270117
 DTEND;VALUE=DATE:20270118
 TRANSP:TRANSPARENT
@@ -211,7 +183,7 @@ DESCRIPTION:Company families: details are in Company Central (Company passw
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-aud-new@danceandallthatjazz.com
-DTSTAMP:20261123T025015Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270117
 DTEND;VALUE=DATE:20270118
 TRANSP:TRANSPARENT
@@ -222,19 +194,18 @@ DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-lou@danceandallthatjazz.com
-DTSTAMP:20261123T025015Z
-DTSTART;TZID=America/Chicago:20270203T160000
-DTEND;TZID=America/Chicago:20270203T220000
+DTSTAMP:20261125T032805Z
+DTSTART;VALUE=DATE:20270203
+DTEND;VALUE=DATE:20270204
+TRANSP:TRANSPARENT
 SUMMARY:Lou Malnati’s Dining Fundraiser
 LOCATION:Lou Malnati’s
-DESCRIPTION:Wednesday\, Feb 3 · 4–10 PM\nEat at Lou’s and part of your
-  bill supports D&ATJ Company. Details and the flyer are coming closer to t
- he date.\n\nStudio calendar: https://leighagrimm-web.github.io/datj-concep
- t/families.html#calendar
+DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
+ /families.html#calendar
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-att-policy@danceandallthatjazz.com
-DTSTAMP:20261123T025015Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270203
 DTEND;VALUE=DATE:20270204
 TRANSP:TRANSPARENT
@@ -244,7 +215,7 @@ DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-auto4@danceandallthatjazz.com
-DTSTAMP:20261123T025015Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270303
 DTEND;VALUE=DATE:20270304
 TRANSP:TRANSPARENT
@@ -255,7 +226,7 @@ DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-s4@danceandallthatjazz.com
-DTSTAMP:20261123T025015Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270310
 DTEND;VALUE=DATE:20270311
 TRANSP:TRANSPARENT
@@ -266,7 +237,7 @@ DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-no-makeups@danceandallthatjazz.com
-DTSTAMP:20261123T025015Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270310
 DTEND;VALUE=DATE:20270311
 TRANSP:TRANSPARENT
@@ -276,7 +247,7 @@ DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-vip@danceandallthatjazz.com
-DTSTAMP:20261123T025015Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270312
 DTEND;VALUE=DATE:20270314
 TRANSP:TRANSPARENT
@@ -288,7 +259,7 @@ DESCRIPTION:Company families: details are in Company Central (Company passw
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-obs-mar@danceandallthatjazz.com
-DTSTAMP:20261123T025015Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270314
 DTEND;VALUE=DATE:20270321
 TRANSP:TRANSPARENT
@@ -299,7 +270,7 @@ DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-spring@danceandallthatjazz.com
-DTSTAMP:20261123T025015Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270321
 DTEND;VALUE=DATE:20270329
 TRANSP:TRANSPARENT
@@ -310,7 +281,7 @@ DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-photo@danceandallthatjazz.com
-DTSTAMP:20261123T025015Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270404
 DTEND;VALUE=DATE:20270405
 TRANSP:TRANSPARENT
@@ -322,7 +293,7 @@ DESCRIPTION:Company families: details are in Company Central (Company passw
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-hof@danceandallthatjazz.com
-DTSTAMP:20261123T025015Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270409
 DTEND;VALUE=DATE:20270411
 TRANSP:TRANSPARENT
@@ -334,7 +305,7 @@ DESCRIPTION:Company families: details are in Company Central (Company passw
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-wcte@danceandallthatjazz.com
-DTSTAMP:20261123T025015Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270416
 DTEND;VALUE=DATE:20270418
 TRANSP:TRANSPARENT
@@ -346,7 +317,7 @@ DESCRIPTION:Company families: details are in Company Central (Company passw
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-bts@danceandallthatjazz.com
-DTSTAMP:20261123T025015Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270423
 DTEND;VALUE=DATE:20270425
 TRANSP:TRANSPARENT
@@ -358,7 +329,7 @@ DESCRIPTION:Company families: details are in Company Central (Company passw
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-soiree@danceandallthatjazz.com
-DTSTAMP:20261123T025015Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270502
 DTEND;VALUE=DATE:20270503
 TRANSP:TRANSPARENT
@@ -370,32 +341,29 @@ DESCRIPTION:Company families: details are in Company Central (Company passw
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-dress@danceandallthatjazz.com
-DTSTAMP:20261123T025015Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270519
 DTEND;VALUE=DATE:20270522
 TRANSP:TRANSPARENT
 SUMMARY:Dress rehearsals
 LOCATION:Wheeling High School
-DESCRIPTION:Times by class are on your show flyer. Company dancers arrive 1
- 5 minutes early on Friday to review the Opening Act on stage.\n\nStudio ca
- lendar: https://leighagrimm-web.github.io/datj-concept/families.html#calen
- dar
+DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
+ /families.html#calendar
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-perf@danceandallthatjazz.com
-DTSTAMP:20261123T025015Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270522
 DTEND;VALUE=DATE:20270524
 TRANSP:TRANSPARENT
 SUMMARY:14th Annual Performance
 LOCATION:Wheeling High School
-DESCRIPTION:Every dancer performs. Show assignments\, times and tickets com
- e with the commitment forms.\n\nStudio calendar: https://leighagrimm-web.g
- ithub.io/datj-concept/families.html#calendar
+DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
+ /families.html#calendar
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-closed-summer@danceandallthatjazz.com
-DTSTAMP:20261123T025015Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270524
 DTEND;VALUE=DATE:20270614
 TRANSP:TRANSPARENT
@@ -405,7 +373,7 @@ DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-aud-return@danceandallthatjazz.com
-DTSTAMP:20261123T025015Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270614
 DTEND;VALUE=DATE:20270619
 TRANSP:TRANSPARENT
@@ -416,7 +384,7 @@ DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-summer-session@danceandallthatjazz.com
-DTSTAMP:20261123T025015Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270618
 DTEND;VALUE=DATE:20270801
 TRANSP:TRANSPARENT
@@ -427,7 +395,7 @@ DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-new-season@danceandallthatjazz.com
-DTSTAMP:20261123T025015Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270818
 DTEND;VALUE=DATE:20270819
 TRANSP:TRANSPARENT
@@ -437,7 +405,7 @@ DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-disney@danceandallthatjazz.com
-DTSTAMP:20261123T025015Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20271014
 DTEND;VALUE=DATE:20271018
 TRANSP:TRANSPARENT
