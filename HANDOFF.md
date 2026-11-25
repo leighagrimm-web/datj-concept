@@ -22,8 +22,9 @@ Get Britt on a **test site with a working admin** (real Publish, not browser-onl
 
 ## Build
 ```
-cd src && python3 gen_pages.py && bash build_site3.sh && cp site3/*.html site3/studio.ics site3/calendar.json ..
+cd src && export PYTHONUTF8=1 && python3 gen_pages.py && bash build_site3.sh && cp site3/*.html site3/calendar.json ..
 ```
+Don't copy `site3/studio.ics`: the calendar bot (`.github/workflows/studio-calendar.yml`) owns `studio.ics` on each site's main branch, and a local copy only causes rebase conflicts.
 (Verified Nov 22: building from `src/` gives byte-identical pages to what's published.)
 
 ## Rules (keep)
