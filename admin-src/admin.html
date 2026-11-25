@@ -584,8 +584,10 @@
     return o; };
   // What each locked file holds (same fingerprint as the server's privateKey_)
   const tr = (x) => String(x || '').trim();
+  // "Only on Company Central" dates: left out of the public content.json and kept in the Company bundle (same as the server's hiddenEvent_)
+  const hiddenCal = (c) => (c.calendar || []).filter(e => e && e.hidden).map(e => { const o = {}; Object.keys(e).forEach(k => { if (!['iWhen', 'iWhere', 'iBody', 'info'].includes(k)) o[k] = e[k]; }); return o; });
   const privKey = (which, c) => which === 'company'
-    ? JSON.stringify([c.coEdit || null, (c.calendar || []).filter(e => e && e.lock).map(e => [e.id, tr(e.iWhen), tr(e.iWhere), tr(e.iBody)]).filter(x => x[1] || x[2] || x[3])])
+    ? JSON.stringify([c.coEdit || null, (c.calendar || []).filter(e => e && e.lock).map(e => [e.id, tr(e.iWhen), tr(e.iWhere), tr(e.iBody)]).filter(x => x[1] || x[2] || x[3]), hiddenCal(c)])
     : JSON.stringify((c.rc || []).filter(r => r && tr(r.more)).map(r => [tr(r.t), tr(r.more)]));
   async function openCurrent(which) {
     const S = SEALED[which];
@@ -605,13 +607,20 @@
       topics: (ce.topics || []).map(t => Object.assign({ id: t.id, icon: t.icon, t: t.t, d: t.d }, textToInfo(t.body))), due: ce.due || old.due });
     out.locked = Object.assign({}, old.locked || {});
     draft.calendar.forEach(e => { if (e.lock && (tr(e.iBody) || tr(e.iWhen) || tr(e.iWhere))) out.locked[e.id] = textToInfo(e.iBody, e.iWhen, e.iWhere); });
+    out.hiddenCal = hiddenCal(draft);
     return out;
   }
   async function sealChanged() {
     const out = { enc: {}, ask: [], wrong: [], newLocks: {} };
     for (const which of Object.keys(SEALED)) {
-      if (!pwNext[which] && privKey(which, draft) === privKey(which, live)) continue;
-      let cur = await openCurrent(which);
+      let cur = null;
+      if (!pwNext[which] && privKey(which, draft) === privKey(which, live)) {
+        // Nothing private changed, but a Company file from before "Only on Company Central" dates moved into it gets them now
+        if (which !== 'company' || !hiddenCal(draft).length) continue;
+        try { cur = await openCurrent(which); } catch (e) { cur = null; }
+        if (!cur || JSON.stringify((cur.data || {}).hiddenCal || []) === JSON.stringify(hiddenCal(draft))) continue;
+      }
+      if (!cur) cur = await openCurrent(which);
       // Changed on another device since this page loaded: get the password the server has now and try again
       if (!cur && ENV) { const L = await api('locks'); if (L.ok) { useLocks(L.locks); cur = await openCurrent(which); } }
       // Switching the Families password: the site only reads the card details, and the admin has all of them, so the

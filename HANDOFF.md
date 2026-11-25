@@ -37,7 +37,7 @@ cd src && python3 gen_pages.py && bash build_site3.sh && cp site3/*.html site3/s
 
 ## To build next (test site first)
 1. ✅ **Test environment** (Nov 24, 2026): test Sheet + Apps Script + `leighagrimm-web/datj-test` on Pages. See `docs/test-environment.md`. Britt's Google account owns the production ones (client owns every account).
-2. **Admin Publish backend (Apps Script):** ✅ Google sign-in (owner only), server checks, versions on the History tab, `content.json` written to the repo, site reads it, locked files re-encrypted on Publish, season passwords changed in the admin (Nov 24–25, 2026). Still to do: photos (shrink in the browser, save into the repo); "Only on Company Central" date titles are still in the public `content.json`; `studio.ics` base URL.
+2. **Admin Publish backend (Apps Script):** ✅ Google sign-in (owner only), server checks, versions on the History tab, `content.json` written to the repo, site reads it, locked files re-encrypted on Publish, season passwords changed in the admin (Nov 24–25, 2026). ✅ Photos (files in `images/up/`, Drive links, prototype photos copied off Wix into `images/wix/`), "Only on Company Central" dates moved from `content.json` into the Company bundle (`hiddenCal`, which the dancer feed reads), `studio.ics` rebuilt from `content.json` with the site's own address by `.github/workflows/studio-calendar.yml` (Nov 25, 2026).
 3. **Deploy `signups.gs`** and set `SIGNUP_URL` in the site.
 4. **Deploy `calendar-feed.gs`** (see the setup steps at the top of the file), set `SUB.FEED_URL` in HomeH, then test on real devices (hold list item 5).
 5. **"Refresh from Studio Pro now"** for everyone: Apps Script triggers the GitHub workflow (token in Script Properties).
