@@ -158,7 +158,7 @@
   .slot .info b { display: block; }
   .slot .info span { color: var(--mut); font-size: 13px; }
   .note { background: #FFFFFF; border: 1px solid var(--line); border-left: 4px solid #F2B705; padding: 14px 16px; margin: 0 0 14px; font-size: 14px; }
-  .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: #111111; color: #FFFFFF; padding: 12px 18px; font-size: 14px; z-index: 30; display: none; }
+  .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: #111111; color: #FFFFFF; padding: 12px 18px; font-size: 14px; line-height: 1.45; z-index: 30; display: none; width: max-content; max-width: min(560px, calc(100vw - 32px)); cursor: pointer; }
   .toast.show { display: block; }
   .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 
@@ -214,6 +214,13 @@
   .envbar b { letter-spacing: 0.12em; }
   #notice:empty { display: none; }
   /* Stays in view under the sticky header, wherever the page is scrolled */
+  .pwrow { display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: flex-end; }
+  .pwrow > button { margin-left: auto; }
+  .pwnow { font-size: 22px; font-weight: 800; letter-spacing: 0.02em; word-break: break-all; }
+  .pwnew { color: #00807F; }
+  .pwwait { margin: 12px 0 0; padding: 10px 12px; background: #FFF6D6; border-left: 3px solid #E0A800; font-size: 14px; }
+  .pwedit { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end; margin-top: 14px; }
+  .pwerr { color: #B00020; margin: 8px 0 0; font-size: 14px; }
   #notice { position: sticky; top: 60px; z-index: 9; max-height: 60vh; overflow-y: auto; background: #FFF3F0; border-bottom: 1px solid #F1C4B8; padding: 12px 20px; font-size: 14px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); }
   #notice.ok { background: #EAF7F7; border-bottom-color: #BfE6E8; }
   #notice ul { margin: 6px 0; padding-left: 20px; }
@@ -359,7 +366,7 @@
 
   let live = pick(JSON.parse(JSON.stringify(Object.assign({}, DEFAULTS, (ENV ? null : read(LIVE)) || {}))));
   let draft = pick(JSON.parse(JSON.stringify(read(DRAFT) || live)));
-  const dirty = () => JSON.stringify(draft) !== JSON.stringify(live);
+  const dirty = () => JSON.stringify(draft) !== JSON.stringify(live) || !!(pwNext.company || pwNext.recital);
   // The draft remembers which published version it started from, so Publish can tell if another device published since.
   const saveDraft = () => { write(DRAFT, draft); if (ENV && read(DRAFT_BASE) == null) write(DRAFT_BASE, serverVer); status(); };
   const clearDraft = () => { try { localStorage.removeItem(DRAFT); localStorage.removeItem(DRAFT_BASE); } catch (e) {} };
@@ -367,7 +374,11 @@
   // ---------- helpers ----------
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const $ = (id) => document.getElementById(id);
-  let tt; const toast = (m) => { const t = $('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('show'), 2600); };
+  // Stays up long enough to read (longer messages stay longer), waits while the pointer is on it, and a tap closes it
+  let tt, tms = 0, thover = false; const toastHide = () => { clearTimeout(tt); $('toast').classList.remove('show'); };
+  const toastWait = () => { clearTimeout(tt); if (!thover) tt = setTimeout(toastHide, tms); };
+  const toast = (m) => { const t = $('toast'); t.textContent = m; t.classList.add('show'); tms = Math.min(10000, Math.max(3500, 1500 + String(m).length * 60)); toastWait();
+    if (!t.dataset.on) { t.dataset.on = '1'; t.addEventListener('mouseenter', () => { thover = true; clearTimeout(tt); }); t.addEventListener('mouseleave', () => { thover = false; toastWait(); }); t.addEventListener('click', () => { thover = false; toastHide(); }); } };
   const PORTAL = 'https://dancestudio-pro.com/online/index.php?account_id=20951';
   const DESTS = [
     ['Classes', [['classes', 'Classes page'], ['classes#schedule', 'Class schedule'], ['classes#week', 'Plan your week'], ['classes#styles', 'Dance styles'], ['classes#summer', 'Summer Session']]],
@@ -515,13 +526,17 @@
     try { sealed = await sealChanged(); } catch (e) { busy(false); return notice('<b>Not published.</b> Couldn’t get the locked details ready: ' + esc(e && e.message || e) + ' Check the connection and try again.'); }
     if (sealed.ask.length) { busy(false); return askPw(sealed.ask, force, sealed.wrong); }
     const base = read(DRAFT_BASE);
-    const res = await api('publish', { content: draft, baseVersion: base == null ? serverVer : base, force: !!force, enc: sealed.enc });
+    const res = await api('publish', { content: draft, baseVersion: base == null ? serverVer : base, force: !!force, enc: sealed.enc, newLocks: sealed.newLocks });
     busy(false);
     if (res.code === 'needpw') return askPw(res.need || [], force, []);
     if (res.ok) {
+      const newPw = Object.keys(sealed.newLocks).filter(k => res.locks && res.locks[k] === sealed.newLocks[k]);
+      if (res.locks) useLocks(res.locks);
+      newPw.forEach(k => { try { localStorage.setItem(SEALED[k].ls, sealed.newLocks[k]); } catch (e) {} setPwNext(k, ''); });
       useServer(res.content, res.version, res.publishedAt); draft = clone(live); clearDraft(); render();
       if (res.unchanged) return toast('Nothing new to publish. Everything is already live.');
-      notice('✓ Published version ' + res.version + (res.changed && res.changed.length ? ' (' + esc(res.changed.join(', ')) + ')' : '') + '. The website shows it in about a minute.', true);
+      notice('✓ Published version ' + res.version + (res.changed && res.changed.length ? ' (' + esc(res.changed.join(', ')) + ')' : '') + '. The website shows it in about a minute.'
+        + newPw.map(k => '<br><b>' + esc(SEALED[k].name) + ' is now “' + esc(res.locks[k]) + '”.</b> ' + (k === 'company' ? 'Company families' : 'Families') + ' need it from now on, so send it in the welcome email.').join(''), true);
       return;
     }
     if (res.code === 'signin') return signinAgain(res.error);
@@ -530,7 +545,7 @@
     if (res.code === 'site' && res.version) { useServer(res.content, res.version, res.publishedAt); draft = clone(live); clearDraft(); render(); }
     notice('<b>Not published.</b> ' + esc(res.error) + (res.errors ? '<ul>' + res.errors.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul>' : ''));
   }
-  function discard() { draft = clone(live); clearDraft(); render(); toast('Changes discarded.'); }
+  function discard() { draft = clone(live); clearDraft(); setPwNext('company', ''); setPwNext('recital', ''); render(); toast('Changes discarded.'); }
 
   // ---------- locked files: Company Central (company.enc.json) and Annual Performance details (recital.enc.json) ----------
   // When their details change, Publish opens the current file with the current password, adds the edits and locks it
@@ -540,6 +555,10 @@
     recital: { file: 'recital.enc.json', ls: 'datj-fam-pw', name: 'Families password', what: 'Annual Performance “More details”' } };
   // Filled from the server on load (Script Properties, owner only), so Brittany never has to type them.
   const pwMem = { company: '', recital: '' }, pwServer = { company: '', recital: '' };
+  // A new season's password waits here (this device only) until Publish re-locks the file with it.
+  const pwNext = (() => { try { return Object.assign({ company: '', recital: '' }, JSON.parse(localStorage.getItem('datj-pw-next') || '{}')); } catch (e) { return { company: '', recital: '' }; } })();
+  const setPwNext = (w, v) => { pwNext[w] = v; try { localStorage.setItem('datj-pw-next', JSON.stringify(pwNext)); } catch (e) {} };
+  const pwNow = (w) => { if (pwServer[w]) return pwServer[w]; try { return localStorage.getItem(SEALED[w].ls) || ''; } catch (e) { return ''; } };
   const useLocks = (L) => { Object.keys(pwServer).forEach(k => { pwServer[k] = (L && L[k]) || ''; if (pwServer[k]) pwMem[k] = pwServer[k]; }); };
   const unb64 = (x) => Uint8Array.from(atob(x), c => c.charCodeAt(0));
   const b64 = (u) => { let s = ''; for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return btoa(s); };
@@ -588,22 +607,25 @@
     return out;
   }
   async function sealChanged() {
-    const out = { enc: {}, ask: [], wrong: [] };
+    const out = { enc: {}, ask: [], wrong: [], newLocks: {} };
     for (const which of Object.keys(SEALED)) {
-      if (privKey(which, draft) === privKey(which, live)) continue;
-      const cur = await openCurrent(which);
+      if (!pwNext[which] && privKey(which, draft) === privKey(which, live)) continue;
+      let cur = await openCurrent(which);
+      // Changed on another device since this page loaded: get the password the server has now and try again
+      if (!cur && ENV) { const L = await api('locks'); if (L.ok) { useLocks(L.locks); cur = await openCurrent(which); } }
       if (!cur) { out.ask.push(which); if (pwMem[which]) out.wrong.push(which); continue; }
       const old = cur.data || {};
       if (which === 'company') {
         // Locked dates never opened in this admin keep the details already in the file
         draft.calendar.forEach(e => { const L = e.lock && old.locked && old.locked[e.id]; if (L && !tr(e.iBody) && !tr(e.iWhen) && !tr(e.iWhere)) { e.iWhen = L.when || ''; e.iWhere = L.where || ''; e.iBody = infoToText(L); } });
-        out.enc.company = await seal(companyBundle(old), cur.pw);
+        out.enc.company = await seal(companyBundle(old), pwNext.company || cur.pw);
       } else {
         const by = Object.assign({}, old.byTitle || {});
         draft.rc.forEach(r => { if (r.lockMore && !tr(r.more) && by[r.t]) r.more = by[r.t]; });
         draft.rc.forEach(r => { if (tr(r.more)) by[r.t] = r.more; });
-        out.enc.recital = await seal(Object.assign({}, old, { byTitle: by }), cur.pw);
+        out.enc.recital = await seal(Object.assign({}, old, { byTitle: by }), pwNext.recital || cur.pw);
       }
+      if (pwNext[which]) out.newLocks[which] = pwNext[which];
       pwMem[which] = cur.pw;
       // A password typed here (or saved in this browser) that works is kept on the server, so it's never asked again
       if (cur.pw !== pwServer[which]) { const s = await api('savelock', { which: which, pw: cur.pw }); if (s.ok) pwServer[which] = cur.pw; }
@@ -691,15 +713,15 @@
       + (r.label && r.url ? '<span class="lnk">' + esc(r.label) + ' ' + (/^https?:/.test(r.url) ? '↗' : '→') + '</span>' : '') + (r.more.trim() ? '<span class="more">More details →</span>' : '') + '</div></div></div>'
       + (r.more.trim() ? '<div class="pv-slide"><div class="tg">Annual Performance</div><h3>' + esc(r.t) + '</h3><p>' + esc(r.d) + '</p>' + moreHtml(r.more) + '</div><p class="pv-note">This opens when parents tap “More details.”</p>' : '<p class="pv-note">Add “More details” to give this card a slide-out panel.</p>');
   }
-  let famErrA = '';
-  async function famUnlockA(pw) {
+  let famErrA = '', famTried = false, famOpened = false;
+  async function famUnlockA(pw, auto) {
     try { const r = await fetch('recital.enc.json', { cache: 'no-store' }); const j = await r.json();
       const b = (x) => Uint8Array.from(atob(x), c => c.charCodeAt(0)), E = new TextEncoder();
       const base = await crypto.subtle.importKey('raw', E.encode(pw), 'PBKDF2', false, ['deriveKey']);
       const key = await crypto.subtle.deriveKey({ name: 'PBKDF2', salt: b(j.s), iterations: j.it || 250000, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
       const f = JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b(j.i) }, key, b(j.c))));
-      draft.rc.forEach(r => { if (!(r.more || '').trim() && f.byTitle && f.byTitle[r.t]) r.more = f.byTitle[r.t]; }); famErrA = ''; saveDraft();
-    } catch (e) { famErrA = 'That password didn’t work.'; }
+      draft.rc.forEach(r => { if (!(r.more || '').trim() && f.byTitle && f.byTitle[r.t]) r.more = f.byTitle[r.t]; }); famErrA = ''; famOpened = true; saveDraft();
+    } catch (e) { famErrA = auto ? 'The saved Families password doesn’t open the details any more. Type the one families use now.' : 'That password didn’t work.'; }
     render();
   }
   let dspBusy = false, dspMsg = '', dspStep = '';
@@ -723,8 +745,8 @@
   function vRecital() {
     const sw = '<button type="button" class="switch" role="switch" id="recSw" aria-checked="' + draft.recital + '"><span class="knob"></span><span><b>Performance season is ' + (draft.recital ? 'on' : 'off') + '</b><span>' + (draft.recital ? 'Families see a performance link in the top banner and a Recital link in the menu.' : 'Turn on when you’re ready to share performance tickets, costumes and schedule.') + '</span></span></button>';
     return '<h1>Annual Performance</h1><p class="lede">One switch for performance season, plus the performance cards on the Current Families page.</p>'
-      + sw + '<h2 style="margin-top: 30px;">Performance cards</h2><p class="lede" style="margin-bottom: 14px;">Tap a card to edit it. Everyone sees the title, short details and button. <b>More details</b> are locked: families enter the Families password to read them.</p>'
-      + (draft.rc.some(r => r.lockMore && !(r.more || '').trim()) ? '<div class="panel" style="margin-bottom: 14px;"><b>🔒 Unlock the saved details to edit them</b><p class="lede" style="margin: 4px 0 10px;">The current More details are stored locked. Enter the Families password to load them here.</p><div style="display: flex; gap: 8px; max-width: 460px;"><input type="password" id="famPwA" placeholder="Families password" autocomplete="current-password" style="flex: 1; min-width: 0; padding: 12px; border: 1px solid #BBBBBB; font: inherit;"><button type="button" class="btn" id="famGoA">Unlock</button></div>' + (famErrA ? '<p style="color: #B00020; font-size: 13px; margin: 8px 0 0;">' + esc(famErrA) + '</p>' : '') + '</div>' : '')
+      + sw + '<h2 style="margin-top: 30px;">Families password</h2>' + pwPanel('recital') + '<h2 style="margin-top: 30px;">Performance cards</h2><p class="lede" style="margin-bottom: 14px;">Tap a card to edit it. Everyone sees the title, short details and button. <b>More details</b> are locked: families enter the Families password to read them.</p>'
+      + (!famOpened && draft.rc.some(r => r.lockMore && !(r.more || '').trim()) ? '<div class="panel" style="margin-bottom: 14px;"><b>🔒 Unlock the saved details to edit them</b><p class="lede" style="margin: 4px 0 10px;">The current More details are stored locked. Enter the Families password to load them here.</p><div style="display: flex; gap: 8px; max-width: 460px;"><input type="password" id="famPwA" placeholder="Families password" autocomplete="current-password" style="flex: 1; min-width: 0; padding: 12px; border: 1px solid #BBBBBB; font: inherit;"><button type="button" class="btn" id="famGoA">Unlock</button></div>' + (famErrA ? '<p style="color: #B00020; font-size: 13px; margin: 8px 0 0;">' + esc(famErrA) + '</p>' : '') + '</div>' : '')
       + listEditor({ key: 'rc', noun: 'a card', get: () => draft.rc, title: r => r.t || 'New card', sub: r => r.d, flag: r => /placeholder/i.test(r.d + r.more) ? 'Placeholder' : '', preview: rcPreview,
           newItem: () => ({ t: '', d: '', label: '', url: '', more: '' }),
           fields: [{ k: 't', label: 'Title', max: 28 }, { k: 'd', label: 'Short details', max: 140, area: true, hint: 'One or two sentences on the card itself.' }, { k: 'more', label: 'More details', max: 600, area: true, opt: true, ph: 'Extra info for the slide-out panel', hint: 'Start a line with “- ” to make a bullet. Leave empty for no panel.' }, { k: 'label', label: 'Button text', max: 20, opt: true, ph: 'e.g. Buy tickets' }, { k: 'url', label: 'Button goes to', type: 'link', hint: 'Both button text and a destination are needed for a button to show.' }] });
@@ -1007,7 +1029,7 @@
       if (!draft.coEdit) draft.coEdit = { comps: JSON.parse(JSON.stringify(d.comps || [])), highlights: JSON.parse(JSON.stringify(d.highlights || [])), seasonEnd: d.seasonEnd || '', topics: d.topics.map(t => ({ id: t.id, icon: t.icon, t: t.t, d: t.d, body: infoToText({ sections: t.sections, links: t.links }) })), due: (d.due || []).map(x => Object.assign({}, x)), sheet: 'https://docs.google.com/spreadsheets/d/1a9fwbWr6gM7gwWyXFFpK4UKVbqalJyhi/edit', pwNote: '' };
       draft.calendar.forEach(e => { const L = e.lock && d.locked && d.locked[e.id]; if (L && !e.iBody && !e.iWhen) { e.iWhen = L.when || ''; e.iWhere = L.where || ''; e.iBody = infoToText(L); } });
       render(); })
-    .catch(() => { coBusy = false; if (auto) { try { localStorage.removeItem('datj-co-pw'); sessionStorage.removeItem('datj-co-pw'); } catch (e) {} coErr = 'This browser had an old Company password saved, so the Company content couldn’t load. Type the current one below once (prototype only: “turners”).'; } else coErr = 'That isn’t the password the site uses right now. In the prototype it’s “turners”.'; render(); }); }
+    .catch(() => { coBusy = false; if (auto) { try { localStorage.removeItem('datj-co-pw'); sessionStorage.removeItem('datj-co-pw'); } catch (e) {} coErr = ENV ? 'The saved Company password doesn’t open Company Central any more. Type the one families use now.' : 'This browser had an old Company password saved, so the Company content couldn’t load. Type the current one below once (prototype only: “turners”).'; } else coErr = 'That isn’t the password the site uses right now. In the prototype it’s “turners”.'; render(); }); }
   // ---- competition workbook (Brittany's simple Excel format) ----
   const DOWN = { Thu: 'Thursday', Fri: 'Friday', Sat: 'Saturday', Sun: 'Sunday', Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday' };
   const MONS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -1161,14 +1183,38 @@
       + '<div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px;"><button type="button" class="btn" data-cpost="1">Post on Company Central</button><button type="button" class="btn" data-cemail="1">Email it to Company families</button><a class="btn ghost" href="company-families.html#competitions" target="_blank" rel="noopener">See it on the site ↗</a></div>'
       + '<p class="hint" style="margin-top: 8px;">“Post” saves it with Publish. “Email it” opens a short email with a button to the schedule and the printable costume checklist.</p></div>';
   }
-  const coPwKnown = () => { try { return localStorage.getItem('datj-co-pw') || sessionStorage.getItem('datj-co-pw') || ''; } catch (e) { return ''; } };
+  // Current password, and "Change for a new season": the new one goes live with the next Publish, which re-locks the file with it
+  let pwEdit = '', pwErr = '';
+  const PWTXT = { company: { who: 'Company families type this to open Company Central and the details of “Company families only” dates.', fam: 'Company families' },
+    recital: { who: 'Families type this to read the “More details” on performance cards.', fam: 'families' } };
+  function pwPanel(w) {
+    const S = SEALED[w], now = pwNow(w), next = pwNext[w];
+    let h = '<div class="panel pwp"><div class="pwrow"><div><div class="lbl" style="margin: 0 0 4px;">' + esc(S.name) + (next ? ' now' : '') + '</div>'
+      + (now ? '<div class="pwnow">' + esc(now) + '</div>' : '<div style="color: var(--mut);">Not saved yet</div>') + '</div>';
+    if (next) h += '<div><div class="lbl" style="margin: 0 0 4px;">After you Publish</div><div class="pwnow pwnew">' + esc(next) + '</div></div>'
+      + '<button type="button" class="btn" data-pwkeep="' + w + '">Keep ' + (now ? '“' + esc(now) + '”' : 'the current one') + '</button>';
+    else if (pwEdit !== w) h += '<button type="button" class="btn" data-pwopen="' + w + '">Change for a new season</button>';
+    h += '</div>';
+    if (next) h += '<p class="pwwait">Not live yet. When you Publish, the locked details switch to “' + esc(next) + '” and the old password stops working. Send ' + PWTXT[w].fam + ' the new one in the welcome email.</p>';
+    if (pwEdit === w && !next) h += '<div class="pwedit"><div class="field" style="margin: 0; flex: 1; min-width: 200px;"><label for="pwNew">New ' + esc(S.name.toLowerCase().replace('company', 'Company').replace('families', 'Families')) + '</label>'
+      + '<input id="pwNew" type="text" autocomplete="off" spellcheck="false" maxlength="60" placeholder="e.g. turners-and-tap-shoes"></div>'
+      + '<button type="button" class="btn primary" data-pwuse="' + w + '">Use this password</button><button type="button" class="btn ghost" data-pwcancel="1">Cancel</button></div>'
+      + (pwErr ? '<p class="pwerr">' + esc(pwErr) + '</p>' : '');
+    return h + '<p class="hint" style="margin-top: 10px;">' + PWTXT[w].who + ' Change it each season. Two or three words together are hard to guess and easy to remember.</p></div>';
+  }
+  function pwUse(w) {
+    const el = $('pwNew'), v = el ? el.value.trim() : '', other = w === 'company' ? 'recital' : 'company';
+    pwErr = !v ? 'Type the new password first.' : v.length < 6 ? 'Use at least 6 characters.' : v === pwNow(w) ? 'That’s already the password.'
+      : v === (pwNext[other] || pwNow(other)) ? 'Use a different password from the ' + SEALED[other].name + ', so each one only opens its own details.' : '';
+    if (pwErr) { render(); const n = $('pwNew'); if (n) { n.value = v; n.focus(); } return; }
+    if (!ENV) { pwEdit = ''; render(); return toast('In this prototype the password stays the same. On the test site, Publish switches to the new one.'); }
+    setPwNext(w, v); pwEdit = ''; render(); toast('New password ready. Publish to make it live.');
+  }
   let newSeasonAsk = false;
   function vCompany() {
-    const known = coPwKnown();
-    const pwBox = '<div class="panel"><div style="display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; justify-content: space-between;"><div><div class="lbl" style="margin: 0 0 4px;">Current Company password</div>'
-      + (known ? '<div style="font-size: 22px; font-weight: 800; letter-spacing: 0.02em;">' + esc(known) + '</div>' : '<div style="color: var(--mut);">Not set in this browser yet</div>') + '</div>'
-      + '<div style="flex: 1; min-width: 220px;"><div class="field" style="margin: 0;"><label for="coPw">' + (known ? 'Change it to' : 'Set the Company password') + '</label><input id="coPw" type="text" autocomplete="off" placeholder="e.g. turners-and-tap-shoes"></div></div><button type="button" class="btn primary" id="coGo">' + (coBusy ? 'Saving…' : 'Save password') + '</button></div>'
-      + '<p class="hint" style="margin-top: 10px;">Families type this to open Company Central. Share it in the Company welcome email and change it each season. Two or three words together are hard to guess and easy to remember.</p>' + (coErr ? '<p style="color: #B00020;">' + esc(coErr) + '</p>' : '') + '</div>';
+    const pwBox = pwPanel('company');
+    const openBox = '<div class="panel" style="margin-top: 14px;"><b>🔒 Open Company Central to edit it</b><p class="lede" style="margin: 4px 0 10px;">' + (coErr ? esc(coErr) : 'Type the Company password families use now. The admin remembers it after that.') + '</p>'
+      + '<div style="display: flex; gap: 8px; max-width: 460px;"><input type="password" id="coPw" placeholder="Company password" autocomplete="off" style="flex: 1; min-width: 0; padding: 12px; border: 1px solid #BBBBBB; font: inherit;"><button type="button" class="btn" id="coGo">Open</button></div></div>';
     const S = draft.season, offNow = S.on || (S.autoOn && todayISO >= S.autoOn);
     const sEnd = (draft.coEdit && draft.coEdit.seasonEnd) || (co && co.seasonEnd) || '2027-07-31'; const lastCo = draft.calendar.filter(e => (e.type === 'Company' || e.type === 'Recital') && (e.end || e.start) <= sEnd).map(e => e.end || e.start).sort().pop();
     const sugg = lastCo ? (() => { const d = new Date(lastCo + 'T12:00:00'); d.setDate(d.getDate() + 1); return d.toISOString().slice(0, 10); })() : '';
@@ -1183,7 +1229,7 @@
       + '<p style="margin-top: 10px;"><a class="btn" href="company-families.html?preview=draft" target="_blank" rel="noopener">Preview Company Central ↗</a></p><p class="hint">Opens the page with your unpublished changes. Families see it only after you Publish.</p></div></div>'
       + '<details style="margin-top: 6px;"><summary style="cursor: pointer; font-weight: 700;">Setting up next season</summary><ol style="margin: 10px 0 0; padding-left: 20px; line-height: 1.7;"><li>Add next season’s competitions and conventions (top of this screen).</li><li>Paste the new season’s Google Sheet link under Competition schedules, then Check for updates when schedules come in.</li><li>Paste the new rehearsal spreadsheet link.</li><li>Update the handbook, highlights and “Season ends on”.</li><li>Change the Company password.</li><li>Preview Company Central, turn this page Off and Publish.</li></ol><p class="hint">Old competition schedules hide themselves after their take-down dates, so there’s nothing to archive.</p></details></div>');
     const head = '<h1>🔒 Company Central</h1><p class="lede">The page Company families open with the password: what’s next, competition schedules and costume checklists, the rehearsal calendar and the handbook.</p>';
-    if (!co) return head + pwBox + seasonBox + (coBusy ? '<p class="lede">Loading the Company content…</p>' : '<div class="note" style="margin-top: 14px;"><b>Prototype only:</b> this browser doesn’t know the Company password yet, so it can’t open the competition schedules, rehearsal calendar and handbook to edit. Enter it above once and they appear below; after that this browser remembers it. In the real admin (behind your login) everything shows right away.</div>');
+    if (!co) return head + pwBox + (coBusy ? '<p class="lede">Loading the Company content…</p>' : openBox) + seasonBox + (coBusy || ENV ? '' : '<div class="note" style="margin-top: 14px;"><b>Prototype only:</b> this browser doesn’t know the Company password yet, so it can’t open the competition schedules, rehearsal calendar and handbook to edit. Enter it above once and they appear below; after that this browser remembers it. In the real admin (behind your login) everything shows right away.</div>');
     const R = co.rehearsals || [], up = R.filter(r => r.date >= todayISO);
     return head + pwBox + seasonBox
       + sec('Competition &amp; convention dates', 'The dates families see in the teal “Competitions &amp; convention” box, on the calendar and in Coming up. Each competition here also gets a spot under Competition schedules below.',
@@ -1375,8 +1421,10 @@
         .catch(() => { calMsg = 'Couldn’t read that file. Save it as .xlsx and try again.'; render(); }); }); }
     if (page === 'calendar') bind('calSheetUrl', 400, v => { draft.calSheet = v.trim(); });
     if (page === 'company2') { bind('compSheetUrl', 400, v => { if (draft.coEdit) draft.coEdit.compSheet = v.trim(); }); const sa = $('seasonAuto'); if (sa) sa.addEventListener('change', () => { draft.season.autoOn = sa.value; saveDraft(); render(); });         bind('seasonTitle', 60, v => { draft.season.title = v; }); bind('seasonMsg', 600, v => { draft.season.msg = v; }); }
-    if (page === 'company2' && !co && !coBusy && !coErr) { const pw = coPwKnown(); if (pw) setTimeout(() => coUnlock(pw, true), 0); }
-    if (page === 'company2') { const g = $('coGo'); if (g) { const save = () => { const v = $('coPw').value.trim(); if (!v) return toast('Type the password first.'); if (!co) return coUnlock(v); if (v === coPwKnown()) return toast('That’s already the password.'); toast('Saved for the real site: Publish re-locks Company Central with “' + v + '”. The prototype stays on “turners”.'); }; g.addEventListener('click', save); $('coPw').addEventListener('keydown', (e) => { if (e.key === 'Enter') save(); }); }
+    if (page === 'company2' && !co && !coBusy && !coErr) { const pw = pwNow('company'); if (pw) setTimeout(() => coUnlock(pw, true), 0); }
+    if (page === 'recital' && !famTried && !famOpened && draft.rc.some(r => r.lockMore && !(r.more || '').trim())) { const pw = pwNow('recital'); if (pw) { famTried = true; setTimeout(() => famUnlockA(pw, true), 0); } }
+    const pwIn = $('pwNew'); if (pwIn) { if (!pwIn.value) pwIn.focus(); pwIn.addEventListener('keydown', (e) => { if (e.key === 'Enter') pwUse(pwEdit); if (e.key === 'Escape') { pwEdit = ''; pwErr = ''; render(); } }); }
+    if (page === 'company2') { const g = $('coGo'); if (g) { const open = () => { const v = $('coPw').value.trim(); if (!v) return toast('Type the password first.'); coUnlock(v); }; g.addEventListener('click', open); $('coPw').addEventListener('keydown', (e) => { if (e.key === 'Enter') open(); }); }
       if (co) { bind('coSheet', 400, v => draft.coEdit.sheet = v);
         const curC = () => { const c = compsList().find(x => x.id === compSel) || compsList()[0]; if (c && !draft.coEdit.comps.includes(c)) draft.coEdit.comps.push(c); return c; };
         bind('compLip', 120, v => { curC().lipstick = v; });
@@ -1451,6 +1499,10 @@
     if (t.id === 'publishTop' || t.id === 'publishBar') return publish();
     if (d.pubforce) return publish(true);
     if (d.pubpw) return publishWithPw();
+    if (d.pwopen) { pwEdit = d.pwopen; pwErr = ''; render(); return; }
+    if (d.pwcancel) { pwEdit = ''; pwErr = ''; render(); return; }
+    if (d.pwuse) return pwUse(d.pwuse);
+    if (d.pwkeep) { setPwNext(d.pwkeep, ''); render(); toast('Keeping the current password.'); return; }
     if (d.pubreload) { clearDraft(); notice(''); boot(); return; }
     if (d.reboot) { boot(); return; }
     if (t.id === 'signout') { pass = ''; try { sessionStorage.removeItem(PASS); } catch (x) {} $('signout').hidden = true; notice(''); gate('You’re signed out.'); return; }
