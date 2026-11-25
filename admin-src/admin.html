@@ -102,6 +102,7 @@
   .pv-banner span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
   .pv-banner { height: 34px; padding: 0 16px; display: flex; align-items: center; justify-content: space-between; background: var(--teal); color: #000000; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; gap: 12px; }
   .pv-banner b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pv-banner.m { width: 375px; max-width: 100%; justify-content: center; font-size: 8px; padding: 0 4vw; }
   .pv-head { background: #000000; color: #FFFFFF; height: 56px; display: flex; align-items: center; padding: 0 16px; gap: 10px; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; }
   .pv-head .logo { width: 30px; height: 30px; border-radius: 50%; background: var(--teal); }
   .pv-card { background: #F2F2F2; display: flex; flex-direction: column; max-width: 300px; }
@@ -214,6 +215,8 @@
   .envbar b { letter-spacing: 0.12em; }
   #notice:empty { display: none; }
   /* Stays in view under the sticky header, wherever the page is scrolled */
+  .acc-row { display: flex; align-items: center; gap: 12px; min-height: 52px; border-bottom: 1px solid var(--line); }
+  .acc-mail { flex: 1; min-width: 0; overflow-wrap: anywhere; font-weight: 600; }
   .drivein { flex: 1 1 220px; min-width: 0; min-height: 44px; padding: 10px 12px; border: 1px solid #BBBBBB; font: inherit; font-size: 14px; background: #FFFFFF; }
   .pwrow { display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: flex-end; }
   .pwrow > button { margin-left: auto; }
@@ -461,8 +464,13 @@
     { id: 'policies', label: 'Policies', short: 'Policies', g: 'Money & rules' },
     { id: 'contact', label: 'Contact info & hours', short: 'Contact', g: 'Site setup' },
     { id: 'nav', label: 'Menu & header', short: 'Menu', g: 'Site setup' },
-    { id: 'photos', label: 'Photos & videos', short: 'Photos', g: 'Site setup' }
+    { id: 'photos', label: 'Photos & videos', short: 'Photos', g: 'Site setup' },
+    { id: 'access', label: 'Admin access', short: 'Access', g: 'Site setup', ownerOnly: true }
   ];
+  // Who's signed in (from the server), and the helpers the owner lets into the admin
+  const who = { email: '', owner: false, ownerEmail: '' };
+  let helpers = [], accBusy = false, accMsg = '';
+  const shown = (p) => !p.ownerOnly || !!(ENV && who.owner);
   const GROUPS = ['Everyday', 'Pages', 'Money & rules', 'Site setup'];
   let menuOpen = false;
 
@@ -473,11 +481,11 @@
 
   function navs() {
     const btn = (p, cls) => '<button type="button" class="' + (cls || '') + '" data-go="' + p.id + '"' + (p.id === page ? ' aria-current="page"' : '') + '>' + esc(p.label) + '</button>';
-    $('side').innerHTML = GROUPS.map(g => '<div class="grp">' + esc(g) + '</div>' + PAGES.filter(p => p.g === g).map(p => btn(p)).join('')).join('');
+    $('side').innerHTML = GROUPS.map(g => '<div class="grp">' + esc(g) + '</div>' + PAGES.filter(p => p.g === g && shown(p)).map(p => btn(p)).join('')).join('');
     const cur = PAGES.find(p => p.id === page) || PAGES[0], onTab = cur.tab;
     $('tabs').innerHTML = PAGES.filter(p => p.tab).map(p => '<button type="button" data-go="' + p.id + '"' + (p.id === page ? ' aria-current="page"' : '') + '>' + esc(p.short) + '</button>').join('')
       + '<button type="button" class="menubtn" data-menu="1" aria-expanded="' + menuOpen + '"' + (onTab ? '' : ' aria-current="page"') + '>☰ ' + (onTab ? 'More' : esc(cur.short)) + '</button>';
-    $('sheetList').innerHTML = GROUPS.map(g => '<div class="grp">' + esc(g) + '</div>' + PAGES.filter(p => p.g === g).map(p => btn(p, 'it')).join('')).join('');
+    $('sheetList').innerHTML = GROUPS.map(g => '<div class="grp">' + esc(g) + '</div>' + PAGES.filter(p => p.g === g && shown(p)).map(p => btn(p, 'it')).join('')).join('');
     $('sheet').classList.toggle('show', menuOpen);
   }
   function status() {
@@ -529,7 +537,13 @@
     const base = read(DRAFT_BASE);
     const res = await api('publish', { content: draft, baseVersion: base == null ? serverVer : base, force: !!force, enc: sealed.enc, newLocks: sealed.newLocks });
     busy(false);
-    if (res.code === 'needpw') return askPw(res.need || [], force, []);
+    if (res.code === 'needpw') {
+      // The server sees a locked file this page thought was unchanged: lock it again and try once more, asking only if that fails
+      const need = res.need || [];
+      if (need.some(k => !sealForce.has(k))) { need.forEach(k => sealForce.add(k)); return publishNow(force); }
+      return askPw(need, force, []);
+    }
+    sealForce.clear();
     if (res.ok) {
       const newPw = Object.keys(sealed.newLocks).filter(k => res.locks && res.locks[k] === sealed.newLocks[k]);
       if (res.locks) useLocks(res.locks);
@@ -555,6 +569,7 @@
   const SEALED = { company: { file: 'company.enc.json', ls: 'datj-co-pw', name: 'Company password', what: 'Company Central and “Company families only” dates' },
     recital: { file: 'recital.enc.json', ls: 'datj-fam-pw', name: 'Families password', what: 'Annual Performance “More details”' } };
   // Filled from the server on load (Script Properties, owner only), so Brittany never has to type them.
+  const sealForce = new Set();   // locked files the server asked for on the last try
   const pwMem = { company: '', recital: '' }, pwServer = { company: '', recital: '' };
   // A new season's password waits here (this device only) until Publish re-locks the file with it.
   const pwNext = (() => { try { return Object.assign({ company: '', recital: '' }, JSON.parse(localStorage.getItem('datj-pw-next') || '{}')); } catch (e) { return { company: '', recital: '' }; } })();
@@ -614,7 +629,7 @@
     const out = { enc: {}, ask: [], wrong: [], newLocks: {} };
     for (const which of Object.keys(SEALED)) {
       let cur = null;
-      if (!pwNext[which] && privKey(which, draft) === privKey(which, live)) {
+      if (!sealForce.has(which) && !pwNext[which] && privKey(which, draft) === privKey(which, live)) {
         // Nothing private changed, but a Company file from before "Only on Company Central" dates moved into it gets them now
         if (which !== 'company' || !hiddenCal(draft).length) continue;
         try { cur = await openCurrent(which); } catch (e) { cur = null; }
@@ -664,7 +679,7 @@
   // ---------- sign-in gate and first load (sites with a backend) ----------
   function gate(msg) {
     document.body.classList.add('gated');
-    $('main').innerHTML = '<div class="gate"><h1>Sign in to the studio admin</h1><p>' + (msg ? esc(msg) + ' ' : '') + 'Use the studio’s Google account. You stay signed in on this device for 12 hours.</p>'
+    $('main').innerHTML = '<div class="gate"><h1>Sign in to the studio admin</h1><p>' + (msg ? esc(msg) + ' ' : '') + 'Use the studio’s Google account, or your own if the studio owner added you. You stay signed in on this device for 12 hours.</p>'
       + (ENV.signin ? '<a class="btn primary" href="' + esc(ENV.signin) + '">Sign in with Google</a>' : '<p><b>The admin isn’t connected to its server yet.</b></p>') + '</div>';
   }
   async function boot() {
@@ -675,6 +690,8 @@
     if (!res.ok) { if (res.code === 'signin') { pass = ''; try { sessionStorage.removeItem(PASS); } catch (e) {} return gate(res.error); } $('main').innerHTML = '<div class="gate"><h1>Couldn’t load the admin</h1><p>' + esc(res.error) + '</p><button type="button" class="btn primary" data-reboot="1">Try again</button></div>'; return; }
     document.body.classList.remove('gated'); $('signout').hidden = false;
     useServer(res.content, res.version, res.publishedAt); useLocks(res.locks);
+    who.email = res.email || ''; who.owner = !!res.owner; who.ownerEmail = res.ownerEmail || ''; helpers = res.helpers || [];
+    $('signout').title = 'Signed in as ' + who.email;
     const saved = read(DRAFT); draft = saved ? pick(saved) : clone(live);
     // Photos that still load from the old Wix site have copies on this site now (images/wix/); the next Publish switches to them
     { const t = JSON.stringify(draft), t2 = t.replace(/https:\/\/static\.wixstatic\.com\/media\/([0-9a-f]{6}_[0-9a-f]{32})~mv2\.[a-z]+\/v1\/fill\/[^"\s)]*/g, 'images/wix/$1.jpg'); if (t2 !== t) { draft = JSON.parse(t2); saveDraft(); } }
@@ -717,7 +734,8 @@
     return '<div class="lbl">How it looks</div>'
       + '<div class="pv-banner"><span>Prospect Heights, Illinois</span><b>' + (draft.recital ? '14th Annual Performance · tickets, costumes &amp; schedule →' : esc(draft.banner.text || 'Your message') + ' →') + '</b></div>'
       + '<div class="pv-head"><span class="logo"></span>Dance &amp; All That Jazz</div>'
-      + '<p class="pv-note">Tapping it opens: <b>' + esc(destName(draft.banner.href)) + '</b></p><p class="pv-note">' + (draft.recital ? '<b>Performance season is on</b>, so the banner shows the performance link. Your message comes back when you turn it off.' : 'On phones the banner shows “Parent Portal” instead, so keep anything urgent on the homepage too.') + '</p>';
+      + '<div class="lbl" style="margin-top: 14px;">On a phone</div><div class="pv-banner m"><b>' + (draft.recital ? 'Performance info →' : esc(draft.banner.text || 'Your message') + ' →') + '</b></div>'
+      + '<p class="pv-note">Tapping it opens: <b>' + esc(destName(draft.banner.href)) + '</b></p><p class="pv-note">' + (draft.recital ? '<b>Performance season is on</b>, so the banner shows the performance link. Your message comes back when you turn it off.' : 'Phones show the same message. If it ends in “…” there, shorten it.') + '</p>';
   }
   function vBanner() {
     return '<h1>Top banner</h1><p class="lede">A short line across the top of every page. Good for a sale, a closure or a deadline.</p>'
@@ -1218,6 +1236,7 @@
       + (now ? '<div class="pwnow">' + esc(now) + '</div>' : '<div style="color: var(--mut);">Not saved yet</div>') + '</div>';
     if (next) h += '<div><div class="lbl" style="margin: 0 0 4px;">After you Publish</div><div class="pwnow pwnew">' + esc(next) + '</div></div>'
       + '<button type="button" class="btn" data-pwkeep="' + w + '">Keep ' + (now ? '“' + esc(now) + '”' : 'the current one') + '</button>';
+    else if (ENV && !who.owner) h += '<span class="hint" style="margin-left: auto;">Only the studio owner can change it.</span>';
     else if (pwEdit !== w) h += '<button type="button" class="btn" data-pwopen="' + w + '">Change for a new season</button>';
     h += '</div>';
     if (next) h += '<p class="pwwait">Not live yet. When you Publish, the locked details switch to “' + esc(next) + '” and the old password stops working. Send ' + PWTXT[w].fam + ' the new one in the welcome email.</p>';
@@ -1227,6 +1246,40 @@
       + (pwErr ? '<p class="pwerr">' + esc(pwErr) + '</p>' : '');
     return h + '<p class="hint" style="margin-top: 10px;">' + PWTXT[w].who + ' Change it each season. Two or three words together are hard to guess and easy to remember.</p></div>';
   }
+  // ---------- Admin access (owner only): helpers sign in with their own Google account ----------
+  function vAccess() {
+    const head = '<h1>Admin access</h1><p class="lede">People who can sign in to this admin with their own Google account, besides you. They don’t get access to your Google Sheet, Drive or the website’s code.</p>';
+    if (!ENV) return head + '<div class="note">This works on the test site, where the admin has its server.</div>';
+    if (!who.owner) return head + '<div class="note">Only the studio owner can change who has access.</div>';
+    const link = location.origin + location.pathname;
+    return head + '<div class="panel">'
+      + '<div class="acc-row"><span class="acc-mail">' + esc(who.ownerEmail) + '</span><span class="tag">Owner · you</span></div>'
+      + helpers.map((e, i) => '<div class="acc-row"><span class="acc-mail">' + esc(e) + '</span><button type="button" class="btn ghost" data-accx="' + i + '"' + (accBusy ? ' disabled' : '') + '>Remove</button></div>').join('')
+      + (helpers.length ? '' : '<p class="hint" style="margin: 10px 0 0;">No helpers yet.</p>')
+      + '<div class="pwedit"><div class="field" style="margin: 0; flex: 1; min-width: 220px;"><label for="accNew">Add someone</label><input id="accNew" type="email" autocomplete="off" spellcheck="false" placeholder="name@gmail.com"></div>'
+      + '<button type="button" class="btn primary' + (accBusy ? ' busy' : '') + '" data-accadd="1"' + (accBusy ? ' disabled' : '') + '>' + (accBusy ? 'Saving…' : 'Add') + '</button></div>'
+      + (accMsg ? '<p class="pwerr">' + esc(accMsg) + '</p>' : '') + '</div>'
+      + sec('How helpers sign in', '', '<div class="panel"><ol style="margin: 0; padding-left: 20px; line-height: 1.7;">'
+        + '<li>They need a Google account with that email: any Gmail address, or a work email that’s set up as a Google account.</li>'
+        + '<li>Send them the admin’s address: <b>' + esc(link) + '</b> <button type="button" class="btn ghost" data-acccopy="1">Copy</button></li>'
+        + '<li>They click “Sign in with Google”. The first time, Google asks them to let the admin see their email address. That’s all it can see.</li></ol>'
+        + '<p class="hint" style="margin-top: 12px;">Helpers can edit and Publish everything except this page and the Company and Families passwords. The History tab in your Sheet shows who published each version. Removing someone takes effect straight away, even if they’re signed in.</p></div>');
+  }
+  async function saveAcc(list, done) {
+    if (accBusy) return toast('One moment, still saving your last change…');
+    accBusy = true; accMsg = ''; render();
+    let res; try { res = await api('helpers', { emails: list }); } catch (e) { res = { ok: false, error: 'Couldn’t reach the server. Check the connection and try again.' }; }
+    accBusy = false;
+    if (res.ok) { helpers = res.helpers || []; toast(done); } else if (res.code === 'signin') return signinAgain(res.error); else accMsg = res.error || 'That didn’t save.';
+    render();
+  }
+  function accAdd() {
+    const el = $('accNew'), v = el ? el.value.trim().toLowerCase() : '';
+    if (!/^[^\s@,;<>"]+@[^\s@,;<>"]+\.[a-z]{2,}$/i.test(v)) { accMsg = v ? 'That doesn’t look like an email address.' : 'Type their email address first.'; render(); const n = $('accNew'); if (n) { n.value = v; n.focus(); } return; }
+    if (v === who.ownerEmail || helpers.includes(v)) { accMsg = 'That email already has access.'; render(); return; }
+    saveAcc(helpers.concat(v), v + ' can sign in now.');
+  }
+
   function pwUse(w) {
     const el = $('pwNew'), v = el ? el.value.trim() : '', other = w === 'company' ? 'recital' : 'company';
     pwErr = !v ? 'Type the new password first.' : v.length < 6 ? 'Use at least 6 characters.' : v === pwNow(w) ? 'That’s already the password.'
@@ -1431,7 +1484,7 @@
   // ---------- render + events ----------
   function render() {
     navs(); status();
-    $('main').innerHTML = page === 'emails' ? vEmails() : page === 'company2' ? vCompany() : CPAGES[page] ? CPAGES[page]() : page === 'banner' ? vBanner() : page === 'recital' ? vRecital() : page === 'staff' ? vStaff() : page === 'homepage' ? vHomepage() : page === 'prices' ? vPrices() : page === 'nav' ? vNav() : page === 'photos' ? vPhotos() : page === 'featured' ? vFeatured() : page === 'calendar' ? vCalendar() : page === 'policies' ? vPolicies() : vHome();
+    $('main').innerHTML = page === 'emails' ? vEmails() : page === 'company2' ? vCompany() : CPAGES[page] ? CPAGES[page]() : page === 'banner' ? vBanner() : page === 'recital' ? vRecital() : page === 'staff' ? vStaff() : page === 'homepage' ? vHomepage() : page === 'prices' ? vPrices() : page === 'nav' ? vNav() : page === 'photos' ? vPhotos() : page === 'featured' ? vFeatured() : page === 'calendar' ? vCalendar() : page === 'policies' ? vPolicies() : page === 'access' ? vAccess() : vHome();
     const pv = () => $('pv');
     if (page === 'banner') { bind('bText', 60, v => draft.banner.text = v, () => pv().innerHTML = bannerPreview()); bindPicker('bLink', v => draft.banner.href = v, () => pv().innerHTML = bannerPreview()); }
     if (page === 'homepage') { const h = draft.home, uh = () => $('pvHero').innerHTML = heroPreview();
@@ -1448,6 +1501,7 @@
     if (page === 'company2') { bind('compSheetUrl', 400, v => { if (draft.coEdit) draft.coEdit.compSheet = v.trim(); }); const sa = $('seasonAuto'); if (sa) sa.addEventListener('change', () => { draft.season.autoOn = sa.value; saveDraft(); render(); });         bind('seasonTitle', 60, v => { draft.season.title = v; }); bind('seasonMsg', 600, v => { draft.season.msg = v; }); }
     if (page === 'company2' && !co && !coBusy && !coErr) { const pw = pwNow('company'); if (pw) setTimeout(() => coUnlock(pw, true), 0); }
     if (page === 'recital' && !famTried && !famOpened && draft.rc.some(r => r.lockMore && !(r.more || '').trim())) { const pw = pwNow('recital'); if (pw) { famTried = true; setTimeout(() => famUnlockA(pw, true), 0); } }
+    const accIn = $('accNew'); if (accIn) accIn.addEventListener('keydown', (e) => { if (e.key === 'Enter') accAdd(); });
     const pwIn = $('pwNew'); if (pwIn) { if (!pwIn.value) pwIn.focus(); pwIn.addEventListener('keydown', (e) => { if (e.key === 'Enter') pwUse(pwEdit); if (e.key === 'Escape') { pwEdit = ''; pwErr = ''; render(); } }); }
     if (page === 'company2') { const g = $('coGo'); if (g) { const open = () => { const v = $('coPw').value.trim(); if (!v) return toast('Type the password first.'); coUnlock(v); }; g.addEventListener('click', open); $('coPw').addEventListener('keydown', (e) => { if (e.key === 'Enter') open(); }); }
       if (co) { bind('coSheet', 400, v => draft.coEdit.sheet = v);
@@ -1527,6 +1581,9 @@
     if (t.id === 'publishTop' || t.id === 'publishBar') return publish();
     if (d.pubforce) return publish(true);
     if (d.pubpw) return publishWithPw();
+    if (d.accadd) return accAdd();
+    if (d.accx !== undefined) { const e = helpers[+d.accx]; return saveAcc(helpers.filter((x, i) => i !== +d.accx), e + ' can’t sign in any more.'); }
+    if (d.acccopy) { const l = location.origin + location.pathname; (navigator.clipboard ? navigator.clipboard.writeText(l) : Promise.reject()).then(() => toast('Copied the admin’s address.'), () => toast(l)); return; }
     if (d.pwopen) { pwEdit = d.pwopen; pwErr = ''; render(); return; }
     if (d.pwcancel) { pwEdit = ''; pwErr = ''; render(); return; }
     if (d.pwuse) return pwUse(d.pwuse);
