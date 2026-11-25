@@ -299,7 +299,8 @@ function changedSections_(a, b) {
 function publicPart_(full, version, at) {
   var pub = { _published: { version: version, at: at.toISOString() } };
   PUBLIC_KEYS.forEach(function (k) { if (k in full) pub[k] = full[k]; });
-  if (pub.calendar) pub.calendar = pub.calendar.map(function (e) {
+  // "Only on Company Central" dates leave content.json entirely; they're in the Company bundle (hiddenCal)
+  if (pub.calendar) pub.calendar = pub.calendar.filter(function (e) { return !(e && e.hidden); }).map(function (e) {
     if (!e || !e.lock) return e;
     var o = {}; Object.keys(e).forEach(function (k) { if (['iWhen', 'iWhere', 'iBody', 'info'].indexOf(k) < 0) o[k] = e[k]; });
     return o;
@@ -318,8 +319,15 @@ function privateKey_(which, c) {
   c = c || {};
   var t = function (x) { return String(x || '').trim(); };
   if (which === 'company') return JSON.stringify([c.coEdit || null, (c.calendar || []).filter(function (e) { return e && e.lock; })
-    .map(function (e) { return [e.id, t(e.iWhen), t(e.iWhere), t(e.iBody)]; }).filter(function (x) { return x[1] || x[2] || x[3]; })]);
+    .map(function (e) { return [e.id, t(e.iWhen), t(e.iWhere), t(e.iBody)]; }).filter(function (x) { return x[1] || x[2] || x[3]; }),
+    (c.calendar || []).filter(function (e) { return e && e.hidden; }).map(hiddenEvent_)]);
   return JSON.stringify((c.rc || []).filter(function (r) { return r && t(r.more); }).map(function (r) { return [t(r.t), t(r.more)]; }));
+}
+
+// A Company Central-only date as it goes in the Company bundle (details stay in bundle.locked)
+function hiddenEvent_(e) {
+  var o = {}; Object.keys(e).forEach(function (k) { if (['iWhen', 'iWhere', 'iBody', 'info'].indexOf(k) < 0) o[k] = e[k]; });
+  return o;
 }
 
 // An encrypted file as the site reads it: {v, it, s, i, c} (PBKDF2-SHA256 + AES-GCM, all base64). Anything else is refused.

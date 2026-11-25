@@ -58,6 +58,16 @@ a new season** button. The new password (6–60 characters, different from the o
 only after that commit lands, so the saved password always matches the live file. If another device changed it in
 the meantime, the admin fetches the current one from the server (`action: "locks"`) before re-locking.
 
+"Only on Company Central" dates (`hidden`) are left out of `content.json` altogether. They go into the Company
+bundle as `hiddenCal`, where the dancer calendar feed reads them. The first Publish after this change adds them to a
+Company file made before it.
+
+### Studio calendar feed
+
+`studio.ics` (Subscribe to the studio calendar) is rebuilt by `.github/workflows/studio-calendar.yml` from the
+published `content.json` whenever Publish commits it, and nightly. Links use the site's own address: the `CNAME` file
+once there's a custom domain, otherwise the repo's GitHub Pages address.
+
 ### Photos
 
 Two ways to add a photo in the admin:

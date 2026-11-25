@@ -1,0 +1,32 @@
+name: Rebuild the studio calendar feed (studio.ics)
+# studio.ics is the public "Subscribe to the studio calendar" file. It's rebuilt from what the admin published
+# (content.json) with this site's own address, whenever Publish commits, and nightly so old dates drop off.
+on:
+  schedule:
+    - cron: '37 9 * * *'   # every night around 3:37 AM Central
+  workflow_dispatch:
+  push:
+    paths: ['content.json', 'studio.ics', 'calendar.json', 'scripts/make-studio-ics.js', 'apps-script/calendar-feed.gs', '.github/workflows/studio-calendar.yml']
+permissions:
+  contents: write
+concurrency:
+  group: studio-calendar
+  cancel-in-progress: false
+jobs:
+  ics:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Build studio.ics from the published calendar
+        run: |
+          if [ -f content.json ]; then node scripts/make-studio-ics.js content.json studio.ics; else node scripts/make-studio-ics.js calendar.json studio.ics; fi
+      - name: Save changes
+        run: |
+          if git diff --quiet studio.ics; then echo "Nothing new"; exit 0; fi
+          git config user.name "calendar-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add studio.ics
+          git commit -m "Studio calendar feed rebuilt"
+          for i in 1 2 3; do git pull --rebase && git push && exit 0; sleep 5; done; exit 1
