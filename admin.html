@@ -614,6 +614,9 @@
       let cur = await openCurrent(which);
       // Changed on another device since this page loaded: get the password the server has now and try again
       if (!cur && ENV) { const L = await api('locks'); if (L.ok) { useLocks(L.locks); cur = await openCurrent(which); } }
+      // Switching the Families password: the site only reads the card details, and the admin has all of them, so the
+      // file can be made fresh without the old password (unless a card's details were never loaded here)
+      if (!cur && which === 'recital' && pwNext.recital && !draft.rc.some(r => r.lockMore && !tr(r.more))) cur = { data: {}, pw: '' };
       if (!cur) { out.ask.push(which); if (pwMem[which]) out.wrong.push(which); continue; }
       const old = cur.data || {};
       if (which === 'company') {
@@ -624,9 +627,10 @@
         const by = Object.assign({}, old.byTitle || {});
         draft.rc.forEach(r => { if (r.lockMore && !tr(r.more) && by[r.t]) r.more = by[r.t]; });
         draft.rc.forEach(r => { if (tr(r.more)) by[r.t] = r.more; });
-        out.enc.recital = await seal(Object.assign({}, old, { byTitle: by }), pwNext.recital || cur.pw);
+        out.enc.recital = await seal(Object.assign({}, old, { byTitle: cur.pw ? by : Object.fromEntries(Object.entries(by).filter(([t]) => draft.rc.some(r => r.t === t))) }), pwNext.recital || cur.pw);
       }
       if (pwNext[which]) out.newLocks[which] = pwNext[which];
+      if (!cur.pw) continue;
       pwMem[which] = cur.pw;
       // A password typed here (or saved in this browser) that works is kept on the server, so it's never asked again
       if (cur.pw !== pwServer[which]) { const s = await api('savelock', { which: which, pw: cur.pw }); if (s.ok) pwServer[which] = cur.pw; }
@@ -637,8 +641,11 @@
   let pwForce = false;
   function askPw(list, force, wrong) {
     pwForce = !!force;
-    notice('<b>One-time step: the password families use now.</b> Locked details changed, so Publish locks them again with the same password families already have. Type it once here; the admin remembers it from now on, on every device.'
-      + list.map(w => { const S = SEALED[w]; return '<label class="field" for="pw-' + w + '" style="margin: 12px 0 0; max-width: 420px;"><span class="row"><span>' + esc(S.name) + ' <span class="count">(' + esc(S.what) + ')</span></span></span>'
+    const switching = list.some(w => pwNext[w]);
+    notice((switching
+      ? '<b>One-time step: the password families use now.</b> To switch to the new password, Publish first opens what’s already locked with the current one, so nothing gets lost. Type the current password once here; the admin won’t ask again.'
+      : '<b>One-time step: the password families use now.</b> Locked details changed, so Publish locks them again with the same password families already have. Type it once here; the admin remembers it from now on, on every device.')
+      + list.map(w => { const S = SEALED[w]; return '<label class="field" for="pw-' + w + '" style="margin: 12px 0 0; max-width: 420px;"><span class="row"><span>' + esc(S.name) + (pwNext[w] ? ' families use now' : '') + ' <span class="count">(' + esc(S.what) + ')</span></span></span>'
         + '<input type="password" id="pw-' + w + '" data-pwfor="' + w + '" autocomplete="off">' + (wrong.includes(w) ? '<div class="hint" style="color: #B00020;">That password doesn’t open the current file. Use the one families use right now.</div>' : '') + '</label>'; }).join('')
       + '<div class="row"><button type="button" class="btn primary" data-pubpw="1">Publish</button></div>');
     const first = document.querySelector('[data-pwfor]'); if (first) first.focus();
