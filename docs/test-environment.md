@@ -50,7 +50,13 @@ once more to check, and sends only the locked file. The passwords families use n
 when publishing. If one is missing, the admin asks once, checks it opens the current file, and saves it there.
 They're never in the repo or `content.json`. The server
 strips those details from `content.json` itself, refuses a publish that changes them without the locked file, and
-writes `content.json` and the locked files in **one commit**. Changing the passwords for a new season is a later step.
+writes `content.json` and the locked files in **one commit**.
+
+**New season passwords.** Company Central and Annual Performance each show the current password with a **Change for
+a new season** button. The new password (6–60 characters, different from the other one) waits on that device, marked
+"Not live yet", until Publish. Publish then re-locks the file with it, and the server saves it to Script Properties
+only after that commit lands, so the saved password always matches the live file. If another device changed it in
+the meantime, the admin fetches the current one from the server (`action: "locks"`) before re-locking.
 
 ## One-time setup (test)
 
@@ -87,6 +93,8 @@ Google account. Apps Script gets confused when two accounts are signed in at onc
 - [ ] Locked details: add "More details" to a performance card and details to a "Company families only" date →
       Publish asks for the Families / Company password (or uses the saved one) → one commit with `content.json` +
       the locked files; `content.json` has none of that text; the families page shows it only after the password.
+- [ ] Change the Families password → "Not live yet" → Publish → the families page needs the new one, the old one
+      fails, and the Families password box shows the new one on another device. Same for the Company password.
 - [ ] Bad data is refused by the server (e.g. a calendar date that ends before it starts).
 - [ ] Turn the token off in Script Properties → Publish says the website couldn't be updated, and the version is still
       saved. Put it back, publish again.

@@ -24,7 +24,8 @@
  *   ADMIN_PAGE_URL  the admin page, e.g. https://leighagrimm-web.github.io/datj-test/admin.html
  *   ENVIRONMENT     TEST or LIVE
  *   LOCK_PW_COMPANY / LOCK_PW_FAMILIES  the passwords families use now (Company Central / Annual Performance
- *                   details). Optional: if missing, the admin asks once and saves them here.
+ *                   details). Optional: if missing, the admin asks once and saves them here. A new season's
+ *                   password set in the admin is saved here by Publish, only after the re-locked file is live.
  * Set by setup() (run once from the editor, signed in as the owner):
  *   OWNER_EMAIL     the Google account allowed into the admin
  *   SIGNIN_SECRET   random key that signs the sign-in passes
@@ -106,6 +107,7 @@ function doPost(e) {
     if (req.action === 'publish') return json_(publish_(who.email, req));
     if (req.action === 'history') return json_({ ok: true, versions: history_(20) });
     if (req.action === 'savelock') return json_(saveLock_(req));
+    if (req.action === 'locks') return json_({ ok: true, locks: locks_() });
     return json_({ ok: false, error: 'Unknown action.' });
   } catch (err) {
     console.error(req.action, err && err.stack || err);
@@ -155,6 +157,7 @@ function load_(email) {
 // The Company and Families passwords, kept here so Brittany's admin can re-lock details without typing them.
 // Only the signed-in owner ever gets them (every action checks the pass first). Never written to the repo.
 var LOCK_PROPS = { company: 'LOCK_PW_COMPANY', recital: 'LOCK_PW_FAMILIES' };
+var LOCK_CHANGED = { company: 'New Company password', recital: 'New Families password' };
 function locks_() { var o = {}; Object.keys(LOCK_PROPS).forEach(function (k) { o[k] = prop_(LOCK_PROPS[k]); }); return o; }
 // The admin saves a password here only after it has opened the current locked file with it.
 function saveLock_(req) {
@@ -181,6 +184,17 @@ function publish_(email, req) {
         error: 'Version ' + latest + ' was published from another device or tab after you opened the admin.' };
     }
     var changed = last ? changedSections_(last.content, full) : ['First version'];
+    // A new season's password: the file comes re-locked with it, and it's saved here once that file is live.
+    var newPw = {}, pwErr = [];
+    Object.keys(LOCK_PROPS).forEach(function (k) {
+      var x = req.newLocks && req.newLocks[k];
+      if (x == null || x === '') return;
+      if (typeof x !== 'string' || x.trim() !== x || x.length < 6 || x.length > 60) pwErr.push(LOCK_CHANGED[k] + ': use 6 to 60 characters, with no spaces at the start or end.');
+      else { newPw[k] = x; if (changed.indexOf(LOCK_CHANGED[k]) < 0) changed.push(LOCK_CHANGED[k]); }
+    });
+    var after = locks_(); Object.keys(newPw).forEach(function (k) { after[k] = newPw[k]; });
+    if (after.company && after.company === after.recital) pwErr.push('The Company and Families passwords need to be different, or every family could open Company Central.');
+    if (pwErr.length) return { ok: false, code: 'invalid', error: 'Some things need fixing before this can go live:', errors: pwErr };
     if (last && !changed.length) return { ok: true, unchanged: true, version: latest, publishedAt: last.at, content: last.content };
 
     // Private parts that changed must come with their re-encrypted file, or families would keep seeing the old ones.
@@ -190,6 +204,7 @@ function publish_(email, req) {
       if (x != null) { var v = sealed_(x); if (v) enc[k] = v; else encErr.push(ENC_NAMES[k] + ': the locked file isn’t in the expected format.'); }
       else if (privateKey_(k, last ? last.content : null) !== privateKey_(k, full)) need.push(k);
     });
+    Object.keys(newPw).forEach(function (k) { if (!enc[k]) encErr.push(LOCK_CHANGED[k] + ': the file locked with it is missing.'); });
     if (encErr.length) return { ok: false, code: 'invalid', error: 'Some things need fixing before this can go live:', errors: encErr };
     if (need.length) return { ok: false, code: 'needpw', need: need, error: 'Locked details changed, so they need to be locked again with the current password.' };
 
@@ -218,7 +233,8 @@ function publish_(email, req) {
     }
     var label = 'Updated' + (Object.keys(enc).length ? ' + locked files' : '');
     sh.getRange(row, 6).setValue(site.url ? '=HYPERLINK("' + site.url + '","' + label + '")' : label);
-    return { ok: true, version: version, publishedAt: at.toISOString(), changed: changed, content: full };
+    Object.keys(newPw).forEach(function (k) { PropertiesService.getScriptProperties().setProperty(LOCK_PROPS[k], newPw[k]); });
+    return { ok: true, version: version, publishedAt: at.toISOString(), changed: changed, content: full, locks: locks_() };
   } finally {
     lock.releaseLock();
   }
