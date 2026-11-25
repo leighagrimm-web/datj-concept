@@ -58,6 +58,20 @@ a new season** button. The new password (6–60 characters, different from the o
 only after that commit lands, so the saved password always matches the live file. If another device changed it in
 the meantime, the admin fetches the current one from the server (`action: "locks"`) before re-locking.
 
+### Photos
+
+Two ways to add a photo in the admin:
+
+- **Upload:** the admin shrinks it in the browser (staff 480×600, cards 900×600, page photos 1200×900, JPEG).
+  Publish saves each one as its own file, `images/up/<hash>.jpg`, in the same commit as `content.json`. The server
+  checks it really is a JPEG, PNG or WebP, at most 1.5 MB each and 15 MB of new photos per Publish. Photos are
+  never kept inside `content.json`.
+- **Google Drive link** (as on Sweet Nothings): paste a share link and it becomes
+  `drive.google.com/thumbnail?id=…&sz=w1600`. The file has to be shared "Anyone with the link".
+
+iPhone HEIC photos get a message asking for a JPEG. The prototype's photos used to load from the old Wix site; copies
+are now in `images/wix/` (58 photos, 2.9 MB), and the admin switches any old Wix link to its copy on load.
+
 ## One-time setup (test)
 
 Do this in a separate browser window (its own Chrome profile or a private window) signed in **only** to the test

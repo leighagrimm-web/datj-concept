@@ -39,6 +39,12 @@ var PASS_HOURS = 12;
 var MAX_BYTES = 3000000;   // the whole draft
 var MAX_PUBLIC_BYTES = 1500000;
 var MAX_ENC_BYTES = 4000000;
+// Photos the admin shrank in the browser arrive inside the draft as data: links. Publish saves each one as a file
+// in the site (named by its contents, so the same photo is one file) and the content points to that file instead.
+var PHOTO_DIR = 'images/up/';
+var MAX_PHOTO_BYTES = 1500000;
+var MAX_NEW_PHOTO_BYTES = 15000000;
+var PHOTO_RE = /^data:image\/(jpeg|jpg|png|webp);base64,([A-Za-z0-9+\/]+=*)$/;
 // Encrypted files Publish may write, by what they protect
 var ENC_FILES = { company: 'company.enc.json', recital: 'recital.enc.json' };
 var ENC_NAMES = { company: 'Company Central (Company password)', recital: 'Annual Performance details (Families password)' };
@@ -169,7 +175,9 @@ function saveLock_(req) {
 function publish_(email, req) {
   var check = validate_(req.content);
   if (check.errors.length) return { ok: false, code: 'invalid', error: 'Some things need fixing before this can go live:', errors: check.errors.slice(0, 12) };
-  var full = check.content;
+  var photos = takePhotos_(check.content);
+  if (photos.errors.length) return { ok: false, code: 'invalid', error: 'Some photos need fixing before this can go live:', errors: photos.errors.slice(0, 12) };
+  var full = photos.content;
   var fullText = JSON.stringify(full);
   if (fullText.length > MAX_BYTES) return { ok: false, error: 'This is too big to publish (' + Math.round(fullText.length / 1024) + ' KB). A photo may be saved inside the text; use a photo link instead.' };
 
@@ -223,6 +231,7 @@ function publish_(email, req) {
     SpreadsheetApp.flush();
 
     var files = { 'content.json': pubText };
+    Object.keys(photos.files).forEach(function (p) { files[p] = { base64: photos.files[p] }; });
     Object.keys(enc).forEach(function (k) { files[ENC_FILES[k]] = JSON.stringify(enc[k]); });
     var site;
     try { site = ghCommit_(files, 'Content v' + version + ' published from the admin (' + changed.join(', ').slice(0, 120) + ')'); }
@@ -231,7 +240,8 @@ function publish_(email, req) {
       return { ok: false, code: 'site', version: version, publishedAt: at.toISOString(), content: full,
         error: 'Saved as version ' + version + ', but the website couldn’t be updated: ' + (err && err.message || err) + '. Press Publish again to retry.' };
     }
-    var label = 'Updated' + (Object.keys(enc).length ? ' + locked files' : '');
+    var nPhotos = Object.keys(photos.files).length;
+    var label = 'Updated' + (nPhotos ? ' + ' + nPhotos + ' photo' + (nPhotos > 1 ? 's' : '') : '') + (Object.keys(enc).length ? ' + locked files' : '');
     sh.getRange(row, 6).setValue(site.url ? '=HYPERLINK("' + site.url + '","' + label + '")' : label);
     Object.keys(newPw).forEach(function (k) { PropertiesService.getScriptProperties().setProperty(LOCK_PROPS[k], newPw[k]); });
     return { ok: true, version: version, publishedAt: at.toISOString(), changed: changed, content: full, locks: locks_() };
@@ -323,6 +333,44 @@ function sealed_(x) {
   return { v: 1, it: x.it, s: x.s, i: x.i, c: x.c };
 }
 
+// ---------------------------------------------------------------- photos
+
+// Finds photos (data: links) in the public parts, checks each really is a JPEG, PNG or WebP of a sensible size,
+// and swaps it for its file path. Returns { content, files: {path: base64}, errors }.
+function takePhotos_(c) {
+  var files = {}, errors = [], total = 0, out = {};
+  var take = function (v, path) {
+    if (typeof v === 'string') {
+      var m = PHOTO_RE.exec(v);
+      if (!m) return v;
+      var bytes;
+      try { bytes = Utilities.base64Decode(m[2]); } catch (e) { errors.push(label_(path) + ': that photo couldn’t be read. Choose it again.'); return v; }
+      var type = photoType_(bytes);
+      if (!type) { errors.push(label_(path) + ': that isn’t a JPEG, PNG or WebP photo. Choose it again.'); return v; }
+      if (bytes.length > MAX_PHOTO_BYTES) { errors.push(label_(path) + ': that photo is too big (' + Math.round(bytes.length / 1024) + ' KB). Choose it again so the admin can shrink it.'); return v; }
+      var hex = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, bytes).map(function (b) { return ('0' + (b & 255).toString(16)).slice(-2); }).join('');
+      var p = PHOTO_DIR + hex.slice(0, 24) + '.' + type;
+      if (!files[p]) { total += bytes.length; files[p] = m[2]; }
+      return p;
+    }
+    if (Array.isArray(v)) return v.map(function (x, i) { return take(x, path + '[' + i + ']'); });
+    if (v && typeof v === 'object') { var o = {}; Object.keys(v).forEach(function (k) { o[k] = take(v[k], path ? path + '.' + k : k); }); return o; }
+    return v;
+  };
+  Object.keys(c).forEach(function (k) { out[k] = PUBLIC_KEYS.indexOf(k) > -1 ? take(c[k], k) : c[k]; });
+  if (total > MAX_NEW_PHOTO_BYTES) errors.push('That’s a lot of new photos at once (' + Math.round(total / 1048576) + ' MB). Publish some, then the rest.');
+  return { content: out, files: files, errors: errors };
+}
+
+// What the file really is, from its first bytes (never trust the label).
+function photoType_(b) {
+  var u = function (i) { return b[i] & 255; };
+  if (b.length > 3 && u(0) === 0xFF && u(1) === 0xD8 && u(2) === 0xFF) return 'jpg';
+  if (b.length > 8 && u(0) === 0x89 && u(1) === 0x50 && u(2) === 0x4E && u(3) === 0x47) return 'png';
+  if (b.length > 12 && u(0) === 0x52 && u(1) === 0x49 && u(2) === 0x46 && u(3) === 0x46 && u(8) === 0x57 && u(9) === 0x45 && u(10) === 0x42 && u(11) === 0x50) return 'webp';
+  return '';
+}
+
 // ---------------------------------------------------------------- server-side checks (never trust the page)
 
 function validate_(c) {
@@ -355,7 +403,8 @@ function walk_(v, path, depth, errors) {
   if (errors.length > 30) return;
   if (depth > 12) { errors.push(path + ': nested too deeply.'); return; }
   if (typeof v === 'string') {
-    if (v.length > 30000) errors.push(label_(path) + ': text is too long (' + v.length + ' characters).');
+    var isPhoto = PHOTO_RE.test(v) && PUBLIC_KEYS.indexOf(String(path).split(/[.[]/)[0]) > -1;
+    if (v.length > 30000 && !isPhoto) errors.push(label_(path) + ': text is too long (' + v.length + ' characters).');
     var s = v.replace(/[\s\u0000-\u001f]+/g, '').toLowerCase();
     if (/^(javascript|vbscript):/.test(s) || (/^data:/.test(s) && !/^data:image\/(png|jpe?g|webp|gif);/.test(s))) errors.push(label_(path) + ': that link type isn’t allowed.');
     return;
@@ -392,7 +441,13 @@ function ghCommit_(files, message) {
     return { code: r.getResponseCode(), j: JSON.parse(r.getContentText() || '{}') };
   };
   var fail = function (r, what) { return new Error('GitHub said ' + r.code + ' when ' + what + (r.j && r.j.message ? ': ' + r.j.message : '')); };
-  var tree = Object.keys(files).map(function (p) { return { path: p, mode: '100644', type: 'blob', content: files[p] }; });
+  var tree = Object.keys(files).map(function (p) {
+    var f = files[p];
+    if (typeof f === 'string') return { path: p, mode: '100644', type: 'blob', content: f };
+    var b = call('post', 'blobs', { content: f.base64, encoding: 'base64' });
+    if (b.code !== 201) throw fail(b, 'saving the photo ' + p);
+    return { path: p, mode: '100644', type: 'blob', sha: b.j.sha };
+  });
   for (var attempt = 0; attempt < 3; attempt++) {
     var ref = call('get', 'ref/heads/' + encodeURIComponent(c.branch));
     if (ref.code !== 200) throw fail(ref, 'reading the branch');
