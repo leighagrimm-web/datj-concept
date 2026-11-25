@@ -16,9 +16,15 @@ The site reads `content.json`. Nothing reaches production until she approves the
 ## How it fits together
 
 1. **Sign in.** The admin page (on GitHub Pages) shows "Sign in with Google", which opens the script's **signin**
-   deployment (Execute as me, Only myself). Google only lets the owner in. The script checks her email against
-   `OWNER_EMAIL`, then sends her back to `ADMIN_PAGE_URL` with a signed pass in the address (`#signin=…`) that's
-   good for 12 hours. The pass never goes anywhere except that fixed admin address.
+   deployment (Execute as the user signing in, Anyone with a Google account, and its only permission is their email
+   address). The script checks the email against `OWNER_EMAIL` and the helpers in `ADMIN_HELPERS`, then sends them
+   back to `ADMIN_PAGE_URL` with a signed pass in the address (`#signin=…`) that's good for 12 hours. The pass never
+   goes anywhere except that fixed admin address. Every action checks the pass and the list again, so removing a
+   helper locks them out at once.
+   **Helpers** (Admin access page, owner only): any Google account (Gmail, or a work email set up as a Google
+   account). They never get access to the Sheet, Drive or GitHub, because the public deployment does the work as the
+   owner. They can edit and Publish everything except Admin access and the season passwords; History records who
+   published.
 2. **Load.** The admin posts `{action: "load", pass}` to the **public** deployment (Execute as me, Anyone). Every
    action checks the pass first. It returns the latest published version from the History tab.
 3. **Publish.** The admin posts the whole draft. The server:

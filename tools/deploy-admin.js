@@ -1,9 +1,10 @@
 // Pushes apps-script/admin/ to the TEST or LIVE Apps Script project and moves both web app deployments (signin,
 // public) to the new version, so their URLs never change. Usage: node tools/deploy-admin.js test|live ["what changed"]
 //
-// A deployment takes its "Execute as" and "Who has access" from the manifest of the version it runs, and the two
-// differ: signin is "Only myself" (the owner's sign-in page), public is "Anyone" (the admin posts here; every action
-// checks the owner's sign-in pass). So this pushes once per deployment with that deployment's access in the manifest.
+// A deployment takes its "Execute as", "Who has access" and permissions from the manifest of the version it runs, and
+// the two differ: signin runs as whoever opens it ("Anyone with a Google account") with only the email-address
+// permission, so the owner and her helpers can sign in; public runs as the owner for "Anyone" (the admin posts here;
+// every action checks the sign-in pass). So this pushes once per deployment with that deployment's manifest.
 // The first run for a target creates the deployments and saves their IDs in apps-script/admin/deployments.json
 // (IDs aren't secrets; commit them).
 //
@@ -20,9 +21,11 @@ const CLASP = '@google/clasp@3.4.1';
 const SRC = path.join(__dirname, '..', 'apps-script', 'admin');
 const IDS = path.join(SRC, 'deployments.json');
 const ACCESS = {
-  signin: { executeAs: 'USER_DEPLOYING', access: 'MYSELF' },
+  signin: { executeAs: 'USER_ACCESSING', access: 'ANYONE' },
   public: { executeAs: 'USER_DEPLOYING', access: 'ANYONE_ANONYMOUS' }
 };
+// signin only reads who's signing in; it never touches the Sheet or GitHub
+const SCOPES = { signin: ['https://www.googleapis.com/auth/userinfo.email'] };
 
 const env = process.argv[2];
 const note = process.argv[3] || '';
@@ -42,8 +45,9 @@ function clasp(args) {
 }
 
 function deploy(which) {
-  manifest.webapp = ACCESS[which];
-  fs.writeFileSync(path.join(stage, 'appsscript.json'), JSON.stringify(manifest, null, 2));
+  const m = Object.assign({}, manifest, { webapp: ACCESS[which] });
+  if (SCOPES[which]) m.oauthScopes = SCOPES[which];
+  fs.writeFileSync(path.join(stage, 'appsscript.json'), JSON.stringify(m, null, 2));
   process.stdout.write(clasp(['push', '--force']));
   const desc = '"' + (which + ' ' + new Date().toISOString().slice(0, 10) + (note ? ': ' + note : '')).replace(/"/g, "'") + '"';
   const id = t.deployments[which];

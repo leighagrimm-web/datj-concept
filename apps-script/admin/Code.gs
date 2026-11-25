@@ -26,6 +26,8 @@
  *   LOCK_PW_COMPANY / LOCK_PW_FAMILIES  the passwords families use now (Company Central / Annual Performance
  *                   details). Optional: if missing, the admin asks once and saves them here. A new season's
  *                   password set in the admin is saved here by Publish, only after the re-locked file is live.
+ * Set from the admin (Admin access, owner only):
+ *   ADMIN_HELPERS   Google emails of people who can also use the admin (comma-separated)
  * Set by setup() (run once from the editor, signed in as the owner):
  *   OWNER_EMAIL     the Google account allowed into the admin
  *   SIGNIN_SECRET   random key that signs the sign-in passes
@@ -89,10 +91,14 @@ function checkGitHub() {
 
 // ---------------------------------------------------------------- web apps
 
-// signin deployment (Only myself). The URL holds no return address: the pass only ever goes to ADMIN_PAGE_URL.
+// signin deployment: runs as whoever opens it ("Anyone with a Google account"), and its only permission is their
+// email address. The owner and the helpers on ADMIN_HELPERS get a signed pass; everything else then runs as the
+// owner in the public deployment, so helpers never need access to the Sheet, Drive or GitHub.
+// The URL holds no return address: the pass only ever goes to ADMIN_PAGE_URL.
 function doGet(e) {
   var me = String(Session.getActiveUser().getEmail() || '').toLowerCase();
-  if (!me || me !== ownerEmail_()) return text_('Only the studio owner can open the admin.');
+  if (!me) return text_('Sign in with a Google account to open the studio admin.');
+  if (!allowed_(me)) return text_('The Google account ' + me + ' isn’t on the studio admin’s list. Ask the studio owner to add it under Admin access, then open this link again.');
   var adminUrl = prop_('ADMIN_PAGE_URL');
   if (!/^https:\/\//.test(adminUrl)) return text_('The admin page address (ADMIN_PAGE_URL) isn’t set up yet.');
   var t = HtmlService.createTemplate(SIGNIN_HTML);
@@ -109,7 +115,10 @@ function doPost(e) {
   var who = checkPass_(req.pass);
   if (!who.ok) return json_({ ok: false, code: 'signin', error: who.error });
   try {
-    if (req.action === 'load') return json_(load_(who.email));
+    if (req.action === 'load') return json_(load_(who));
+    if (req.action === 'helpers') return json_(who.owner ? saveHelpers_(req) : { ok: false, error: 'Only the studio owner can change who has access.' });
+    if (req.action === 'publish' && req.newLocks && Object.keys(req.newLocks).some(function (k) { return req.newLocks[k]; }) && !who.owner)
+      return json_({ ok: false, code: 'invalid', error: 'Only the studio owner can change the Company or Families password.' });
     if (req.action === 'publish') return json_(publish_(who.email, req));
     if (req.action === 'history') return json_({ ok: true, versions: history_(20) });
     if (req.action === 'savelock') return json_(saveLock_(req));
@@ -125,6 +134,25 @@ function doPost(e) {
 
 function prop_(k) { return String(PropertiesService.getScriptProperties().getProperty(k) || ''); }
 function ownerEmail_() { return prop_('OWNER_EMAIL').toLowerCase(); }
+function helpers_() { return prop_('ADMIN_HELPERS').toLowerCase().split(/[\s,;]+/).filter(function (x) { return EMAIL_RE.test(x); }); }
+function allowed_(email) { return !!email && (email === ownerEmail_() || helpers_().indexOf(email) > -1); }
+var EMAIL_RE = /^[^\s@,;<>"]+@[^\s@,;<>"]+\.[a-z]{2,}$/i;
+
+// Admin access (owner only): replaces the helper list. Takes effect at once, since every action checks it.
+function saveHelpers_(req) {
+  var list = Array.isArray(req.emails) ? req.emails : [];
+  if (list.length > 20) return { ok: false, error: 'That’s more than 20 people. Remove some first.' };
+  var out = [], bad = [];
+  list.forEach(function (x) {
+    var e = String(x || '').trim().toLowerCase();
+    if (!e) return;
+    if (!EMAIL_RE.test(e) || e.length > 120) bad.push(String(x).slice(0, 60));
+    else if (e !== ownerEmail_() && out.indexOf(e) < 0) out.push(e);
+  });
+  if (bad.length) return { ok: false, error: 'That doesn’t look like an email address: ' + bad.join(', ') };
+  PropertiesService.getScriptProperties().setProperty('ADMIN_HELPERS', out.join(','));
+  return { ok: true, helpers: out };
+}
 
 function sign_(s) {
   var key = prop_('SIGNIN_SECRET');
@@ -143,8 +171,9 @@ function checkPass_(pass) {
   var data;
   try { data = JSON.parse(Utilities.newBlob(Utilities.base64DecodeWebSafe(parts[0] + '=='.slice(0, (4 - parts[0].length % 4) % 4))).getDataAsString()); } catch (err) { return bad; }
   if (!data || data.x < Date.now()) return { ok: false, error: 'Your sign-in timed out. Please sign in again. Your changes are still here.' };
-  if (String(data.e).toLowerCase() !== ownerEmail_()) return { ok: false, error: 'Only the studio owner can do that.' };
-  return { ok: true, email: data.e };
+  var email = String(data.e).toLowerCase();
+  if (!allowed_(email)) return { ok: false, error: 'This Google account isn’t on the admin’s list any more. Ask the studio owner.' };
+  return { ok: true, email: email, owner: email === ownerEmail_() };
 }
 function safeEqual_(a, b) {
   if (a.length !== b.length) return false;
@@ -154,9 +183,10 @@ function safeEqual_(a, b) {
 
 // ---------------------------------------------------------------- load / publish / history
 
-function load_(email) {
+function load_(who) {
   var last = lastVersion_();
-  return { ok: true, email: email, env: prop_('ENVIRONMENT') || 'TEST', version: last ? last.version : 0,
+  return { ok: true, email: who.email, owner: who.owner, ownerEmail: ownerEmail_(), helpers: who.owner ? helpers_() : null,
+    env: prop_('ENVIRONMENT') || 'TEST', version: last ? last.version : 0,
     publishedAt: last ? last.at : '', by: last ? last.by : '', content: last ? last.content : null, locks: locks_() };
 }
 
