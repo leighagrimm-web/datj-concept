@@ -74,7 +74,10 @@ Google account. Apps Script gets confused when two accounts are signed in at onc
    expiry 90 days. Copy it; don't paste it in chat.
 6. **Script Properties:** in the script editor → Project Settings → Script Properties, add:
    `GITHUB_TOKEN` (the token), `GITHUB_REPO` = `leighagrimm-web/datj-test`, `GITHUB_BRANCH` = `main`,
-   `ADMIN_PAGE_URL` = `https://leighagrimm-web.github.io/datj-test/admin.html`, `ENVIRONMENT` = `TEST`.
+   `ADMIN_PAGE_URL` = `https://leighagrimm-web.github.io/datj-test/admin.html`, `ENVIRONMENT` = `TEST`,
+   and the passwords families use now: `LOCK_PW_COMPANY` and `LOCK_PW_FAMILIES`. With these set, Brittany is never
+   asked for a password. Without them, the admin asks once when something locked changes (it needs the current
+   password to carry over details that are only inside the locked file).
 7. **Run `setup`** in the editor (pick it in the function list, click Run, allow the permissions). It records you as
    the owner, makes the sign-in key and the History tab. Then run **`checkGitHub`**: it should log "(can write)".
 8. Share the Sheet with nobody else. Never "anyone with the link".
