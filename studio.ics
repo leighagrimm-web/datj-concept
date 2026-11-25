@@ -26,383 +26,393 @@ END:DAYLIGHT
 END:VTIMEZONE
 BEGIN:VEVENT
 UID:cal-fmsc@danceandallthatjazz.com
-DTSTAMP:20261125T032810Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20261017
 DTEND;VALUE=DATE:20261018
 TRANSP:TRANSPARENT
 SUMMARY:Feed My Starving Children
 LOCATION:Schaumburg
 DESCRIPTION:Company families: details are in Company Central (Company passw
- ord).\nhttps://leighagrimm-web.github.io/datj-test/company-families.html
+ ord).\nhttps://leighagrimm-web.github.io/datj-concept/company-families.htm
+ l
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-halloween@danceandallthatjazz.com
-DTSTAMP:20261125T032810Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20261025
 DTEND;VALUE=DATE:20261026
 TRANSP:TRANSPARENT
 SUMMARY:Halloween Party (ages 4+)
 LOCATION:At the studio
-DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-test/fa
- milies.html#calendar
+DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
+ /families.html#calendar
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-food@danceandallthatjazz.com
-DTSTAMP:20261125T032810Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20261101
 DTEND;VALUE=DATE:20261120
 TRANSP:TRANSPARENT
 SUMMARY:Studio Food Drive
 LOCATION:Collection box in Studio A
-DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-test/fa
- milies.html#calendar
+DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
+ /families.html#calendar
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-popcorn@danceandallthatjazz.com
-DTSTAMP:20261125T032810Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20261101
 DTEND;VALUE=DATE:20261123
 TRANSP:TRANSPARENT
 SUMMARY:Popcorn Fundraiser
 LOCATION:Online
-DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-test/fa
- milies.html#calendar
+DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
+ /families.html#calendar
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-wcb@danceandallthatjazz.com
-DTSTAMP:20261125T032810Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20261114
 DTEND;VALUE=DATE:20261115
 TRANSP:TRANSPARENT
 SUMMARY:Windy City Bulls halftime performance (ages 7+)
 LOCATION:NOW Arena\, Hoffman Estates
-DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-test/fa
- milies.html#calendar
+DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
+ /families.html#calendar
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-obs@danceandallthatjazz.com
-DTSTAMP:20261125T032810Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20261115
 DTEND;VALUE=DATE:20261122
 TRANSP:TRANSPARENT
 SUMMARY:Class Observation & Dance Family Appreciation Week
 LOCATION:At the studio
-DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-test/fa
- milies.html#calendar
+DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
+ /families.html#calendar
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-newfam@danceandallthatjazz.com
-DTSTAMP:20261125T032810Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20261118
 DTEND;VALUE=DATE:20261119
 TRANSP:TRANSPARENT
 SUMMARY:New Family Info Call: Annual Performance
 LOCATION:Online (Google Meet)
-DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-test/fa
- milies.html#calendar
+DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
+ /families.html#calendar
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-fall@danceandallthatjazz.com
-DTSTAMP:20261125T032810Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20261124
 DTEND;VALUE=DATE:20261130
 TRANSP:TRANSPARENT
 SUMMARY:Fall Break: studio closed
 LOCATION:No classes
-DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-test/fa
- milies.html#calendar
+DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
+ /families.html#calendar
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-revel@danceandallthatjazz.com
-DTSTAMP:20261125T032810Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20261205
 DTEND;VALUE=DATE:20261207
 TRANSP:TRANSPARENT
 SUMMARY:Revel Convention
 LOCATION:Itasca
 DESCRIPTION:Company families: details are in Company Central (Company passw
- ord).\nhttps://leighagrimm-web.github.io/datj-test/company-families.html
+ ord).\nhttps://leighagrimm-web.github.io/datj-concept/company-families.htm
+ l
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-auto3@danceandallthatjazz.com
-DTSTAMP:20261125T032810Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20261209
 DTEND;VALUE=DATE:20261210
 TRANSP:TRANSPARENT
 SUMMARY:Session 3 autopay
 LOCATION:Card on file
-DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-test/fa
- milies.html#calendar
+DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
+ /families.html#calendar
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-winter@danceandallthatjazz.com
-DTSTAMP:20261125T032810Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20261220
 DTEND;VALUE=DATE:20270104
 TRANSP:TRANSPARENT
 SUMMARY:Winter Break: studio closed
 LOCATION:No classes
-DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-test/fa
- milies.html#calendar
+DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
+ /families.html#calendar
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-s3@danceandallthatjazz.com
-DTSTAMP:20261125T032810Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270106
 DTEND;VALUE=DATE:20270107
 TRANSP:TRANSPARENT
 SUMMARY:Session 3 begins
 LOCATION:All classes
-DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-test/fa
- milies.html#calendar
+DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
+ /families.html#calendar
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-aud-signup@danceandallthatjazz.com
-DTSTAMP:20261125T032810Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270115
 DTEND;VALUE=DATE:20270116
 TRANSP:TRANSPARENT
 SUMMARY:Company sign-up deadline: New Member Auditions
 LOCATION:Google Form
-DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-test/fa
- milies.html#calendar
+DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
+ /families.html#calendar
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-lutheran@danceandallthatjazz.com
-DTSTAMP:20261125T032810Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270117
 DTEND;VALUE=DATE:20270118
 TRANSP:TRANSPARENT
 SUMMARY:Lutheran Home Performance & studio party
 LOCATION:2:00 PM
 DESCRIPTION:Company families: details are in Company Central (Company passw
- ord).\nhttps://leighagrimm-web.github.io/datj-test/company-families.html
+ ord).\nhttps://leighagrimm-web.github.io/datj-concept/company-families.htm
+ l
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-aud-new@danceandallthatjazz.com
-DTSTAMP:20261125T032810Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270117
 DTEND;VALUE=DATE:20270118
 TRANSP:TRANSPARENT
 SUMMARY:New Member Company Auditions
 LOCATION:At the studio
-DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-test/fa
- milies.html#calendar
+DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
+ /families.html#calendar
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-lou@danceandallthatjazz.com
-DTSTAMP:20261125T032810Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270203
 DTEND;VALUE=DATE:20270204
 TRANSP:TRANSPARENT
 SUMMARY:Lou Malnati’s Dining Fundraiser
 LOCATION:Lou Malnati’s
-DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-test/fa
- milies.html#calendar
+DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
+ /families.html#calendar
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-att-policy@danceandallthatjazz.com
-DTSTAMP:20261125T032810Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270203
 DTEND;VALUE=DATE:20270204
 TRANSP:TRANSPARENT
 SUMMARY:3-Miss Attendance Policy begins
-DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-test/fa
- milies.html#calendar
+DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
+ /families.html#calendar
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-auto4@danceandallthatjazz.com
-DTSTAMP:20261125T032810Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270303
 DTEND;VALUE=DATE:20270304
 TRANSP:TRANSPARENT
 SUMMARY:Session 4 autopay
 LOCATION:Card on file
-DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-test/fa
- milies.html#calendar
+DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
+ /families.html#calendar
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-s4@danceandallthatjazz.com
-DTSTAMP:20261125T032810Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270310
 DTEND;VALUE=DATE:20270311
 TRANSP:TRANSPARENT
 SUMMARY:Session 4 begins
 LOCATION:All classes
-DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-test/fa
- milies.html#calendar
+DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
+ /families.html#calendar
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-no-makeups@danceandallthatjazz.com
-DTSTAMP:20261125T032810Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270310
 DTEND;VALUE=DATE:20270311
 TRANSP:TRANSPARENT
 SUMMARY:No makeup classes for the rest of the season
-DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-test/fa
- milies.html#calendar
+DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
+ /families.html#calendar
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-vip@danceandallthatjazz.com
-DTSTAMP:20261125T032810Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270312
 DTEND;VALUE=DATE:20270314
 TRANSP:TRANSPARENT
 SUMMARY:Competition: VIP (Elgin)
 LOCATION:Elgin
 DESCRIPTION:Company families: details are in Company Central (Company passw
- ord).\nhttps://leighagrimm-web.github.io/datj-test/company-families.html
+ ord).\nhttps://leighagrimm-web.github.io/datj-concept/company-families.htm
+ l
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-obs-mar@danceandallthatjazz.com
-DTSTAMP:20261125T032810Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270314
 DTEND;VALUE=DATE:20270321
 TRANSP:TRANSPARENT
 SUMMARY:Observation Week
 LOCATION:At the studio
-DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-test/fa
- milies.html#calendar
+DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
+ /families.html#calendar
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-spring@danceandallthatjazz.com
-DTSTAMP:20261125T032810Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270321
 DTEND;VALUE=DATE:20270329
 TRANSP:TRANSPARENT
 SUMMARY:Spring Break: studio closed
 LOCATION:No classes
-DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-test/fa
- milies.html#calendar
+DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
+ /families.html#calendar
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-photo@danceandallthatjazz.com
-DTSTAMP:20261125T032810Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270404
 DTEND;VALUE=DATE:20270405
 TRANSP:TRANSPARENT
 SUMMARY:Studio photo shoot
 LOCATION:At the studio
 DESCRIPTION:Company families: details are in Company Central (Company passw
- ord).\nhttps://leighagrimm-web.github.io/datj-test/company-families.html
+ ord).\nhttps://leighagrimm-web.github.io/datj-concept/company-families.htm
+ l
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-hof@danceandallthatjazz.com
-DTSTAMP:20261125T032810Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270409
 DTEND;VALUE=DATE:20270411
 TRANSP:TRANSPARENT
 SUMMARY:Competition: Hall of Fame (Schaumburg)
 LOCATION:Schaumburg
 DESCRIPTION:Company families: details are in Company Central (Company passw
- ord).\nhttps://leighagrimm-web.github.io/datj-test/company-families.html
+ ord).\nhttps://leighagrimm-web.github.io/datj-concept/company-families.htm
+ l
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-wcte@danceandallthatjazz.com
-DTSTAMP:20261125T032810Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270416
 DTEND;VALUE=DATE:20270418
 TRANSP:TRANSPARENT
 SUMMARY:Competition: WCTE (Chicago)
 LOCATION:Chicago
 DESCRIPTION:Company families: details are in Company Central (Company passw
- ord).\nhttps://leighagrimm-web.github.io/datj-test/company-families.html
+ ord).\nhttps://leighagrimm-web.github.io/datj-concept/company-families.htm
+ l
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-bts@danceandallthatjazz.com
-DTSTAMP:20261125T032810Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270423
 DTEND;VALUE=DATE:20270425
 TRANSP:TRANSPARENT
 SUMMARY:Competition: BTS (Milwaukee)
 LOCATION:Milwaukee
 DESCRIPTION:Company families: details are in Company Central (Company passw
- ord).\nhttps://leighagrimm-web.github.io/datj-test/company-families.html
+ ord).\nhttps://leighagrimm-web.github.io/datj-concept/company-families.htm
+ l
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-soiree@danceandallthatjazz.com
-DTSTAMP:20261125T032810Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270502
 DTEND;VALUE=DATE:20270503
 TRANSP:TRANSPARENT
 SUMMARY:Company Soirée
 LOCATION:Chevy Chase Country Club
 DESCRIPTION:Company families: details are in Company Central (Company passw
- ord).\nhttps://leighagrimm-web.github.io/datj-test/company-families.html
+ ord).\nhttps://leighagrimm-web.github.io/datj-concept/company-families.htm
+ l
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-dress@danceandallthatjazz.com
-DTSTAMP:20261125T032810Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270519
 DTEND;VALUE=DATE:20270522
 TRANSP:TRANSPARENT
 SUMMARY:Dress rehearsals
 LOCATION:Wheeling High School
-DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-test/fa
- milies.html#calendar
+DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
+ /families.html#calendar
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-perf@danceandallthatjazz.com
-DTSTAMP:20261125T032810Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270522
 DTEND;VALUE=DATE:20270524
 TRANSP:TRANSPARENT
 SUMMARY:14th Annual Performance
 LOCATION:Wheeling High School
-DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-test/fa
- milies.html#calendar
+DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
+ /families.html#calendar
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-closed-summer@danceandallthatjazz.com
-DTSTAMP:20261125T032810Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270524
 DTEND;VALUE=DATE:20270614
 TRANSP:TRANSPARENT
 SUMMARY:Studio closed after the Annual Performance
-DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-test/fa
- milies.html#calendar
+DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
+ /families.html#calendar
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-aud-return@danceandallthatjazz.com
-DTSTAMP:20261125T032810Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270614
 DTEND;VALUE=DATE:20270619
 TRANSP:TRANSPARENT
 SUMMARY:Summer Intensives & Returning Company Member Auditions
 LOCATION:At the studio
-DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-test/fa
- milies.html#calendar
+DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
+ /families.html#calendar
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-summer-session@danceandallthatjazz.com
-DTSTAMP:20261125T032810Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270618
 DTEND;VALUE=DATE:20270801
 TRANSP:TRANSPARENT
 SUMMARY:Summer Session
 LOCATION:At the studio
-DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-test/fa
- milies.html#calendar
+DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
+ /families.html#calendar
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-new-season@danceandallthatjazz.com
-DTSTAMP:20261125T032810Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20270818
 DTEND;VALUE=DATE:20270819
 TRANSP:TRANSPARENT
 SUMMARY:New season begins
-DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-test/fa
- milies.html#calendar
+DESCRIPTION:Studio calendar: https://leighagrimm-web.github.io/datj-concept
+ /families.html#calendar
 END:VEVENT
 BEGIN:VEVENT
 UID:cal-disney@danceandallthatjazz.com
-DTSTAMP:20261125T032810Z
+DTSTAMP:20261125T032805Z
 DTSTART;VALUE=DATE:20271014
 DTEND;VALUE=DATE:20271018
 TRANSP:TRANSPARENT
 SUMMARY:Company trip: Walt Disney World
 LOCATION:Orlando\, FL
 DESCRIPTION:Company families: details are in Company Central (Company passw
- ord).\nhttps://leighagrimm-web.github.io/datj-test/company-families.html
+ ord).\nhttps://leighagrimm-web.github.io/datj-concept/company-families.htm
+ l
 END:VEVENT
 END:VCALENDAR
