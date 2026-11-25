@@ -6,6 +6,7 @@ on:
     - cron: '37 9 * * *'   # every night around 3:37 AM Central
   workflow_dispatch:
   push:
+    branches: [main]   # the live branch of each site (not the datj-concept test branch, which is built locally)
     paths: ['content.json', 'studio.ics', 'calendar.json', 'scripts/make-studio-ics.js', 'apps-script/calendar-feed.gs', '.github/workflows/studio-calendar.yml']
 permissions:
   contents: write
